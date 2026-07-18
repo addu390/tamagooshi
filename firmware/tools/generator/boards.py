@@ -16,7 +16,7 @@ BOARDS = {
         "config_offset": 0x310000,
         "caps": {"buttons": 2, "led": "single", "buzzer": True, "speaker": False,
                  "mic": True, "imu": True, "joystick": False, "haptics": False,
-                 "ir": True, "wearable": True},
+                 "ir": True, "wearable": True, "psram": False},
     },
     "m5stickc-plus-se": {
         "name": "M5StickC Plus SE",
@@ -29,7 +29,7 @@ BOARDS = {
         "config_offset": 0x310000,
         "caps": {"buttons": 2, "led": "single", "buzzer": True, "speaker": False,
                  "mic": True, "imu": False, "joystick": False, "haptics": False,
-                 "ir": True, "wearable": True},
+                 "ir": True, "wearable": True, "psram": False},
     },
     "m5sticks3": {
         "name": "M5StickS3",
@@ -42,7 +42,7 @@ BOARDS = {
         "config_offset": 0x650000,
         "caps": {"buttons": 2, "led": "single", "buzzer": False, "speaker": True,
                  "mic": True, "imu": True, "joystick": False, "haptics": False,
-                 "ir": True, "wearable": True},
+                 "ir": True, "wearable": True, "psram": True},
     },
 }
 

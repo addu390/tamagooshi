@@ -13,7 +13,7 @@ device:
     default: midnight
     enabled: all
   typeface:
-    default: pixel
+    default: dejavu
     enabled: all
   mascot:
     default: cat
@@ -23,3 +23,10 @@ device:
     enabled: all
   apps:
     enabled: all
+  buddy:
+    enabled: true
+
+hub:
+  agent:
+    default: cursor
+    enabled: [cursor, claude]

@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("bleak")
 
-from src.messaging.transport.ble import BleTransport, _frame
+from src.network.transport.ble import BleTransport, _frame
 
 
 def make_transport():
@@ -51,3 +51,25 @@ def test_enqueue_drops_oldest_when_full():
 
     assert t._queue.qsize() == BleTransport.QUEUE_LIMIT
     assert t._queue.get_nowait() == bytes([5])
+
+
+def test_nus_notify_reassembles_lines():
+    t = make_transport()
+    seen = []
+    t.on_line(seen.append)
+
+    data = b'{"cmd":"voice","seq":0}\n{"cmd":"voice_end"}\n'
+    for i in range(0, len(data), 7):
+        t._on_nus_notify(None, bytearray(data[i:i + 7]))
+
+    assert seen == ['{"cmd":"voice","seq":0}', '{"cmd":"voice_end"}']
+
+
+def test_nus_notify_strips_carriage_returns_and_blanks():
+    t = make_transport()
+    seen = []
+    t.on_line(seen.append)
+
+    t._on_nus_notify(None, bytearray(b"hello\r\n\n\nworld\n"))
+
+    assert seen == ["hello", "world"]

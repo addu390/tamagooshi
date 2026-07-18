@@ -12,8 +12,8 @@ device:
     default: slate
     enabled: [slate]
   typeface:
-    default: pixel
-    enabled: [pixel, dejavu]
+    default: dejavu
+    enabled: [dejavu, pixel]
   mascot:
     default: cat
     mood: happy
@@ -22,8 +22,13 @@ device:
     enabled: [runner, flappy]
   apps:
     enabled: [clock, stopwatch, flashlight, about]
+  buddy:
+    enabled: true
 
 hub:
+  agent:
+    default: cursor
+    enabled: [cursor, claude]
   sources: []
   moods: []
   alerts: []

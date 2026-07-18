@@ -13,6 +13,7 @@
   const TYPEFACES = CATALOG.typefaces;
   const GAMES = CATALOG.games;
   const APPS = CATALOG.apps;
+  const AGENTS = CATALOG.agents || [];
   const PACKS = CATALOG.packs;
   const BOARDS = CATALOG.boards;
   const TRANSPORTS = CATALOG.transports || { links: [["ble", ""]], protocols: { ble: [["gatt", ""]] } };
@@ -63,6 +64,9 @@
     mood: "happy",
     games: ids(GAMES),
     apps: ids(APPS),
+    buddy: true,
+    agents: ids(AGENTS),
+    agentDefault: prefer(ids(AGENTS), "cursor"),
     links: LINKS.reduce((m, [l]) => ((m[l] = l === "ble"), m), {}),
     linkProto: LINKS.reduce((m, [l]) => ((m[l] = protoIds(l)[0] || ""), m), {}),
     sources: [],
@@ -341,6 +345,7 @@
   const themeDefault = selectField("Default", () => orderBy(THEMES, state.themes), "themeDefault");
   const typefaceDefault = selectField("Default", () => orderBy(TYPEFACES.map((t) => t[0]), state.typefaces), "typefaceDefault");
   const mascotDefault = selectField("Default", () => packMembers(), "mascotDefault", true);
+  const agentDefault = selectField("Default agent", () => orderBy(AGENTS.map((a) => a[0]), state.agents), "agentDefault");
 
   function reconcile() {
     const th = orderBy(THEMES, state.themes);
@@ -349,9 +354,24 @@
     if (!tf.includes(state.typefaceDefault)) state.typefaceDefault = tf[0] || "";
     const mm = packMembers().map((m) => m[0]);
     if (!mm.includes(state.mascotDefault)) state.mascotDefault = mm[0] || "";
+    const ag = orderBy(AGENTS.map((a) => a[0]), state.agents);
+    if (!ag.includes(state.agentDefault)) state.agentDefault = ag[0] || "";
     themeDefault._fill();
     typefaceDefault._fill();
     mascotDefault._fill();
+    agentDefault._fill();
+  }
+
+  function buddyField() {
+    const cb = el("input", { type: "checkbox" });
+    cb.checked = state.buddy;
+    cb.addEventListener("change", () => { state.buddy = cb.checked; render(); });
+    const row = el("div", { class: "cfg-transport" }, [
+      cb,
+      el("span", { class: "cfg-transport-name", text: "ENABLED" }),
+      el("small", { text: "voice prompts and agent session on the device (needs BLE)" }),
+    ]);
+    return el("div", { class: "cfg-field" }, [fieldLabel("Buddy"), el("div", { class: "cfg-sub" }, [row])]);
   }
 
   function metricRow(src, m, onRemove) {
@@ -526,10 +546,18 @@
     o += "    enabled: " + list(orderBy(GAMES.map((g) => g[0]), state.games)) + "\n";
     o += "  apps:\n";
     o += "    enabled: " + list(orderBy(APPS.map((a) => a[0]), state.apps)) + "\n";
+    o += "  buddy:\n";
+    o += "    enabled: " + (state.buddy ? "true" : "false") + "\n";
     if (state.timezone.trim()) o += '  timezone: "' + state.timezone.trim() + '"\n';
 
-    if (state.sources.length || state.moods.length || state.alerts.length) {
+    const agentSection = state.buddy && state.agents.length;
+    if (agentSection || state.sources.length || state.moods.length || state.alerts.length) {
       o += "\nhub:\n";
+      if (agentSection) {
+        o += "  agent:\n";
+        o += "    default: " + state.agentDefault + "\n";
+        o += "    enabled: " + list(orderBy(AGENTS.map((a) => a[0]), state.agents)) + "\n";
+      }
       if (state.sources.length) {
         o += "  sources:\n";
         state.sources.forEach((src) => {
@@ -617,6 +645,11 @@
     ], true),
     group("Games", [el("div", { class: "cfg-field" }, [el("label", { text: "Enabled" }), multiselect(GAMES, "games")])]),
     group("Apps", [el("div", { class: "cfg-field" }, [el("label", { text: "Enabled" }), multiselect(APPS, "apps")])]),
+    group("Agent buddy", [
+      buddyField(),
+      agentDefault,
+      el("div", { class: "cfg-field" }, [fieldLabel("Agents"), multiselect(AGENTS, "agents", reconcile)]),
+    ]),
     group("Device", [transportsField(), tzField]),
     group("Sources & metrics", [sourcesRep]),
     group("Moods", [moodsRep]),

@@ -218,7 +218,7 @@ def _emit_mascots(out_dir, ids, customs, base_dir):
                engine.sprite_header(m, base_dir))
 
     every = [*ids, *[m["id"] for m in customs]]
-    lines = ['#pragma once', '', '#include "registry.h"', '']
+    lines = ['#pragma once', '', '#include "mascots/registry.h"', '']
     lines += [f'#include "mascots/{i}.h"' for i in every]
     lines += ['', 'namespace tama::characters {', '',
               'inline void registerGenerated(CharacterRegistry& registry) {']
@@ -244,8 +244,8 @@ def _emit_typefaces(out_dir, typefaces):
             includes.append(inc)
     rows = []
     for name, spec in typefaces:
-        micro, body, title = spec["roles"]
-        rows.append(f'    {{{_cstr(name)}, {micro}, {body}, {title}}},')
+        micro, body, title, display = spec["roles"]
+        rows.append(f'    {{{_cstr(name)}, {micro}, {body}, {title}, {display}}},')
     lines = ['#pragma once', '']
     lines += [f'#include {inc}' for inc in includes]
     if includes:
@@ -293,7 +293,8 @@ def _minify_html(text):
 
 
 def _emit_boards(out_dir):
-    flags = ("buzzer", "speaker", "mic", "imu", "joystick", "haptics", "ir", "wearable")
+    flags = ("buzzer", "speaker", "mic", "imu", "joystick", "haptics", "ir", "wearable",
+             "psram")
     lines = ['#pragma once', '', '#include "model.h"', '', 'namespace tama::board {', '']
     for i, (bid, b) in enumerate(BOARDS.items()):
         guard = "#if" if i == 0 else "#elif"
@@ -336,7 +337,7 @@ def _emit_portal(out_dir):
 
 
 def _emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_typeface,
-                default_mood, tz_offset_min, games, apps, logo_id, dev_name):
+                default_mood, tz_offset_min, games, apps, logo_id, dev_name, buddy):
     ident = data.get("brand") or {}
     lines = ['#pragma once', '',
              f'#define TAMA_BRAND_ID {_cstr(ident.get("id", brand_id))}',
@@ -353,6 +354,8 @@ def _emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_
              f'#define TAMA_TZ_OFFSET_MIN {int(tz_offset_min)}', '']
     lines += [f'#define {GAME_MACRO[g]} 1' for g in games]
     lines += [f'#define {APP_MACRO[a]} 1' for a in apps]
+    if buddy:
+        lines += ['#define TAMA_ENABLE_BUDDY 1']
     lines += ['',
               '#include "model.h"', '#include "theme.h"', '#include "typeface.h"', '',
               'namespace tama::brand {', '',
@@ -392,7 +395,9 @@ def generate(brand_id, brands_dir, out_dir, dev_name=""):
     typefaces, default_typeface = _select_typefaces(device.get("typeface") or {})
     games = _select_games(device.get("games") or {})
     apps = _select_apps(device.get("apps") or {})
-    transports = transport_macros(parse_transports(device.get("transports")))
+    spec = parse_transports(device.get("transports"))
+    transports = transport_macros(spec)
+    buddy = bool((device.get("buddy") or {}).get("enabled", True)) and "ble" in spec
     tz_offset_min = _tz_minutes(device.get("timezone"))
     default_mood = mascot.get("mood", "happy")
 
@@ -403,7 +408,7 @@ def generate(brand_id, brands_dir, out_dir, dev_name=""):
     _emit_portal(out_dir)
     logo_id = _emit_logo(out_dir, data, base_dir, (data.get("brand") or {}).get("id", brand_id))
     _emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_typeface,
-                default_mood, tz_offset_min, games, apps, logo_id, dev_name)
+                default_mood, tz_offset_min, games, apps, logo_id, dev_name, buddy)
     return transports
 
 

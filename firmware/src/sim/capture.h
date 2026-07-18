@@ -8,14 +8,14 @@
 
 namespace tama {
 class Runtime;
-class ClaudeSession;
+class AgentSession;
 }  // namespace tama
 
 namespace tama::sim {
 
 class CaptureHarness {
  public:
-  CaptureHarness(Runtime& runtime, ClaudeSession& session);
+  explicit CaptureHarness(Runtime& runtime, AgentSession* session = nullptr);
 
   void init();
   void beforeFrame(uint32_t nowMs);
@@ -38,7 +38,7 @@ class CaptureHarness {
   void writePPM(const char* path) const;
 
   Runtime& runtime_;
-  ClaudeSession& session_;
+  AgentSession* session_;
 
   std::vector<ScriptStep> script_;
   std::vector<BuddyStep> buddy_;

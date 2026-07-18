@@ -2,9 +2,9 @@ import pytest
 import yaml
 
 from src.config import hub_config_from_manifest, load_config, resolve_brand
-from src.sources import parse_sources
-from src.sources.datadog import DatadogSourceConfig
-from src.sources.posthog import PosthogSourceConfig
+from src.services.sources import parse_sources
+from src.services.sources.datadog import DatadogSourceConfig
+from src.services.sources.posthog import PosthogSourceConfig
 
 
 def test_parse_sources_dispatches_by_type():

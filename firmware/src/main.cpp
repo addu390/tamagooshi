@@ -6,9 +6,13 @@
 
 #include "board.gen.h"
 #include "brand.gen.h"
-#include "buddy/claude/commands.h"
-#include "buddy/claude/session.h"
+#if defined(TAMA_ENABLE_BUDDY)
+#include "buddy/agent/commands.h"
+#include "buddy/agent/session.h"
 #include "buddy/controller.h"
+#include "buddy/voice/controller.h"
+#include "buddy/voice/uplink.h"
+#endif
 #include "hal/identity.h"
 #include "hal/m5_buttons.h"
 #include "hal/m5_config.h"
@@ -22,12 +26,14 @@
 #include "input.h"
 #include "json.h"
 #include "runtime.h"
-#include "source.h"
+#include "channels.h"
 #include "topics.h"
 #include "ulid.h"
 
 #if defined(TAMA_ENABLE_BLE)
 #include "ble/ble.h"
+#endif
+#if defined(TAMA_ENABLE_BUDDY)
 #include "transport/nus.h"
 #endif
 #if defined(TAMA_PROTO_GATT)
@@ -68,12 +74,21 @@ static Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_system
 
 #if defined(TAMA_ENABLE_BLE)
 static BleBearer g_ble(TAMA_BRAND_ID, TAMA_FW_VERSION);
-static NusEndpoint g_nus(g_ble);
-static BuddyController g_buddyController(g_runtime.state());
-static ClaudeCommands g_claudeCommands(g_ble, g_telemetry, g_runtime.state());
-static ClaudeSession g_claudeSession(g_nus, g_buddyController, g_claudeCommands);
 #else
 static NullLink g_nullLink;
+#endif
+
+#if defined(TAMA_ENABLE_BUDDY)
+// ADPCM is 4 bits per 16 kHz sample, so one second of speech buffers as 8000 bytes.
+static size_t voiceCapacity() { return (board::capabilities().psram ? 15 : 5) * 8000; }
+
+static NusEndpoint g_nus(g_ble);
+static BuddyController g_buddyController(g_runtime.state());
+static VoiceController g_voiceController(g_runtime.state());
+static VoiceUplink g_voiceUplink(g_nus, g_runtime.state(), voiceCapacity());
+static AgentCommands g_agentCommands(g_ble, g_telemetry, g_runtime.state());
+static AgentSession g_agentSession(g_nus, g_buddyController, g_agentCommands, g_voiceController,
+                                   g_voiceUplink);
 #endif
 
 #if defined(TAMA_PROTO_GATT)
@@ -101,10 +116,10 @@ static ITransport& g_hubTransport = g_hub;
 static HubPipeline g_hubPipeline(g_hubTransport, g_codec, g_runtime.router(), g_board, g_deviceId,
                                  TAMA_FW_VERSION);
 
-static void configureSources() {
+static void configureChannels() {
   auto hubResolver = makeHubResolver(g_hubTransport, g_codec, g_deviceId);
 
-  SourceBinding binding;
+  ChannelBinding binding;
   binding.hub = {&g_hubTransport, &g_hubPipeline};
 
 #if defined(TAMA_ENABLE_WIFI)
@@ -112,22 +127,31 @@ static void configureSources() {
 #endif
 
 #if defined(TAMA_ENABLE_BLE)
-  g_ble.add(g_nus);
 #if defined(TAMA_PROTO_GATT)
   g_ble.add(g_hub);
 #endif
   binding.link = &g_ble;
-  binding.claude = {&g_nus, &g_claudeSession};
+#else
+  binding.link = &g_nullLink;
+#endif
 
-  auto claudeResolver = makeClaudeResolver(g_claudeSession);
-  binding.resolvePrompt = [hubResolver, claudeResolver](const Page& page, PromptOutcome outcome) {
-    if (page.source == "claude")
-      claudeResolver(page.id, outcome);
+#if defined(TAMA_ENABLE_BUDDY)
+  g_ble.add(g_nus);
+  binding.agent = {&g_nus, &g_agentSession};
+  binding.voice = &g_voiceUplink;
+
+  auto agentResolver = makeAgentResolver(g_agentSession);
+  auto voiceResolver = makeVoiceResolver(g_agentSession);
+  binding.resolvePrompt = [hubResolver, agentResolver,
+                           voiceResolver](const Page& page, PromptOutcome outcome) {
+    if (page.source == "agent")
+      agentResolver(page.id, outcome);
+    else if (page.source == "voice")
+      voiceResolver(page.id, outcome);
     else
       hubResolver(page.id, outcome);
   };
 #else
-  binding.link = &g_nullLink;
   binding.resolvePrompt = [hubResolver](const Page& page, PromptOutcome outcome) {
     hubResolver(page.id, outcome);
   };
@@ -152,7 +176,7 @@ void setup() {
   sys.flash_kb = ESP.getFlashChipSize() / 1024;
   sys.heap_total_kb = ESP.getHeapSize() / 1024;
 
-  configureSources();
+  configureChannels();
 
 #if defined(TAMA_ENABLE_WIFI)
   WifiCredentials seed{TAMA_WIFI_SSID, TAMA_WIFI_PASSWORD};

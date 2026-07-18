@@ -7,7 +7,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ValidationError
 
-from ..domain import Mood, Severity
+from ..model import Mood, Severity
 
 PROTOCOL_VERSION = 1
 

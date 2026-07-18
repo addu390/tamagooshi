@@ -4,7 +4,7 @@ import os
 
 import yaml
 
-from ..sources import parse_sources
+from ..services.sources import parse_sources
 from .scenes import apply_scene
 from .models import HubConfig
 
@@ -50,8 +50,13 @@ def hub_config_from_manifest(data: dict, device_id: str = "sim") -> HubConfig:
     theme = device.get("theme") or {}
     mascot = device.get("mascot") or {}
 
+    agent = hub.get("agent") or {}
     cfg = HubConfig.model_validate({
         "device_id": device_id,
+        "agent": {
+            "default": agent.get("default", "cursor"),
+            "enabled": agent.get("enabled") or [],
+        },
         "brand": {
             "name": brand.get("name", "TAMAGOOSHI"),
             "tagline": brand.get("tagline"),

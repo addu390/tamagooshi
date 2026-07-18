@@ -219,7 +219,7 @@ def resolve(m, base_dir):
 def sprite_header(m, base_dir):
     pal, frames, ncol = resolve(m, base_dir)
     single = len(frames) == 1
-    lines = ["#pragma once", "", '#include "sprite.h"', "",
+    lines = ["#pragma once", "", '#include "mascots/sprite.h"', "",
              f'namespace tama::sprites::{m["id"]} {{', "",
              f"inline constexpr int kW = {W};", f"inline constexpr int kH = {H};"]
     palvals = ", ".join("0x%04X" % (rgb565(pal[i]) if pal.get(i) else 0) for i in range(ncol))

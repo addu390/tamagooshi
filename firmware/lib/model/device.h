@@ -9,6 +9,7 @@
 #include "mascot.h"
 #include "metric.h"
 #include "pager.h"
+#include "voice.h"
 
 namespace tama {
 
@@ -47,6 +48,7 @@ struct DeviceCapabilities {
   bool haptics = false;
   bool ir = false;
   bool wearable = false;
+  bool psram = false;
 };
 
 struct Branding {
@@ -118,6 +120,8 @@ struct DeviceState {
   std::vector<Metric> metrics;
   std::optional<Page> prompt;
   BuddyState buddy;
+  VoiceChat voice;
+  AgentRoster agents;
   Mood mood = Mood::Neutral;
   std::string mood_reason;
   std::string character_id;
@@ -135,7 +139,7 @@ struct DeviceState {
   bool voice_active = false;
   bool connected = false;
   bool hub_connected = false;
-  bool claude_connected = false;
+  bool agent_connected = false;
   bool dirty = false;
 
   void upsertMetric(const Metric& m);

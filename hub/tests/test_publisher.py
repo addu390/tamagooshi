@@ -1,9 +1,9 @@
 import json
 
 from src.config import BrandConfig
-from src.domain import AlertRule, Condition
-from src.messaging import Publisher
-from src.domain import MetricUpdate
+from src.model import AlertRule, Condition
+from src.network import Publisher
+from src.model import MetricUpdate
 from src.wire import topics
 
 

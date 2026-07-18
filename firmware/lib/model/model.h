@@ -6,3 +6,4 @@
 #include "metric.h"
 #include "pager.h"
 #include "pet.h"
+#include "voice.h"

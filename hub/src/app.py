@@ -5,11 +5,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from .features.buddy import create_bridge
 from .config import HubConfig, load_config
-from .messaging import InboundRegistry, InboundRouter, Publisher
-from .messaging.transport import create_transport
-from .pipeline import Pipeline
-from .worker import Worker
+from .network import InboundRegistry, InboundRouter, Publisher
+from .network.transport import create_transport
+from .services.metrics import Pipeline
+from .services.worker import Worker
 
 log = logging.getLogger("tamagooshi.app")
 
@@ -30,6 +31,9 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
         router.on("page.ack", lambda _topic, env: pipeline.acknowledge(env))
 
         publisher.on_inbound(router.handle)
+        bridge = create_bridge(transport, config.agent)
+        if bridge is not None:
+            bridge.start()
         publisher.connect()
         await worker.start()
 
@@ -38,10 +42,13 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
         app.state.publisher = publisher
         app.state.pipeline = pipeline
         app.state.worker = worker
+        app.state.bridge = bridge
         try:
             yield
         finally:
             await worker.stop()
+            if bridge is not None:
+                await bridge.stop()
             publisher.close()
 
     app = FastAPI(title="Tamagooshi Hub", version="0.1.0", lifespan=lifespan)

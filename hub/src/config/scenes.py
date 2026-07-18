@@ -4,8 +4,8 @@ import os
 
 import yaml
 
-from ..domain import AlertRule, MoodRule
-from ..sources import parse_sources
+from ..model import AlertRule, MoodRule
+from ..services.sources import parse_sources
 from .models import HubConfig
 
 

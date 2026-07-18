@@ -31,12 +31,12 @@ window.TAMA_CATALOG = {
   ],
   "typefaces": [
     [
-      "pixel",
-      "Pixel bitmap"
-    ],
-    [
       "dejavu",
       "Smooth DejaVu"
+    ],
+    [
+      "pixel",
+      "Pixel bitmap"
     ]
   ],
   "games": [
@@ -77,6 +77,16 @@ window.TAMA_CATALOG = {
     [
       "about",
       "Device info"
+    ]
+  ],
+  "agents": [
+    [
+      "cursor",
+      "Cursor agent via cursor-sdk"
+    ],
+    [
+      "claude",
+      "Claude agent via claude-agent-sdk"
     ]
   ],
   "packs": {

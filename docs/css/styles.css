@@ -320,6 +320,7 @@ tr.ext code { color: var(--muted); border-style: dashed; background: transparent
 .cfg-yaml { margin: 0; border: 0; border-radius: 0; max-height: 640px; overflow: auto; white-space: pre; padding: 14px 16px; }
 .cfg-sub { display: flex; flex-direction: column; gap: 10px; }
 .cfg-transport { display: flex; align-items: center; gap: 8px; }
+.cfg-transport input[type="checkbox"] { width: auto; min-width: 0; flex: none; margin: 0; padding: 0; accent-color: var(--accent); }
 .cfg-transport-name { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
 .cfg-transport small { color: var(--muted); font-size: 11px; }
 .cfg-proto { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; }

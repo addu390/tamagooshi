@@ -12,9 +12,16 @@
 
 #include "adapters.h"
 #include "board.gen.h"
-#include "buddy/claude/commands.h"
-#include "buddy/claude/session.h"
+#include "brand.gen.h"
+#include <ArduinoJson.h>
+
+#if defined(TAMA_ENABLE_BUDDY)
+#include "buddy/agent/commands.h"
+#include "buddy/agent/session.h"
 #include "buddy/controller.h"
+#include "buddy/voice/controller.h"
+#include "buddy/voice/uplink.h"
+#endif
 #include "capture.h"
 #include "hal/m5_buttons.h"
 #include "hal/profile.h"
@@ -26,7 +33,7 @@
 #include "transport.h"
 #include "mqtt.h"
 #include "runtime.h"
-#include "source.h"
+#include "channels.h"
 #include "telemetry.h"
 #include "ulid.h"
 #include "wifi/control.h"
@@ -122,7 +129,7 @@ class SimWifi : public IWifiControl {
   }
   void provision() override { provisioning_ = true; }
   bool provisioning() const override { return provisioning_; }
-  std::string portal() const override { return "Claude-gooshi-a1b2"; }
+  std::string portal() const override { return "gooshi-setup"; }
 
   void configure(bool enabled, bool provisioning, std::vector<std::string> nets,
                  std::string active) {
@@ -148,26 +155,94 @@ class SimMic : public IMicSource {
   }
   int level() override {
     if (!active_) return 0;
+    return loud() ? levelTo(700) : levelTo(0);
+  }
+
+  bool startRecord() override {
+    if (!active_) return false;
+    start_ms_ = m5gfx::millis();
+    produced_ = 0;
+    return true;
+  }
+
+  size_t readRecord(int16_t* out, size_t maxSamples) override {
+    if (!active_) return 0;
+    const uint64_t due = (m5gfx::millis() - start_ms_) * recordRate() / 1000;
+    if (produced_ >= due) return 0;
+    const size_t n = std::min<size_t>(maxSamples, static_cast<size_t>(due - produced_));
+    const int amp = loud() ? 9000 : 500;
+    for (size_t i = 0; i < n; ++i) {
+      const uint64_t t = produced_ + i;
+      out[i] = static_cast<int16_t>(((t * 440 * 64 / recordRate()) % 64 < 32) ? amp : -amp);
+    }
+    produced_ += n;
+    return n;
+  }
+
+  void stopRecord() override {}
+
+ private:
+  static bool loud() {
     int n = 0;
     const Uint8* ks = SDL_GetKeyboardState(&n);
-    const bool loud = ks && ks[SDL_SCANCODE_UP];
-    level_ += ((loud ? 700 : 0) - level_) / 3;
+    return ks && ks[SDL_SCANCODE_UP];
+  }
+
+  int levelTo(int target) {
+    level_ += (target - level_) / 3;
     return level_;
   }
 
- private:
   bool active_ = false;
   int level_ = 0;
+  uint32_t start_ms_ = 0;
+  uint64_t produced_ = 0;
 };
 
+#if defined(TAMA_ENABLE_BUDDY)
+class SimVoiceHost : public ILineSink {
+ public:
+  void bind(AgentSession& session) { session_ = &session; }
+
+  void send(const std::string& line) override {
+    if (session_ == nullptr) return;
+    JsonDocument doc;
+    if (deserializeJson(doc, line) != DeserializationError::Ok) return;
+    const std::string cmd = doc["cmd"] | "";
+    if (cmd == "agents") {
+      session_->onInbound(
+          "", "{\"evt\":\"agents\",\"enabled\":[\"cursor\",\"claude\"],\"default\":\"cursor\"}");
+    } else if (cmd == "voice_end") {
+      const std::string agent = doc["agent"] | "cursor";
+      session_->onInbound(
+          "", "{\"evt\":\"transcript\",\"id\":\"sim_v1\",\"text\":\"what changed in the repo "
+              "since yesterday?\",\"agent\":\"" + agent + "\"}");
+    } else if (cmd == "permission" && std::string(doc["id"] | "") == "sim_v1") {
+      if (std::string(doc["decision"] | "") != "once") return;
+      session_->onInbound("",
+                          "{\"evt\":\"reply\",\"text\":\"Three commits landed: the board catalog "
+                          "gained a psram flag, \",\"done\":false}");
+      session_->onInbound("",
+                          "{\"evt\":\"reply\",\"text\":\"the mic HAL grew a record API, and the "
+                          "docs got a voice section.\",\"done\":true}");
+    }
+  }
+
+ private:
+  AgentSession* session_ = nullptr;
+};
+#endif  // TAMA_ENABLE_BUDDY
+
 SimTransport g_sim;
-SimTransport g_claudeConn;
+SimTransport g_agentConn;
 MqttSimTransport g_mqtt;
 TransportProxy g_transport;
 NullExpression g_expression;
 SimLink g_simLink;
 SimWifi g_simWifi;
-NullLineSink g_lineSink;
+#if defined(TAMA_ENABLE_BUDDY)
+SimVoiceHost g_lineSink;
+#endif
 SimTelemetry g_telemetry;
 M5Buttons g_buttons;
 NullInputSource g_input;
@@ -182,32 +257,41 @@ SimSystemControl g_systemControl;
 Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_systemControl, g_buttons, g_input,
                   g_sensor, g_telemetry, g_mic, g_config);
 HubPipeline g_hubPipeline(g_transport, g_codec, g_runtime.router(), g_board, kSimId, "0.1.0-sim");
+#if defined(TAMA_ENABLE_BUDDY)
 BuddyController g_buddyController(g_runtime.state());
-ClaudeCommands g_claudeCommands(g_simLink, g_telemetry, g_runtime.state());
-ClaudeSession g_claudeSession(g_lineSink, g_buddyController, g_claudeCommands);
-sim::CaptureHarness g_capture(g_runtime, g_claudeSession);
+VoiceController g_voiceController(g_runtime.state());
+VoiceUplink g_voiceUplink(g_lineSink, g_runtime.state(), 15 * 8000);
+AgentCommands g_agentCommands(g_simLink, g_telemetry, g_runtime.state());
+AgentSession g_agentSession(g_lineSink, g_buddyController, g_agentCommands, g_voiceController,
+                            g_voiceUplink);
+sim::CaptureHarness g_capture(g_runtime, &g_agentSession);
+#else
+sim::CaptureHarness g_capture(g_runtime);
+#endif
 
-void feedClaude(const char* scenario) {
-  g_claudeSession.onInbound("", "{\"cmd\":\"owner\",\"name\":\"John\"}");
+#if defined(TAMA_ENABLE_BUDDY)
+void feedBuddy(const char* scenario) {
+  g_agentSession.onInbound("", "{\"cmd\":\"owner\",\"name\":\"John\"}");
 
   const std::string s = scenario ? scenario : "working";
   if (s == "idle") {
-    g_claudeSession.onInbound(
+    g_agentSession.onInbound(
         "", "{\"total\":0,\"running\":0,\"waiting\":0,\"tokens\":184502,\"tokens_today\":31200}");
   } else if (s == "waiting" || s == "approve" || s == "deny") {
-    g_claudeSession.onInbound(
+    g_agentSession.onInbound(
         "",
         "{\"total\":3,\"running\":1,\"waiting\":1,\"msg\":\"approve: Bash\",\"entries\":[\"10:42 "
         "git push\"],\"tokens\":184502,\"tokens_today\":31200,\"prompt\":{\"id\":\"req_abc123\","
         "\"tool\":\"Bash\",\"hint\":\"rm -rf /tmp/foo\"}}");
   } else {
-    g_claudeSession.onInbound(
+    g_agentSession.onInbound(
         "",
         "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"editing files\",\"entries\":[\"10:42 git "
         "push\",\"10:41 yarn test\",\"10:39 reading file...\"],\"tokens\":184502,\"tokens_today\":"
         "31200}");
   }
 }
+#endif  // TAMA_ENABLE_BUDDY
 
 void pollKeys() {
   int n = 0;
@@ -242,7 +326,6 @@ void setup() {
     }
   }
 
-  const char* claude = std::getenv("TAMA_CLAUDE");
   const char* broker = std::getenv("TAMA_BROKER");
 
   g_transport.bind(broker && g_mqtt.tryConnect(broker, kSimId)
@@ -250,7 +333,6 @@ void setup() {
                        : static_cast<ITransport*>(&g_sim));
 
   auto hubResolver = makeHubResolver(g_transport, g_codec, kSimId);
-  auto claudeResolver = makeClaudeResolver(g_claudeSession);
 
   if (const char* bt = std::getenv("TAMA_BT")) {
     const std::string s = bt;
@@ -267,26 +349,42 @@ void setup() {
     }
   }
 
-  SourceBinding binding;
+  ChannelBinding binding;
   binding.link = &g_simLink;
   binding.wifi = &g_simWifi;
   binding.hub = {&g_transport, &g_hubPipeline};
-  binding.claude = {&g_claudeConn, &g_claudeSession};
-  binding.resolvePrompt = [hubResolver, claudeResolver](const Page& page, PromptOutcome outcome) {
-    if (page.source == "claude")
-      claudeResolver(page.id, outcome);
+#if defined(TAMA_ENABLE_BUDDY)
+  auto agentResolver = makeAgentResolver(g_agentSession);
+  auto voiceResolver = makeVoiceResolver(g_agentSession);
+  binding.agent = {&g_agentConn, &g_agentSession};
+  binding.voice = &g_voiceUplink;
+  binding.resolvePrompt = [hubResolver, agentResolver,
+                           voiceResolver](const Page& page, PromptOutcome outcome) {
+    if (page.source == "agent")
+      agentResolver(page.id, outcome);
+    else if (page.source == "voice")
+      voiceResolver(page.id, outcome);
     else
       hubResolver(page.id, outcome);
   };
+#else
+  binding.resolvePrompt = [hubResolver](const Page& page, PromptOutcome outcome) {
+    hubResolver(page.id, outcome);
+  };
+#endif
   g_runtime.bind(binding);
+#if defined(TAMA_ENABLE_BUDDY)
+  g_lineSink.bind(g_agentSession);
+#endif
 
   g_runtime.begin();
   g_runtime.nav().add(screens::wifi());
 
-  if (claude) {
-    feedClaude(claude);
+#if defined(TAMA_ENABLE_BUDDY)
+  if (const char* scenario = std::getenv("TAMA_BUDDY_STATE")) {
+    feedBuddy(scenario);
     g_runtime.nav().start("buddy");
-    const std::string sc = claude;
+    const std::string sc = scenario;
     if (sc == "approve") {
       g_runtime.nav().dispatch(Intent::Select);
     } else if (sc == "deny") {
@@ -294,6 +392,7 @@ void setup() {
       g_runtime.nav().dispatch(Intent::Select);
     }
   }
+#endif
 
   if (const char* start = std::getenv("TAMA_START")) {
     g_runtime.nav().start(start);

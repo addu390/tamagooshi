@@ -1,6 +1,6 @@
 """Builds the runtime-config blob (usage: blob.py <brand-config.yaml> <out.bin>).
 
-The TMG1 wire format must stay in lockstep with firmware/lib/app/config.cpp and
+The TMG1 wire format must stay in lockstep with firmware/lib/core/config.cpp and
 docs/js/config-builder.js.
 """
 

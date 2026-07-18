@@ -1,0 +1,34 @@
+#pragma once
+
+#include <functional>
+#include <string>
+
+#include "mascots/character.h"
+#include "input.h"
+#include "mascots/registry.h"
+#include "mascot.h"
+#include "model.h"
+#include "transport.h"
+#include "wifi/control.h"
+
+namespace tama {
+
+using PromptResolver = std::function<void(const Page& page, PromptOutcome outcome)>;
+
+struct ShellContext {
+  DeviceState& state;
+  PetState& pet;
+  const DeviceCapabilities& caps;
+  CharacterRegistry& characters;
+  Character* character;
+  MascotState mascot;
+  bool promptActive;
+  PromptResolver resolvePrompt;
+  ILink& link;
+  IWifiControl* wifi;
+  IMicSource& mic;
+  ISensorSource& sensor;
+  IVoiceUplink* voice;
+};
+
+}  // namespace tama

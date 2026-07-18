@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 
@@ -49,6 +50,10 @@ class IMicSource {
   virtual void begin() = 0;
   virtual void end() = 0;
   virtual int level() = 0;
+  virtual bool startRecord() { return false; }
+  virtual size_t readRecord(int16_t*, size_t) { return 0; }
+  virtual void stopRecord() {}
+  virtual uint32_t recordRate() const { return 16000; }
 };
 
 class NullInputSource : public IInputSource {

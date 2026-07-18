@@ -18,6 +18,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+voice = [
+    "faster-whisper>=1.2",
+]
+cursor = [
+    "cursor-sdk>=0.1.9",
+]
+claude = [
+    "claude-agent-sdk>=0.2.121",
+]
 dev = [
     "pytest>=8.0",
 ]

@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import os
 import sys
@@ -15,6 +16,16 @@ from typefaces import TYPEFACES
 
 LINK_DESC = {"ble": "Bluetooth LE, always on", "wifi": "Wi-Fi"}
 PROTOCOL_DESC = {"gatt": "GATT (native)", "mqtt": "MQTT"}
+
+
+def _agents():
+    here = os.path.dirname(os.path.abspath(__file__))
+    repo = os.path.abspath(os.path.join(here, "..", "..", ".."))
+    path = os.path.join(repo, "hub", "src", "features", "buddy", "agents", "catalog.py")
+    spec = importlib.util.spec_from_file_location("tama_agent_catalog", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return [[aid, label] for aid, label in module.AGENTS.items()]
 
 
 def _default_logo(brand="gooshi"):
@@ -43,6 +54,7 @@ def catalog():
         "typefaces": [[tid, spec.get("label", tid)] for tid, spec in TYPEFACES.items()],
         "games": [[gid, meta.get("desc", gid)] for gid, meta in GAMES.items() if not meta.get("soon")],
         "apps": [[aid, meta.get("desc", aid)] for aid, meta in APPS.items()],
+        "agents": _agents(),
         "packs": {name: [[mid, MASCOTS[mid]["label"]] for mid in ids]
                   for name, ids in MASCOT_CATEGORIES.items()},
         "transports": {

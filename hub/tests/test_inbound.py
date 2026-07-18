@@ -1,4 +1,4 @@
-from src.messaging import InboundRegistry, InboundRouter
+from src.network import InboundRegistry, InboundRouter
 from src.wire.protocol import PageAck, envelope
 
 

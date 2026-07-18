@@ -2,7 +2,7 @@ import asyncio
 
 import httpx
 
-from src.sources.datadog import DatadogMetric, DatadogSource, DatadogSourceConfig
+from src.services.sources.datadog import DatadogMetric, DatadogSource, DatadogSourceConfig
 
 
 def _cfg(**over) -> DatadogSourceConfig:

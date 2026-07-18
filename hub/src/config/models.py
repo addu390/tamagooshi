@@ -4,13 +4,18 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, SerializeAsAny
 
-from ..domain import AlertRule, Mood, MoodRule
-from ..sources import SourceConfigBase
+from ..model import AlertRule, Mood, MoodRule
+from ..services.sources import SourceConfigBase
 
 
 class BrokerConfig(BaseModel):
     host: str = "localhost"
     port: int = 1883
+
+
+class AgentConfig(BaseModel):
+    default: str = "cursor"
+    enabled: List[str] = Field(default_factory=list)
 
 
 class BrandConfig(BaseModel):
@@ -27,6 +32,7 @@ class HubConfig(BaseModel):
     broker: BrokerConfig = Field(default_factory=BrokerConfig)
     device_id: str = "sim"
     brand: BrandConfig = Field(default_factory=BrandConfig)
+    agent: AgentConfig = Field(default_factory=AgentConfig)
     default_mood: Mood = "happy"
     sources: SerializeAsAny[List[SourceConfigBase]] = Field(default_factory=list)
     moods: List[MoodRule] = Field(default_factory=list)

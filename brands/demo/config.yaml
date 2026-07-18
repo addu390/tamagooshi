@@ -11,16 +11,21 @@ device:
     default: midnight
     enabled: [midnight, slate, espresso, timex]
   typeface:
-    default: pixel
-    enabled: [pixel, dejavu]
+    default: dejavu
+    enabled: [dejavu, pixel]
   mascot:
     default: cat
     mood: happy
     enabled: [pals]
   games:
     enabled: [runner, flappy, delivery]
+  buddy:
+    enabled: true
 
 hub:
+  agent:
+    default: cursor
+    enabled: [cursor, claude]
   sources:
     - type: demo
       interval_secs: 1.0

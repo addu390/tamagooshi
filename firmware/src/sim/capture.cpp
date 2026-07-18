@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "buddy/claude/session.h"
+#include "buddy/agent/session.h"
 #include "runtime.h"
 
 namespace tama::sim {
@@ -27,12 +27,14 @@ Intent intentFromName(const std::string& s) {
 
 }  // namespace
 
-CaptureHarness::CaptureHarness(Runtime& runtime, ClaudeSession& session)
+CaptureHarness::CaptureHarness(Runtime& runtime, AgentSession* session)
     : runtime_(runtime), session_(session) {}
 
 void CaptureHarness::init() {
   if (const char* spec = std::getenv("TAMA_INPUT")) parseScript(spec);
-  if (const char* mode = std::getenv("TAMA_BUDDY")) loadBuddyArc(mode);
+  if (const char* mode = std::getenv("TAMA_BUDDY")) {
+    if (session_ != nullptr) loadBuddyArc(mode);
+  }
   if (const char* dir = std::getenv("TAMA_CAP_DIR")) {
     capDir_ = dir;
     warmup_ = envInt("TAMA_CAP_WARMUP", 24);
@@ -49,12 +51,12 @@ void CaptureHarness::beforeFrame(uint32_t nowMs) {
     }
   }
 
-  if (!buddy_.empty()) {
-    session_.tick(nowMs);
+  if (!buddy_.empty() && session_ != nullptr) {
+    session_->tick(nowMs);
     for (auto& step : buddy_) {
       if (!step.fired && nowMs >= step.at) {
         step.fired = true;
-        session_.onInbound("", step.json);
+        session_->onInbound("", step.json);
       }
     }
   }
@@ -98,7 +100,7 @@ void CaptureHarness::parseScript(const std::string& spec) {
 
 void CaptureHarness::loadBuddyArc(const std::string& mode) {
   if (mode != "work" && mode != "approve") return;
-  session_.onInbound("", kOwner);
+  session_->onInbound("", kOwner);
   if (mode == "work") {
     buddy_ = {
         {0, "{\"total\":0,\"running\":0,\"waiting\":0,\"tokens\":0,\"tokens_today\":96000}", false},

@@ -1,6 +1,6 @@
 import random
 
-from src.sources.demo import DemoMetric, DemoSource, DemoSourceConfig
+from src.services.sources.demo import DemoMetric, DemoSource, DemoSourceConfig
 
 
 def _source(drift: float = 900.0) -> DemoSource:
