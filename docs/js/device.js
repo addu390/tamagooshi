@@ -119,15 +119,26 @@
   const STRIPS = ["#e0655d", "#e39a45", "#e6cf55", "#57b268", "#4aa0cf", "#5566c8", "#a15fc4"];
   const INVADER = ["..#.....#..", "...#...#...", "..#######..", ".##.###.##.", "###########", "#.#######.#", "#.#.....#.#", "...##.##..."];
 
-  function pixelCells(art, fill, factor) {
-    const sx = SCREEN.x, sy = SCREEN.y, sw = SCREEN.w, sh = SCREEN.h;
-    const n = art[0].length, m = art.length;
-    const ps = Math.min(sw / n, sh / m) * (factor || 0.82);
-    const gx = sx + (sw - n * ps) / 2, gy = sy + (sh - m * ps) / 2;
+  function miniCells(art, ox, oy, ps, fill) {
     let cells = "";
-    for (let r = 0; r < m; r++) for (let c = 0; c < n; c++) if (art[r][c] === "#")
-      cells += `<rect x="${(gx + c * ps).toFixed(2)}" y="${(gy + r * ps).toFixed(2)}" width="${(ps + 0.4).toFixed(2)}" height="${(ps + 0.4).toFixed(2)}" fill="${fill}"/>`;
+    for (let r = 0; r < art.length; r++) for (let c = 0; c < art[r].length; c++) if (art[r][c] === "#")
+      cells += `<rect x="${(ox + c * ps).toFixed(2)}" y="${(oy + r * ps).toFixed(2)}" width="${(ps + 0.4).toFixed(2)}" height="${(ps + 0.4).toFixed(2)}" fill="${fill}"/>`;
     return cells;
+  }
+
+  function pixelCells(art, fill, factor) {
+    const n = art[0].length, m = art.length;
+    const ps = Math.min(SCREEN.w / n, SCREEN.h / m) * (factor || 0.82);
+    return miniCells(art, SCREEN.x + (SCREEN.w - n * ps) / 2, SCREEN.y + (SCREEN.h - m * ps) / 2, ps, fill);
+  }
+
+  const SCREEN_SOFT = "#8a909c";
+  function screenChrome(name) {
+    const x = SCREEN.x, y = SCREEN.y, w = SCREEN.w, h = SCREEN.h;
+    return `${scrText(x + 7, y + 11, "12:47", 6.5, SCREEN_SOFT, 700)}
+      ${scrText(x + w - 7, y + 11, "&#9679; LINK", 6, SCREEN_SOFT, 700, "end")}
+      <line x1="${(x + 6).toFixed(1)}" y1="${(y + 14.5).toFixed(1)}" x2="${(x + w - 6).toFixed(1)}" y2="${(y + 14.5).toFixed(1)}" stroke="${SCREEN_SOFT}" stroke-width="0.5" opacity="0.5" vector-effect="non-scaling-stroke"/>
+      ${scrText(x + 7, y + h - 6, name, 6.5, SCREEN_SOFT, 700)}`;
   }
 
   function stripCells() {
@@ -137,7 +148,8 @@
 
   function screenArt(opts) {
     if (opts && opts.highlight) return "";
-    return opts && opts.group === "controls" ? stripCells() : pixelCells(INVADER, "#3a3f47", 0.82);
+    if (opts && opts.group === "controls") return stripCells();
+    return screenChrome("GOOSHI") + `<g transform="translate(0,2.5)">${pixelCells(INVADER, "#3a3f47", 0.58)}</g>`;
   }
   function zLift(A, E, h) {
     const o = project([0, 0, 0], A, E), pu = project([1, 0, 0], A, E);
@@ -258,18 +270,24 @@
       ${scrText(cx, y + h * 0.5, "$12.4k", 19, "#1b1d23", 800, "middle")}
       <polyline points="${spark}" fill="none" style="stroke:${ACC}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   }
-  function alertScreen(ink) {
-    const x = SCREEN.x, y = SCREEN.y, w = SCREEN.w, h = SCREEN.h, cx = x + w / 2, ty = y + h * 0.36;
-    return `<path d="M ${cx} ${ty - 12} L ${cx + 15} ${ty + 14} L ${cx - 15} ${ty + 14} Z" fill="none" stroke="${ink}" stroke-width="2.4" stroke-linejoin="round"/>
-      ${scrText(cx, ty + 8, "!", 12, ink, 800, "middle")}
-      ${scrText(cx, y + h * 0.74, "ALERT ×3", 10, ink, 800, "middle")}`;
+  const MASCOT_SAD = ["#.......#", "##.....##", ".#######.", "#########", "#.#...#.#", "#########", ".#.###.#.", "#..###..#"];
+  function alertScreen() {
+    const x = SCREEN.x, y = SCREEN.y, w = SCREEN.w, h = SCREEN.h, bh = h * 0.3;
+    const ps = (h - bh - 16) / MASCOT_SAD.length;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${bh.toFixed(1)}" fill="${DENY}"/>
+      ${scrText(x + 8, y + bh / 2 + 2.5, "&#9650; ALERT", 7.5, "#ffffff", 800)}
+      ${scrText(x + w - 8, y + bh / 2 + 2.5, "×3", 7.5, "#ffffff", 800, "end")}
+      ${miniCells(MASCOT_SAD, x + 12, y + bh + 8, ps, SCREEN_INK)}
+      ${scrText(x + w * 0.63, y + h * 0.62, "CI FAILING", 10.5, SCREEN_INK, 800, "middle")}
+      ${scrText(x + w * 0.63, y + h * 0.82, "main · 12m", 6.5, SCREEN_SOFT, 700, "middle")}`;
   }
   const SCREEN_BG = "#ffffff", SCREEN_INK = "#1b1d23";
-  const themeCalls = (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "CUSTOM THEME", "and mascot", A, E)
+  const mascotScreen = (ink) => screenChrome("GOOSHI") + `<g transform="translate(0,2.5)">${pixelCells(MASCOT_ART, ink, 0.56)}</g>`;
+  const brandCalls = (label, sub) => (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, label, sub, A, E)
     + callout(anchorOf("top", SCREEN.x + 4, SCREEN.y + SCREEN.h - 4), -34, -70, "DEV NAME", "yours", A, E);
   const BRAND_SCREENS = [
-    { caption: "Your theme, colors & logo", bg: SCREEN_BG, screen: () => pixelCells(MASCOT_ART, SCREEN_INK, 0.7), calls: themeCalls },
-    { caption: "Your theme, colors & logo", bg: SCREEN_INK, screen: () => pixelCells(MASCOT_ART, SCREEN_BG, 0.7), calls: themeCalls },
+    { caption: "Your mascot, on its home screen", bg: SCREEN_BG, screen: () => mascotScreen(SCREEN_INK), calls: brandCalls("YOUR MASCOT", "any sprite pack") },
+    { caption: "Themes to match: light or dark", bg: SCREEN_INK, screen: () => mascotScreen(SCREEN_BG), calls: brandCalls("DARK THEME", "one of many") },
     {
       caption: "Your pulse, live metrics",
       bg: SCREEN_BG,
@@ -279,7 +297,7 @@
     {
       caption: "System & brand alerts",
       bg: SCREEN_BG,
-      screen: () => alertScreen(SCREEN_INK),
+      screen: () => alertScreen(),
       calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -18, "SYSTEM ALERTS", "brand-styled", A, E),
     },
   ];
@@ -300,26 +318,33 @@
     const cols = 11, rows = 11;
     const g = Array.from({ length: rows }, () => Array(cols).fill("."));
     const sh = frame % 2;
-    for (let c = 0; c < cols; c++) { if ((c + sh) % 2 === 0) g[0][c] = "#"; if ((c + sh) % 2 === 1) g[1][c] = "#"; }
+    for (let c = 1; c < cols - 1; c++) {
+      if ((c + sh) % 2 === 0) g[2][c] = "#";
+      if ((c + sh) % 2 === 1) g[3][c] = "#";
+      if ((c + sh) % 2 === 0) g[4][c] = "#";
+    }
     g[8][5] = "#";
     g[9][4] = g[9][5] = g[9][6] = "#";
     g[10][3] = g[10][4] = g[10][5] = g[10][6] = g[10][7] = "#";
-    const by = 7 - (frame % 4) * 2;
-    if (by >= 2) { g[by][5] = "#"; g[by - 1][5] = "#"; }
+    const by = 7 - (frame % 3) * 2;
+    g[by][5] = "#";
+    g[by - 1][5] = "#";
     return g.map((r) => r.join(""));
   }
 
   function overlayGames(A, E, idx) {
     const fr = faceFrame(TOP.o, TOP.u, TOP.v, A, E);
+    const score = scrText(SCREEN.x + 7, SCREEN.y + 10, `SCORE ${String(420 + idx * 20).padStart(4, "0")}`, 6, SCREEN_SOFT, 700)
+      + scrText(SCREEN.x + SCREEN.w - 7, SCREEN.y + 10, "HI 0860", 6, SCREEN_SOFT, 700, "end");
     const g = `<g transform="${fr}">
       <rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7" fill="${SCREEN_BG}"/>
       <clipPath id="gameClip"><rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7"/></clipPath>
-      <g clip-path="url(#gameClip)">${pixelCells(shooterArt(idx), SCREEN_INK, 0.92)}</g>
+      <g clip-path="url(#gameClip)">${score}${pixelCells(shooterArt(idx), SCREEN_INK, 0.92)}</g>
       <rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7" fill="none" stroke="${SIL}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
     </g>`;
     const pilot = callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "MASCOT IN GAME", "your pixel ship", A, E);
     const ctrl = callout(anchorOf("top", BTN.x + BTN.w / 2, BTN.y + BTN.h / 2), 72, 46, "PLAY IN BROWSER", "or on device", A, E);
-    const more = callout(anchorOf("top", SCREEN.x + 4, SCREEN.y + SCREEN.h - 4), -34, -70, "MORE GAMES", "", A, E);
+    const more = callout(anchorOf("top", SCREEN.x + 4, SCREEN.y + SCREEN.h - 4), -34, -44, "GAME LIBRARY", "per brand", A, E);
     return g + pilot + ctrl + more;
   }
 
@@ -337,32 +362,48 @@
     ".#########.",
     "..#.....#..",
   ];
-  const ROBOT_SAD = [
-    "...#...#...",
-    "...#...#...",
-    ".#########.",
-    "#.........#",
-    "#.##...##.#",
-    "#.##...##.#",
-    "#.........#",
-    "#..#####..#",
-    "#.#.....#.#",
-    ".#########.",
-    "..#.....#..",
-  ];
   function approveDeny() {
     const cx = SCREEN.x + SCREEN.w / 2, y = SCREEN.y + SCREEN.h * 0.48;
     return scrText(cx, SCREEN.y + 17, "APPROVE?", 9.5, SIL, 800, "middle")
       + `<path d="M ${cx - 26} ${y} l 5 6 l 11 -13" fill="none" style="stroke:${ACC}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>`
       + `<path d="M ${cx + 14} ${y - 6} l 12 12 M ${cx + 26} ${y - 6} l -12 12" fill="none" stroke="${DENY}" stroke-width="2.8" stroke-linecap="round"/>`;
   }
+  const MIC = [
+    "....###....",
+    "...#####...",
+    "...#####...",
+    "...#####...",
+    ".#..###..#.",
+    ".#..###..#.",
+    ".#.......#.",
+    "..#######..",
+    ".....#.....",
+    ".....#.....",
+    "...#####...",
+  ];
   const AGENTS = { p: [hx, -hy + 0.9 * D, -hz], rise: -62, run: -16, label: "CLAUDE · CURSOR" };
   const agentsCall = (A, E) => callout(AGENTS.p, AGENTS.rise, AGENTS.run, AGENTS.label, "your agents", A, E);
   const coworkCalls = (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "CO-WORK WITH AI", "reacts live", A, E)
     + agentsCall(A, E);
+  function workingDots() {
+    const cx = SCREEN.x + SCREEN.w / 2, y = SCREEN.y + SCREEN.h - 7;
+    return [-1, 0, 1].map((k, i) =>
+      `<circle cx="${(cx + k * 8).toFixed(1)}" cy="${y.toFixed(1)}" r="1.8" style="fill:${ACC}">
+        <animate attributeName="opacity" values="0.15;1;0.15" dur="1.2s" begin="${(i * 0.25).toFixed(2)}s" repeatCount="indefinite"/>
+      </circle>`).join("");
+  }
   const AI_SCREENS = [
-    { caption: "Co-work with AI: it reacts live", screen: () => pixelCells(ROBOT_HAPPY, SCREEN_INK, 0.74), calls: coworkCalls },
-    { caption: "Co-work with AI: it reacts live", screen: () => pixelCells(ROBOT_SAD, SCREEN_INK, 0.74), calls: coworkCalls },
+    {
+      caption: "Co-work with AI: it reacts live",
+      screen: () => `<g transform="translate(0,-3)">${pixelCells(ROBOT_HAPPY, SCREEN_INK, 0.66)}</g>` + workingDots(),
+      calls: coworkCalls,
+    },
+    {
+      caption: "Hold to talk: voice prompts straight to your agent",
+      screen: () => pixelCells(MIC, SCREEN_INK, 0.74),
+      calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "HOLD TO TALK", "voice prompts", A, E)
+        + agentsCall(A, E),
+    },
     {
       caption: "You approve or deny every action",
       screen: () => approveDeny(),
