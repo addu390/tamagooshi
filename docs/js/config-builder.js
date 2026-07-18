@@ -21,7 +21,7 @@
   const LINK_PROTOS = TRANSPORTS.protocols || {};
   const protoIds = (link) => (LINK_PROTOS[link] || []).map((p) => p[0]);
   const MOODS = ["happy", "neutral", "sick", "panic", "celebrate", "sleepy"];
-  const DEFAULT_LOGO = CATALOG.logo || null;
+  const DEFAULT_LOGO = (window.TAMA_PRESET || {}).logo || CATALOG.logo || null;
   const OPS = [
     ["lt", "< less than"],
     ["lte", "\u2264 at most"],
@@ -73,6 +73,7 @@
     moods: [],
     alerts: [],
   };
+  Object.assign(state, (window.TAMA_PRESET || {}).config || {});
 
   const el = (tag, attrs, kids) => {
     const n = document.createElement(tag);

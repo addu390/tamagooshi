@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamagooshi × Claude: Clawd on your desk</title>
+<meta name="description" content="A Claude-branded Tamagooshi: Clawd as a pixel pet on an ESP32 handheld, paired with Claude Code over BLE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/themes/claude.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top"><span class="logo" style="background:var(--accent)">C</span> <span class="wordmark">Claude &times; Tamag<span class="o">o</span><span class="o o2">o</span>shi</span>
+    <span class="nav-note">An independent project, not affiliated with Anthropic PBC</span>
+    <nav class="nav-links">
+      <a href="#config">Configure</a>
+      <a href="#build">Flash</a>
+      <a href="index.html">Full docs</a>
+      <a class="btn" href="https://github.com/addu390/tamagooshi" target="_blank" rel="noopener" data-key-hint="G">GitHub <kbd>G</kbd></a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-box">
+      <div class="tabbar" role="tablist" aria-label="Device highlights">
+        <button class="tab" data-tab="device" role="tab">Device</button>
+        <button class="tab" data-tab="brand" role="tab">Brand</button>
+        <button class="tab" data-tab="games" role="tab">Games</button>
+        <button class="tab" data-tab="ai" role="tab">AI</button>
+      </div>
+
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">Open source · ESP32 · Built for Claude</span>
+          <h1>Clawd on every desk.</h1>
+          <p class="lead">The Claude edition of Tamagooshi puts Clawd, Claude's pixel mascot, on a palm-size handheld that pairs with Claude Code over BLE. It works while your agent works, celebrates when tasks land, and lets you approve actions or talk to Claude without touching the keyboard.</p>
+          <div class="hero-cta">
+            <a class="btn" href="#config" data-key-hint="S">Get started <kbd>S</kbd></a>
+          </div>
+        </div>
+
+        <div class="device-stage">
+          <div class="iso-device"></div>
+          <p class="device-cap"></p>
+          <div class="device-dots" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="flow-strip">Claude Code <b>&rarr;</b> hub <b>&rarr;</b> BLE <b>&rarr;</b> device <b>&rarr;</b> mood</div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap docs">
+  <aside class="side">
+    <h4>Get it running</h4>
+    <a href="#run">Run it</a>
+    <a href="#config">Configuration</a>
+    <a href="#build">Build &amp; flash</a>
+  </aside>
+
+  <main>
+    <section class="doc" id="run">
+      <h2>Run it</h2>
+      <p>The Claude brand ships in the repo as <code>brands/claude/</code>: Clawd as the mascot pack, Anthropic's terracotta as a custom theme (<code>crail</code> light, <code>clay</code> dark), the Claude agent enabled, and BLE as the only transport. Try it in the simulator first, no board needed.</p>
+      <div class="fgrid cols-2">
+        <div class="fcard">
+          <h3>Simulator</h3>
+          <p>The same firmware, drawn in a desktop window.</p>
+          <pre data-lang="bash">make sim BRAND=claude</pre>
+        </div>
+        <div class="fcard">
+          <h3>Pair with Claude</h3>
+          <p>One command on the machine that runs Claude Code.</p>
+          <pre data-lang="bash">pip install -e hub   <span class="c"># once, Python 3.10+</span>
+make hub             <span class="c"># pairs over BLE</span></pre>
+        </div>
+      </div>
+      <p>Once paired, hold the side button to talk to Claude, watch Clawd react as it works, and approve or deny actions from the device.</p>
+    </section>
+
+    <section class="doc" id="config">
+      <h2>Configuration</h2>
+      <p>This builder is pre-seeded with the Claude brand. Adjust anything, then copy or download the <code>config.yaml</code> into <code>brands/claude/</code>.</p>
+      <div id="cfg-root" class="cfg"></div>
+      <p>The stock Claude config keeps it lean: the Clawd pack, the terracotta themes, the Claude agent, and BLE only. Anything you leave out stays out of the image.</p>
+    </section>
+
+    <section class="doc" id="build">
+      <h2>Build &amp; flash</h2>
+      <p>Flash straight from the browser over USB. Your config above rides along as a small partition, so the device boots as the Claude edition.</p>
+      <div id="flash-root" class="flash"></div>
+      <h3>Build a lean image locally</h3>
+      <p>For the smallest image, bake the brand in at compile time instead.</p>
+      <pre data-lang="bash">make brand BRAND=claude                              <span class="c"># generate headers into firmware/.gen/current</span>
+cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + flash (pick your board's env)</span></pre>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 Tamagooshi.</span>
+    <span>An independent, fan-made project. Claude and Clawd belong to Anthropic PBC.</span>
+  </div>
+</footer>
+
+<script src="js/presets/claude.js"></script>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<script src="js/iso-core.js"></script>
+<script src="js/app.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/config-builder.js"></script>
+<script src="js/device.js"></script>
+</body>
+</html>

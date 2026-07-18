@@ -1,12 +1,19 @@
 (function () {
+  const PRESET = window.TAMA_PRESET || {};
+  const T = (key, fallback) => (PRESET.text || {})[key] || fallback;
   const W = 198, D = 104, H = 44;
   const hx = W / 2, hy = D / 2, hz = H / 2;
   const DEFAULT_YAW = -34, DEFAULT_PITCH = 30;
   const YAW_MIN = -52, YAW_MAX = -16, PITCH_MIN = 20, PITCH_MAX = 40;
   const GD = 58;
   let VB = { x: -258, y: -212, w: 520, h: 414 };
-  const SIL = "#1b1d23", DET = "#b9bec8", GRID = "#e9ebf0";
-  const DIMLINE = "#c7ccd4", DIMTEXT = "#9298a4", CALL = "#aeb4be";
+  const C = Object.assign({
+    sil: "#1b1d23", det: "#b9bec8", grid: "#e9ebf0",
+    dimline: "#c7ccd4", dimtext: "#9298a4", call: "#aeb4be",
+    shell: "#ced3db", shade0: [214, 217, 224], bezel: "#d8dce3",
+  }, PRESET.deviceColors || {});
+  const SIL = C.sil, DET = C.det, GRID = C.grid;
+  const DIMLINE = C.dimline, DIMTEXT = C.dimtext, CALL = C.call;
   const LIGHT = [-0.35, -0.55, 0.78];
 
   const V = [
@@ -45,7 +52,7 @@
     const p = project(nWorld, A, E), o = project([0, 0, 0], A, E);
     const nv = norm([p.x - o.x, p.y - o.y, p.depth - o.depth]);
     const t = Math.max(0.6, Math.min(1, 0.63 + 0.4 * dot(nv, LIGHT)));
-    const c0 = [214, 217, 224], c1 = [255, 255, 255];
+    const c0 = C.shade0, c1 = [255, 255, 255];
     const c = c0.map((v0, i) => Math.round(v0 + (c1[i] - v0) * ((t - 0.6) / 0.4)));
     return `rgb(${c[0]},${c[1]},${c[2]})`;
   }
@@ -133,6 +140,7 @@
   }
 
   const SCREEN_SOFT = "#8a909c";
+  const DEV_NAME = PRESET.deviceName || "GOOSHI";
   function screenChrome(name) {
     const x = SCREEN.x, y = SCREEN.y, w = SCREEN.w, h = SCREEN.h;
     return `${scrText(x + 7, y + 11, "12:47", 6.5, SCREEN_SOFT, 700)}
@@ -149,7 +157,7 @@
   function screenArt(opts) {
     if (opts && opts.highlight) return "";
     if (opts && opts.group === "controls") return stripCells();
-    return screenChrome("GOOSHI") + `<g transform="translate(0,2.5)">${pixelCells(INVADER, "#3a3f47", 0.58)}</g>`;
+    return screenChrome(DEV_NAME) + `<g transform="translate(0,2.5)">${pixelCells(INVADER, "#3a3f47", 0.58)}</g>`;
   }
   function zLift(A, E, h) {
     const o = project([0, 0, 0], A, E), pu = project([1, 0, 0], A, E);
@@ -171,8 +179,8 @@
   }
 
   const TOP = { o: 4, u: [1, 0, 0], v: [0, 1, 0], feats: (opts) => `
-    <rect x="${SCREEN.x - 4}" y="${SCREEN.y - 4}" width="${SCREEN.w + 6}" height="${SCREEN.h + 6}" rx="9.5" fill="#b9bec8"/>
-    <rect x="${SCREEN.x - 1.5}" y="${SCREEN.y - 1.5}" width="${SCREEN.w + 3}" height="${SCREEN.h + 3}" rx="8" fill="#d8dce3"/>
+    <rect x="${SCREEN.x - 4}" y="${SCREEN.y - 4}" width="${SCREEN.w + 6}" height="${SCREEN.h + 6}" rx="9.5" fill="${DET}"/>
+    <rect x="${SCREEN.x - 1.5}" y="${SCREEN.y - 1.5}" width="${SCREEN.w + 3}" height="${SCREEN.h + 3}" rx="8" fill="${C.bezel}"/>
     <rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7" fill="#ffffff"/>
     <clipPath id="scrClip"><rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7"/></clipPath>
     <g clip-path="url(#scrClip)">${screenArt(opts)}</g>
@@ -194,7 +202,7 @@
     ${seam(4, ex - pocket - 2)}${seam(ex + pocket + 2, st.x - 2)}${seam(st.x + st.w + 2, bx - pocket - 2)}${seam(bx + pocket + 2, W - 4)}
     ${sq(ex, cy, pocket, 3.5, "none", DET, 0.9)}
     <rect x="${st.x.toFixed(1)}" y="${(cy - st.h / 2).toFixed(1)}" width="${st.w.toFixed(1)}" height="${st.h}" rx="2.5" fill="#f4f6f9" stroke="${DET}" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
-    <g transform="translate(${(st.x + st.w / 2).toFixed(1)},${cy.toFixed(1)}) scale(1,-1)"><text text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="8.5" font-weight="700" letter-spacing="0.08em" fill="${DIMTEXT}">YOUR LOGO</text></g>
+    <g transform="translate(${(st.x + st.w / 2).toFixed(1)},${cy.toFixed(1)}) scale(1,-1)"><text text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="8.5" font-weight="700" letter-spacing="0.08em" fill="${DIMTEXT}">${T("logoText", "YOUR LOGO")}</text></g>
     ${slot(st.x + st.w / 2 - 33)}${slot(st.x + st.w / 2 + 33)}
     <g class="btn-side" style="cursor:pointer">
     ${sq(bx, cy, pocket, 3.5, "#c3c9d2", SIL, 1)}
@@ -257,7 +265,8 @@
     { g: "io", p: [hx, hy, 0], rise: -24, run: 66, label: "USB-C", sub: "", show: true },
   ];
 
-  const MASCOT_ART = ["#.......#", "##.....##", ".#######.", "#########", "#.#...#.#", "#########", "#..###..#", ".#.###.#."];
+  const MASCOT_ART = PRESET.mascotArt
+    || ["#.......#", "##.....##", ".#######.", "#########", "#.#...#.#", "#########", "#..###..#", ".#.###.#."];
 
   function scrText(x, y, s, size, fill, weight, anchor) {
     return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor || "start"}" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="${size}" font-weight="${weight || 700}" style="fill:${fill}">${s}</text>`;
@@ -270,7 +279,8 @@
       ${scrText(cx, y + h * 0.5, "$12.4k", 19, "#1b1d23", 800, "middle")}
       <polyline points="${spark}" fill="none" style="stroke:${ACC}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   }
-  const MASCOT_SAD = ["#.......#", "##.....##", ".#######.", "#########", "#.#...#.#", "#########", ".#.###.#.", "#..###..#"];
+  const MASCOT_SAD = PRESET.mascotSadArt
+    || ["#.......#", "##.....##", ".#######.", "#########", "#.#...#.#", "#########", ".#.###.#.", "#..###..#"];
   function alertScreen() {
     const x = SCREEN.x, y = SCREEN.y, w = SCREEN.w, h = SCREEN.h, bh = h * 0.3;
     const ps = (h - bh - 16) / MASCOT_SAD.length;
@@ -282,12 +292,18 @@
       ${scrText(x + w * 0.63, y + h * 0.82, "main · 12m", 6.5, SCREEN_SOFT, 700, "middle")}`;
   }
   const SCREEN_BG = "#ffffff", SCREEN_INK = "#1b1d23";
-  const mascotScreen = (ink) => screenChrome("GOOSHI") + `<g transform="translate(0,2.5)">${pixelCells(MASCOT_ART, ink, 0.56)}</g>`;
+  const mascotScreen = (ink) => screenChrome(DEV_NAME) + `<g transform="translate(0,2.5)">${pixelCells(MASCOT_ART, ink, 0.56)}</g>`;
   const brandCalls = (label, sub) => (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, label, sub, A, E)
     + callout(anchorOf("top", SCREEN.x + 4, SCREEN.y + SCREEN.h - 4), -34, -70, "DEV NAME", "yours", A, E);
   const BRAND_SCREENS = [
-    { caption: "Your mascot, on its home screen", bg: SCREEN_BG, screen: () => mascotScreen(SCREEN_INK), calls: brandCalls("YOUR MASCOT", "any sprite pack") },
-    { caption: "Themes to match: light or dark", bg: SCREEN_INK, screen: () => mascotScreen(SCREEN_BG), calls: brandCalls("DARK THEME", "one of many") },
+    {
+      caption: T("mascotCaption", "Your mascot, on its home screen"), bg: SCREEN_BG, screen: () => mascotScreen(SCREEN_INK),
+      calls: brandCalls(T("mascotLabel", "YOUR MASCOT"), T("mascotSub", "any sprite pack")),
+    },
+    {
+      caption: T("themeCaption", "Themes to match: light or dark"), bg: SCREEN_INK, screen: () => mascotScreen(SCREEN_BG),
+      calls: brandCalls(T("themeLabel", "DARK THEME"), T("themeSub", "one of many")),
+    },
     {
       caption: "Your pulse, live metrics",
       bg: SCREEN_BG,
@@ -342,7 +358,7 @@
       <g clip-path="url(#gameClip)">${score}${pixelCells(shooterArt(idx), SCREEN_INK, 0.92)}</g>
       <rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7" fill="none" stroke="${SIL}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
     </g>`;
-    const pilot = callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "MASCOT IN GAME", "your pixel ship", A, E);
+    const pilot = callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, T("gameMascotLabel", "MASCOT IN GAME"), T("gameMascotSub", "your pixel ship"), A, E);
     const ctrl = callout(anchorOf("top", BTN.x + BTN.w / 2, BTN.y + BTN.h / 2), 72, 46, "PLAY IN BROWSER", "or on device", A, E);
     const more = callout(anchorOf("top", SCREEN.x + 4, SCREEN.y + SCREEN.h - 4), -34, -44, "GAME LIBRARY", "per brand", A, E);
     return g + pilot + ctrl + more;
@@ -381,9 +397,9 @@
     ".....#.....",
     "...#####...",
   ];
-  const AGENTS = { p: [hx, -hy + 0.9 * D, -hz], rise: -62, run: -16, label: "CLAUDE · CURSOR" };
-  const agentsCall = (A, E) => callout(AGENTS.p, AGENTS.rise, AGENTS.run, AGENTS.label, "your agents", A, E);
-  const coworkCalls = (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "CO-WORK WITH AI", "reacts live", A, E)
+  const AGENTS = { p: [hx, -hy + 0.9 * D, -hz], rise: -62, run: -16, label: PRESET.agentsLabel || "CLAUDE · CURSOR" };
+  const agentsCall = (A, E) => callout(AGENTS.p, AGENTS.rise, AGENTS.run, AGENTS.label, PRESET.agentsSub || "your agents", A, E);
+  const coworkCalls = (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, T("coworkLabel", "CO-WORK WITH AI"), "reacts live", A, E)
     + agentsCall(A, E);
   function workingDots() {
     const cx = SCREEN.x + SCREEN.w / 2, y = SCREEN.y + SCREEN.h - 7;
@@ -392,10 +408,11 @@
         <animate attributeName="opacity" values="0.15;1;0.15" dur="1.2s" begin="${(i * 0.25).toFixed(2)}s" repeatCount="indefinite"/>
       </circle>`).join("");
   }
+  const AI_MASCOT = PRESET.aiMascotArt || ROBOT_HAPPY;
   const AI_SCREENS = [
     {
-      caption: "Co-work with AI: it reacts live",
-      screen: () => `<g transform="translate(0,-3)">${pixelCells(ROBOT_HAPPY, SCREEN_INK, 0.66)}</g>` + workingDots(),
+      caption: T("coworkCaption", "Co-work with AI: it reacts live"),
+      screen: () => `<g transform="translate(0,-3)">${pixelCells(AI_MASCOT, SCREEN_INK, 0.66)}</g>` + workingDots(),
       calls: coworkCalls,
     },
     {
@@ -495,7 +512,7 @@
     const topVisible = visible.some((f) => f.id === "top");
 
     const hullD = roundedPoly(carveDip(hull2d(P), A, E), CORNER_R);
-    const shell = `<clipPath id="shellClip"><path d="${hullD}"/></clipPath><path d="${hullD}" fill="#ced3db"/>`;
+    const shell = `<clipPath id="shellClip"><path d="${hullD}"/></clipPath><path d="${hullD}" fill="${C.shell}"/>`;
     const outline = `<path d="${hullD}" fill="none" stroke="${SIL}" stroke-width="1.2" stroke-linejoin="round"/>`;
     const fills = visible
       .map((f) => ({ f, d: f.idx.reduce((s, i) => s + P[i].depth, 0) / 4 }))
@@ -589,9 +606,9 @@
 
   const MODES = {
     device: { yaw: DEFAULT_YAW, pitch: DEFAULT_PITCH, free: true, caption: "Drag to rotate the ESP32 handheld" },
-    brand: { yaw: -30, pitch: 34, highlight: "brand", caption: "Your brand on every surface: logo, name, theme." },
+    brand: { yaw: -30, pitch: 34, highlight: "brand", caption: T("brandModeCaption", "Your brand on every surface: logo, name, theme.") },
     games: { yaw: -30, pitch: 34, highlight: "games", caption: "Play in the browser or on the device." },
-    ai: { yaw: -30, pitch: 34, highlight: "ai", caption: "Co-work with Claude and Cursor." },
+    ai: { yaw: -30, pitch: 34, highlight: "ai", caption: PRESET.aiCaption || "Co-work with Claude and Cursor." },
   };
 
   const GROUPS = [

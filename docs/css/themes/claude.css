@@ -1,0 +1,20 @@
+:root {
+  --bg: #FAF9F5;
+  --bg-soft: #F0EEE6;
+  --panel: #FFFFFF;
+  --text: #191919;
+  --text-soft: #57534A;
+  --muted: #A6A094;
+  --border: #E4DFD3;
+  --nav-bg: rgba(250, 249, 245, 0.8);
+  --code-bg: #F0EEE6;
+  --code-chrome: #E7E4D9;
+  --code-ink: #C15F3C;
+  --code-text: #292623;
+  --code-comment: #A89F8D;
+  --accent: #D97757;
+  --accent-strong: #C15F3C;
+  --accent-soft: #FAF1EC;
+  --accent-line: #F0DCD1;
+  --accent-bg: #FBF5F0;
+}

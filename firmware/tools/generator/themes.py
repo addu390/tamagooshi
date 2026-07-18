@@ -23,6 +23,7 @@ THEMES = {
 def derive(colors):
     surface = _hex(colors["surface"])
     ink = _hex(colors["ink"])
-    roles = [surface, ink, ink, _mix(ink, surface, 0.45), _mix(ink, surface, 0.72),
+    hi = _hex(colors["accent"]) if colors.get("accent") else ink
+    roles = [surface, ink, hi, _mix(ink, surface, 0.45), _mix(ink, surface, 0.72),
              (230, 150, 40), (200, 70, 66), ink, (252, 176, 184)]
     return [_565(*c) for c in roles]

@@ -131,6 +131,12 @@ window.TAMA_CATALOG = {
         "bulbasaur",
         "bulba"
       ]
+    ],
+    "claude": [
+      [
+        "clawd",
+        "clawd"
+      ]
     ]
   },
   "transports": {

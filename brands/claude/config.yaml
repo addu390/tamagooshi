@@ -1,0 +1,38 @@
+brand:
+  id: claude
+  name: CLAUDE
+  mascot: Clawd
+  tagline: Your agent on your desk
+  website: claude.com
+  logo: logo.png
+
+device:
+  transports:
+    ble: gatt
+  theme:
+    custom:
+      - name: crail
+        colors: {surface: "#F0EEE6", ink: "#191919", accent: "#D97757"}
+      - name: clay
+        colors: {surface: "#262624", ink: "#F0EEE6", accent: "#D97757"}
+    default: crail
+    enabled: [crail, clay]
+  typeface:
+    default: dejavu
+    enabled: [dejavu, pixel]
+  mascot:
+    default: clawd
+    mood: happy
+    enabled: [claude]
+  games:
+    enabled: [runner, flappy, delivery]
+  apps:
+    enabled: [clock, stopwatch, flashlight, about]
+  buddy:
+    enabled: true
+
+hub:
+  agent:
+    default: claude
+    enabled: [claude]
+  sources: []
