@@ -1,0 +1,25 @@
+brand:
+  id: gooshi
+  name: TAMAGOOSHI
+  mascot: GOOSHI
+  tagline: keep it alive
+  website: gooshi.me
+  logo: logo.png
+
+device:
+  transports:
+    ble: gatt
+  theme:
+    default: midnight
+    enabled: all
+  typeface:
+    default: pixel
+    enabled: all
+  mascot:
+    default: cat
+    mood: happy
+    enabled: all
+  games:
+    enabled: all
+  apps:
+    enabled: all

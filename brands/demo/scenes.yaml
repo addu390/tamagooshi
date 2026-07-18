@@ -1,0 +1,79 @@
+metrics:
+  sources:
+    - type: demo
+      interval_secs: 1.0
+      metrics:
+        - key: mrr
+          label: MRR
+          value_start: 49000
+          fmt: "${v}"
+          kind: star
+          timeline:
+            - {at: 0, value: 49000}
+            - {at: 10, value: 51000}
+            - {at: 20, value: 52500}
+        - key: signups
+          label: SIGNUPS
+          value_start: 320
+          fmt: "{v}"
+          timeline:
+            - {at: 0, value: 320}
+            - {at: 8, value: 322}
+            - {at: 10.5, value: 471}
+            - {at: 20, value: 476}
+        - key: active
+          label: ACTIVE
+          value_start: 1180
+          fmt: "{v}"
+          timeline:
+            - {at: 0, value: 1180}
+            - {at: 20, value: 1320}
+        - key: uptime
+          label: UPTIME
+          value_start: 99.9
+          fmt: "{v}%"
+          timeline:
+            - {at: 0, value: 99.9}
+            - {at: 20, value: 99.9}
+  moods: []
+  alerts: []
+
+agents:
+  sources: []
+  moods: []
+  alerts: []
+
+alerts:
+  sources:
+    - type: demo
+      interval_secs: 1.0
+      metrics:
+        - key: errors
+          label: 5XX
+          value_start: 0.4
+          fmt: "{v}%"
+          timeline:
+            - {at: 0, value: 0.4}
+            - {at: 13, value: 0.4}
+            - {at: 14.5, value: 2.6}
+            - {at: 19, value: 2.6}
+            - {at: 20, value: 0.4}
+  moods: []
+  alerts:
+    - {id: error-spike, when: {metric: errors, op: gt, value: 2.0}, severity: critical, title: Error spike, body: 5xx above 2%, source: datadog}
+
+brand:
+  sources:
+    - type: demo
+      interval_secs: 1.0
+      metrics:
+        - key: mrr
+          label: MRR
+          value_start: 61000
+          fmt: "${v}"
+          kind: star
+          timeline:
+            - {at: 0, value: 61000}
+            - {at: 30, value: 61000}
+  moods: []
+  alerts: []

@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = ".pio/build/m5stickc-plus/firmware.bin"
+elf = ".pio/build/m5stickc-plus/firmware.elf"

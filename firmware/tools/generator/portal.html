@@ -1,0 +1,53 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{{AP}}</title>
+<style>
+:root{--bg:#fff;--text:#18181b;--soft:#52525b;--muted:#a1a1aa;--border:#e4e4e7;--field:#fafafa;--accent:#0e9f6e;--accent-strong:#047857;--accent-soft:#ecfdf5}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;font-family:'Fredoka',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:radial-gradient(130% 55% at 50% 0,var(--accent-soft),var(--bg) 55%);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
+.wrap{width:100%;max-width:400px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:24px;text-transform:uppercase;letter-spacing:.02em}
+.brand .logo{width:32px;height:32px;border-radius:2px;background:var(--text);display:grid;place-items:center;color:#fff;font-size:19px;font-weight:600}
+.brand .o{display:inline-block;animation:bounceO 1.9s linear both}
+.brand .o2{animation-delay:.16s}
+@keyframes bounceO{0%{transform:translateY(0)}24%{transform:translateY(-9px)}46%{transform:translateY(0)}62%{transform:translateY(-4px)}76%{transform:translateY(0)}87%{transform:translateY(-1.5px)}100%{transform:translateY(-1.5px)}}
+@media(prefers-reduced-motion:reduce){.brand .o{animation:none;transform:translateY(-1.5px)}}
+.card{margin-top:24px;border:1px solid var(--border);border-radius:2px;background:var(--bg);padding:24px 22px;box-shadow:0 1px 2px rgba(24,24,27,.04)}
+h1{font-size:20px;font-weight:600;margin:0 0 5px}
+.sub{color:var(--soft);font-size:14px;margin:0}
+label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:20px 0 7px}
+select,input{width:100%;font:inherit;font-size:15px;padding:12px 13px;border:1px solid var(--border);border-radius:2px;background:var(--field);color:var(--text);-webkit-appearance:none;appearance:none}
+select:focus,input:focus{outline:none;background:var(--bg);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+button{width:100%;margin-top:24px;padding:13px;border:0;border-radius:2px;background:var(--accent);color:#fff;font:inherit;font-size:15px;font-weight:600;letter-spacing:.02em;cursor:pointer}
+button:active{background:var(--accent-strong)}
+.ap{display:flex;align-items:center;gap:8px;margin-top:18px;font-size:12.5px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.done{width:34px;height:34px;border-radius:2px;background:var(--accent-soft);color:var(--accent-strong);display:grid;place-items:center;font-size:20px;font-weight:600;margin-bottom:14px}
+</style>
+<!--PART-->
+<div class=wrap>
+  <div class=brand><span class=logo>T</span><span>Tamag<span class="o">o</span><span class="o o2">o</span>shi</span></div>
+  <div class=card>
+    <h1>Connect to WiFi</h1>
+    <p class=sub>Pick a network so your buddy can sync with the hub and get online.</p>
+    <form method=POST action=/save>
+      <label for=ssid>Network</label>
+      <select id=ssid name=ssid>{{SSIDS}}</select>
+      <label for=pass>Password</label>
+      <input id=pass name=pass type=password placeholder="Network password" autocomplete=off autocapitalize=off>
+      <button type=submit>Connect</button>
+    </form>
+  </div>
+  <div class=ap><span class=dot></span>Connected to setup hotspot {{AP}}</div>
+</div>
+<!--PART-->
+<div class=wrap>
+  <div class=brand><span class=logo>T</span><span>Tamag<span class="o">o</span><span class="o o2">o</span>shi</span></div>
+  <div class=card>
+    <div class=done>&#10003;</div>
+    <h1>Saved</h1>
+    <p class=sub>Your buddy is connecting to the network now. You can close this page and rejoin your usual WiFi once the device shows it is linked.</p>
+  </div>
+</div>

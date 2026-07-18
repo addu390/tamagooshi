@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install ruff
+      - run: ruff check .
+
+  hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -e "hub[dev]"
+      - run: python -m pytest -q
+        working-directory: hub
+
+  firmware:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env: [m5stickc-plus, m5sticks3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ matrix.env }}-${{ hashFiles('firmware/platformio.ini') }}
+      - run: pip install platformio
+      - run: cp firmware/include/secrets.example.h firmware/include/secrets.h
+      - name: Build
+        working-directory: firmware
+        env:
+          TAMA_BRAND: gooshi
+          TAMA_TRANSPORTS: ble:gatt,wifi:mqtt
+        run: pio run -e ${{ matrix.env }}

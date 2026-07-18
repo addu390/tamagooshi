@@ -1,0 +1,2 @@
+[lint.per-file-ignores]
+"firmware/tools/generator/prebuild.py" = ["F821", "E402"]

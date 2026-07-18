@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tamagooshi-hub"
+version = "0.1.0"
+description = "Local agent that publishes brand + metrics to Tamagooshi devices over BLE (MQTT optional)."
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "bleak>=0.22",
+    "paho-mqtt>=2.0",
+    "pydantic>=2.6",
+    "pyyaml>=6.0",
+    "httpx>=0.28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+tamagooshi-hub = "src.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

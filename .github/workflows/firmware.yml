@@ -1,0 +1,73 @@
+name: firmware
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.gen.outputs.builds }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: gen
+        run: echo "builds=$(python3 firmware/tools/generator/boards.py matrix)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.matrix.outputs.builds) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install PlatformIO and esptool
+        run: pip install platformio esptool
+
+      - name: Placeholder secrets (Wi-Fi is provisioned at runtime)
+        run: cp firmware/include/secrets.example.h firmware/include/secrets.h
+
+      - name: Build
+        working-directory: firmware
+        env:
+          TAMA_BRAND: gooshi
+          TAMA_TRANSPORTS: ${{ matrix.transports }}
+        run: pio run -e ${{ matrix.env }}
+
+      - name: Merge flashable image
+        working-directory: firmware/.pio/build/${{ matrix.env }}
+        run: |
+          boot_app0=$(find ~/.platformio/packages -name boot_app0.bin | head -1)
+          python -m esptool --chip ${{ matrix.chip }} merge_bin \
+            -o ${{ matrix.image }} \
+            --flash_mode dio --flash_size ${{ matrix.flash_size }} \
+            ${{ matrix.boot_offset }} bootloader.bin \
+            0x8000 partitions.bin \
+            0xe000 "$boot_app0" \
+            0x10000 firmware.bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}
+          path: firmware/.pio/build/${{ matrix.env }}/${{ matrix.image }}
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*.bin

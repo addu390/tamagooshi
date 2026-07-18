@@ -1,0 +1,33 @@
+# End-to-end dev stack: MQTT broker + hub running the demo source (a demo server).
+# Run the simulator on the host with TAMA_BROKER=localhost:1883 to see it live.
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    container_name: tamagooshi-broker
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./hub/broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./hub/broker/data:/mosquitto/data
+      - ./hub/broker/log:/mosquitto/log
+
+  hub:
+    build: ./hub
+    container_name: tamagooshi-hub
+    restart: unless-stopped
+    depends_on:
+      - broker
+    environment:
+      TAMA_TRANSPORT: wifi:mqtt
+      TAMA_BROKER: broker:1883
+      TAMA_LOG_LEVEL: INFO
+      TAMA_BRAND: ${TAMA_BRAND:-gooshi}
+      TAMA_SCENE: ${TAMA_SCENE:-}
+      TAMA_DEVICE_ID: sim
+      TAMA_BRANDS_DIR: /brands
+    volumes:
+      - ./brands:/brands:ro
+    ports:
+      - "8000:8000"

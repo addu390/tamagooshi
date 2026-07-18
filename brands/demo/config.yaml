@@ -1,0 +1,68 @@
+brand:
+  id: demo
+  name: TAMAGOOSHI
+  mascot: GOOSHI
+  tagline: keep it alive
+  website: gooshi.me
+  logo: logo.png
+
+device:
+  theme:
+    default: midnight
+    enabled: [midnight, slate, espresso, timex]
+  typeface:
+    default: pixel
+    enabled: [pixel, dejavu]
+  mascot:
+    default: cat
+    mood: happy
+    enabled: [pals]
+  games:
+    enabled: [runner, flappy, delivery]
+
+hub:
+  sources:
+    - type: demo
+      interval_secs: 1.0
+      metrics:
+        - key: mrr
+          label: MRR
+          value_start: 48000
+          fmt: "${v}"
+          kind: star
+          timeline:
+            - {at: 0, value: 48000}
+            - {at: 4, value: 56000}
+            - {at: 6, value: 61000}
+            - {at: 10, value: 62000}
+            - {at: 13, value: 60000}
+            - {at: 17, value: 51000}
+            - {at: 20, value: 48000}
+        - key: signups
+          label: SIGNUPS
+          value_start: 320
+          fmt: "{v}"
+          timeline:
+            - {at: 0, value: 320}
+            - {at: 20, value: 372}
+        - key: uptime
+          label: UPTIME
+          value_start: 99.9
+          fmt: "{v}%"
+          timeline:
+            - {at: 0, value: 99.9}
+            - {at: 8, value: 99.9}
+            - {at: 10, value: 97.8}
+            - {at: 12, value: 92.8}
+            - {at: 15, value: 93.2}
+            - {at: 17, value: 97.0}
+            - {at: 19, value: 99.8}
+            - {at: 20, value: 99.9}
+
+  moods:
+    - {when: {metric: uptime, op: lt, value: 95.0}, mood: panic, priority: 20}
+    - {when: {metric: uptime, op: lt, value: 99.0}, mood: sick, priority: 10}
+    - {when: {metric: mrr, op: gte, value: 60000.0}, mood: celebrate, priority: 5}
+
+  alerts:
+    - {id: uptime-critical, when: {metric: uptime, op: lt, value: 95.0}, severity: critical, title: Uptime dropping, body: SLA at risk, source: monitor}

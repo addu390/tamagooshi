@@ -1,0 +1,29 @@
+brand:
+  id: template
+  name: YOUR PRODUCT
+  mascot: Buddy
+  tagline: your tagline here
+
+device:
+  transports:
+    ble: gatt
+  timezone: "+00:00"
+  theme:
+    default: slate
+    enabled: [slate]
+  typeface:
+    default: pixel
+    enabled: [pixel, dejavu]
+  mascot:
+    default: cat
+    mood: happy
+    enabled: [pals]
+  games:
+    enabled: [runner, flappy]
+  apps:
+    enabled: [clock, stopwatch, flashlight, about]
+
+hub:
+  sources: []
+  moods: []
+  alerts: []
