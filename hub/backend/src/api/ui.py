@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 def _repo() -> str:
     here = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(here, "..", "..", ".."))
+    return os.path.abspath(os.path.join(here, "..", "..", "..", ".."))
 
 
 def _ui_dir() -> str | None:
@@ -20,7 +20,7 @@ def _ui_dir() -> str | None:
     bundled = os.path.join(getattr(sys, "_MEIPASS", ""), "ui")
     if bundled != "ui" and os.path.isdir(bundled):
         return bundled
-    local = os.path.join(_repo(), "app", "ui")
+    local = os.path.join(_repo(), "hub", "console")
     return local if os.path.isdir(local) else None
 
 

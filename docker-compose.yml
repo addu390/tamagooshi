@@ -10,14 +10,14 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - ./hub/broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./hub/broker/data:/mosquitto/data
-      - ./hub/broker/log:/mosquitto/log
+      - ./hub/backend/broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./hub/backend/broker/data:/mosquitto/data
+      - ./hub/backend/broker/log:/mosquitto/log
 
   hub:
     build:
       context: .
-      dockerfile: hub/Dockerfile
+      dockerfile: hub/backend/Dockerfile
     container_name: tamagooshi-hub
     restart: unless-stopped
     depends_on:

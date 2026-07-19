@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "firmware" / "tools"))
 
 from gen import manifest as gen_manifest  # noqa: E402
@@ -22,7 +22,7 @@ from src.network.transport.factory import TRANSPORTS  # noqa: E402
 
 
 def _catalog():
-    text = (REPO / "app" / "ui" / "js" / "catalog.gen.js").read_text(encoding="utf-8")
+    text = (REPO / "hub" / "console" / "js" / "catalog.gen.js").read_text(encoding="utf-8")
     return json.loads(text[text.index("{"):text.rindex("}") + 1])
 
 
@@ -82,7 +82,7 @@ def test_blob_byte_parity():
         },
     }
 
-    script = (f"import({json.dumps((REPO / 'app/ui/js/wire/blob.js').as_uri())})"
+    script = (f"import({json.dumps((REPO / 'hub/console/js/wire/blob.js').as_uri())})"
               f".then((m) => process.stdout.write(m.encode(m.fromManifest("
               f"{json.dumps(manifest)}))));")
     out = subprocess.run([node, "-e", script], capture_output=True, check=True).stdout

@@ -19,7 +19,7 @@ firmware/include/secrets.h
 
 build/
 build-gui/
-app/macos/.build/
+hub/macos/.build/
 sim/build/
 sim/build-gui/
 *.o
@@ -41,8 +41,8 @@ brands/terminal/
 .DS_Store
 *.swp
 
-hub/broker/data/
-hub/broker/log/
+hub/backend/broker/data/
+hub/backend/broker/log/
 
 *.pem
 *.key

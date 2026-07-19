@@ -132,7 +132,7 @@ cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + f
           <tr><td><code>demo</code></td><td>Synthetic values with drift and scripted incidents.</td></tr>
           <tr><td><code>datadog</code></td><td>The latest point of a Datadog timeseries query.</td></tr>
           <tr><td><code>posthog</code></td><td>A HogQL query or a saved insight, by short_id.</td></tr>
-          <tr class="ext"><td><code>+ yours</code></td><td>Drop a folder under <code>hub/src/services/sources/</code></td></tr>
+          <tr class="ext"><td><code>+ yours</code></td><td>Drop a folder under <code>hub/backend/src/services/sources/</code></td></tr>
         </tbody>
       </table>
       <p>Give each metric a raw provider query. For example, PostHog metrics take either a <code>query</code> (HogQL) or an <code>insight</code> short_id. Keys stay out of config: source names the environment variables it depends on, and the hub fails fast if one is missing.</p>
@@ -148,7 +148,7 @@ cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + f
         <span class="p">-</span> <span class="p">{</span><span class="k">key:</span> <span class="s">signups</span><span class="p">,</span> <span class="k">label:</span> <span class="s">SIGNUPS</span><span class="p">,</span> <span class="k">query:</span> <span class="s">"SELECT count() FROM events WHERE event = 'signup'"</span><span class="p">,</span> <span class="k">kind:</span> <span class="s">star</span><span class="p">}</span>
         <span class="p">-</span> <span class="p">{</span><span class="k">key:</span> <span class="s">active</span><span class="p">,</span> <span class="k">label:</span> <span class="s">ACTIVE</span><span class="p">,</span> <span class="k">insight:</span> <span class="s">mmtixzFF</span><span class="p">}</span></pre>
       <p>Set <code>DATADOG_API_KEY</code> and <code>DATADOG_APP_KEY</code> for Datadog, and <code>POSTHOG_API_KEY</code> for PostHog. Point a source at another region or self-hosted instance with its <code>site</code> or <code>host</code> field.</p>
-      <p>Each source is a folder under <code>hub/src/services/sources/&lt;name&gt;/</code> with its own <code>config.py</code> and <code>source.py</code> that registers a <code>SourceProvider</code>. Adding a provider is a new folder, not a change to the core.</p>
+      <p>Each source is a folder under <code>hub/backend/src/services/sources/&lt;name&gt;/</code> with its own <code>config.py</code> and <code>source.py</code> that registers a <code>SourceProvider</code>. Adding a provider is a new folder, not a change to the core.</p>
     </section>
 
     <section class="doc" id="transports">
@@ -157,7 +157,7 @@ cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + f
       <pre data-lang="bash">pip install -e hub      <span class="c"># once, Python 3.10+</span>
 make hub                <span class="c"># pairs with your device over BLE</span></pre>
       <h3>Development</h3>
-      <p>Use the MQTT stack to run the simulator against a live hub without a board. The wire format is defined once per side, in <code>hub/src/wire</code> and <code>firmware/lib/wire</code>.</p>
+      <p>Use the MQTT stack to run the simulator against a live hub without a board. The wire format is defined once per side, in <code>hub/backend/src/wire</code> and <code>firmware/lib/wire</code>.</p>
       <pre data-lang="bash">make up                 <span class="c"># dev stack: broker + hub via docker compose</span>
 make sim-live BRAND=demo <span class="c"># simulator against that broker</span>
 make logs               <span class="c"># tail hub logs</span>

@@ -9,7 +9,7 @@ from gen.ui.typefaces import TYPEFACES
 
 
 def manifest_candidates(brands_dir, brand_id):
-    # Order shared with hub/src/config/loader.py
+    # Order shared with hub/backend/src/config/loader.py
     return [os.path.join(brands_dir, brand_id, "config.yaml"),
             os.path.join(brands_dir, brand_id + ".yaml")]
 
@@ -162,7 +162,7 @@ def parse_transports(value):
     return spec
 
 
-# Same as hub/src/config/loader.py _tz_minutes
+# Same as hub/backend/src/config/loader.py _tz_minutes
 def tz_minutes(value):
     if value is None:
         return 0

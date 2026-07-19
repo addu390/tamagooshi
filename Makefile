@@ -1,4 +1,4 @@
-.PHONY: help hub up down logs hub-sim hub-test sim sim-live brand app dmg
+.PHONY: help hub up down logs hub-sim hub-test sim sim-live brand macos dmg
 
 BROKER ?= localhost:1883
 BRAND ?= gooshi
@@ -19,11 +19,11 @@ help:
 	@echo "  make hub-sim BRAND=<id>  # hub over MQTT for the simulator (needs a broker on $(BROKER))"
 	@echo "  make hub-test  # hub unit tests"
 	@echo "  make brand BRAND=<id>  # generate a brand's firmware headers into firmware/.gen/current"
-	@echo "  make app       # build the Mac menu bar app into build/Tamagooshi.app"
+	@echo "  make macos     # build the Mac menu bar app into build/Tamagooshi.app"
 	@echo "  make dmg       # package the app as build/Tamagooshi-<version>.dmg"
 
 hub:
-	cd hub && TAMA_TRANSPORT=ble:gatt TAMA_BRAND=$(BRAND) python -m src
+	cd hub/backend && TAMA_TRANSPORT=ble:gatt TAMA_BRAND=$(BRAND) python -m src
 
 up:
 	docker compose up -d --build
@@ -35,7 +35,7 @@ logs:
 	docker compose logs -f hub
 
 hub-sim:
-	cd hub && TAMA_TRANSPORT=wifi:mqtt TAMA_BROKER=$(BROKER) TAMA_BRAND=$(BRAND) TAMA_DEVICE_ID=sim python -m src
+	cd hub/backend && TAMA_TRANSPORT=wifi:mqtt TAMA_BROKER=$(BROKER) TAMA_BRAND=$(BRAND) TAMA_DEVICE_ID=sim python -m src
 
 sim:
 	cd firmware && TAMA_BRAND=$(BRAND) TAMA_DEV=$(DEV) pio run -e native_sim -t exec
@@ -46,8 +46,8 @@ sim-live:
 brand:
 	cd firmware/tools && TAMA_DEV=$(DEV) python3 -m gen brand $(BRAND)
 
-app:
-	app/scripts/build-app.sh
+macos:
+	hub/macos/scripts/build.sh
 
-dmg: app
-	app/scripts/make-dmg.sh
+dmg: macos
+	hub/macos/scripts/dmg.sh

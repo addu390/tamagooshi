@@ -27,7 +27,7 @@ def _catalog(args):
     data = catalog()
     targets = ([(args[0], render)] if args else
                [(os.path.join(repo, "docs", "js", "catalog.js"), render),
-                (os.path.join(repo, "app", "ui", "js", "catalog.gen.js"), render_module)])
+                (os.path.join(repo, "hub", "console", "js", "catalog.gen.js"), render_module)])
 
     for out, renderer in targets:
         os.makedirs(os.path.dirname(out), exist_ok=True)

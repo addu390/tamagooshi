@@ -1,15 +1,15 @@
 import os
 
 spec_dir = os.path.abspath(SPECPATH)
-repo = os.path.abspath(os.path.join(spec_dir, "..", ".."))
-hub = os.path.join(repo, "hub")
+repo = os.path.abspath(os.path.join(spec_dir, "..", "..", ".."))
+backend = os.path.join(repo, "hub", "backend")
 
 a = Analysis(
-    [os.path.join(hub, "src", "__main__.py")],
-    pathex=[hub],
+    [os.path.join(backend, "src", "__main__.py")],
+    pathex=[backend],
     datas=[
         (os.path.join(repo, "brands"), "brands"),
-        (os.path.join(repo, "app", "ui"), "ui"),
+        (os.path.join(repo, "hub", "console"), "ui"),
         (os.path.join(repo, "docs", "css", "tokens.css"), "ui"),
     ],
     hiddenimports=["uvicorn.protocols.http.auto", "uvicorn.protocols.websockets.auto",

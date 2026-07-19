@@ -21,7 +21,7 @@ def _repo():
 
 
 def _agents():
-    path = os.path.join(_repo(), "hub", "src", "features", "buddy", "agents", "catalog.py")
+    path = os.path.join(_repo(), "hub", "backend", "src", "features", "buddy", "agents", "catalog.py")
     spec = importlib.util.spec_from_file_location("tama_agent_catalog", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

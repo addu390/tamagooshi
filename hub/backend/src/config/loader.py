@@ -19,7 +19,7 @@ def _builtin_brands_dir() -> str:
     if bundled != "brands" and os.path.isdir(bundled):
         return bundled
     here = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(here, "..", "..", "..", "brands"))
+    return os.path.abspath(os.path.join(here, "..", "..", "..", "..", "brands"))
 
 
 def brand_dirs() -> list[str]:
