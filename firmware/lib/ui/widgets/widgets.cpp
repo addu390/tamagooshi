@@ -314,7 +314,18 @@ void listRow(Gfx& g, const Rect& r, const ListItem& item, bool selected, const l
   const uint16_t rv = selected ? val : (item.enabled ? val : theme::kDimmer);
   const int midY = r.y + r.h / 2;
 
-  g.str(item.label, r.x + 8, midY, lab, font, textdatum_t::middle_left);
+  const lgfx::IFont* labelFont = font;
+  const lgfx::IFont* valueFont = font;
+  if (item.visual == RowVisual::Text && item.value && item.value[0]) {
+    const int avail = r.w - 16 - 6;
+    if (g.textWidth(item.label, labelFont) + g.textWidth(item.value, valueFont) > avail) {
+      valueFont = typeface::micro();
+      if (g.textWidth(item.label, labelFont) + g.textWidth(item.value, valueFont) > avail) {
+        labelFont = typeface::micro();
+      }
+    }
+  }
+  g.str(item.label, r.x + 8, midY, lab, labelFont, textdatum_t::middle_left);
   switch (item.visual) {
     case RowVisual::Toggle:
       toggle(g, r.x + r.w - 8, midY, item.level != 0, selected ? theme::kBg : theme::kHi);
@@ -325,7 +336,7 @@ void listRow(Gfx& g, const Rect& r, const ListItem& item, bool selected, const l
       break;
     case RowVisual::Text:
       if (item.value && item.value[0]) {
-        g.str(item.value, r.x + r.w - 8, midY, rv, font, textdatum_t::middle_right);
+        g.str(item.value, r.x + r.w - 8, midY, rv, valueFont, textdatum_t::middle_right);
       }
       break;
   }

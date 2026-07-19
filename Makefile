@@ -41,4 +41,4 @@ sim-live:
 	cd firmware && TAMA_BRAND=$(BRAND) TAMA_DEV=$(DEV) TAMA_BROKER=$(BROKER) pio run -e native_sim -t exec
 
 brand:
-	cd firmware && TAMA_DEV=$(DEV) python3 tools/generator/build.py $(BRAND)
+	cd firmware/tools && TAMA_DEV=$(DEV) python3 -m gen brand $(BRAND)

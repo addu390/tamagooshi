@@ -9,14 +9,14 @@ brand:
 device:
   theme:
     default: midnight
-    enabled: [midnight, slate, espresso, timex]
+    enabled: [midnight, slate, espresso, timex, terra]
   typeface:
     default: dejavu
     enabled: [dejavu, pixel]
   mascot:
     default: cat
     mood: happy
-    enabled: [pals]
+    enabled: [pals, claude]
   games:
     enabled: [runner, flappy, delivery]
   buddy:

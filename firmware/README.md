@@ -1,6 +1,6 @@
 # Firmware
 
-Firmware for the M5Stick family (`m5stickc-plus`, `m5stickc-plus-se`, `m5sticks3`) plus an SDL simulator that runs the same app-shell on your Mac. Default build is a BLE peripheral that pairs with the local agent. MQTT over Wi-Fi is optional. One entry in `tools/generator/boards.py` describes each board; capabilities gate features (e.g. the SE has no IMU, so tilt games hide themselves).
+Firmware for the M5Stick family (`m5stickc-plus`, `m5stickc-plus-se`, `m5sticks3`) plus an SDL simulator that runs the same app-shell on your Mac. Default build is a BLE peripheral that pairs with the local agent. MQTT over Wi-Fi is optional. One entry in `tools/gen/platform/boards.py` describes each board; capabilities gate features (e.g. the SE has no IMU, so tilt games hide themselves).
 
 ## Simulator
 

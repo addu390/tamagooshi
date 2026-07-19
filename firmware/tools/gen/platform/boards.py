@@ -1,6 +1,3 @@
-import json
-import sys
-
 SCREEN_W = 135
 SCREEN_H = 240
 
@@ -85,17 +82,3 @@ def ci_matrix():
                 "image": f"{v['variant']}-{asset(bid)}.bin",
             })
     return rows
-
-
-def main(argv):
-    what = argv[1] if len(argv) > 1 else "matrix"
-    if what == "matrix":
-        print(json.dumps({"include": ci_matrix()}))
-    elif what == "flash":
-        print(json.dumps(flash_catalog(), indent=2))
-    else:
-        raise SystemExit(f"unknown query: {what}")
-
-
-if __name__ == "__main__":
-    main(sys.argv)

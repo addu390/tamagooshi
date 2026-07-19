@@ -1,4 +1,4 @@
-from engine import INK, auto_outline, blank, kawaii_pal, px, rect
+from gen.features.mascots.drawing import INK, auto_outline, blank, kawaii_pal, px, rect
 
 WHT = 10
 

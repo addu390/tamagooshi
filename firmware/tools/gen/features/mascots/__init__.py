@@ -1,7 +1,7 @@
-from mascots.claude import CLAUDE
-from mascots.pals import PALS
-from mascots.poke import POKE
-from mascots.trucks import TRUCKS
+from gen.features.mascots.claude import CLAUDE
+from gen.features.mascots.pals import PALS
+from gen.features.mascots.poke import POKE
+from gen.features.mascots.trucks import TRUCKS
 
 _PACKS = [("pals", PALS), ("trucks", TRUCKS), ("poke", POKE), ("claude", CLAUDE)]
 

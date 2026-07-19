@@ -3,7 +3,13 @@
   const D = window.TamaDevice;
   if (!mount || !D) return;
 
-  const SIL = D.SIL, DET = D.DET, GRID = "#e9ebf0";
+  const PRESET = window.TAMA_PRESET || {};
+  const SIL = D.SIL, DET = D.DET, DC = D.colors, GRID = DC.grid;
+  const lit = (t) => `rgb(${DC.shade0.map((v) => Math.round(v + (255 - v) * t)).join(",")})`;
+  const SHELL = Object.assign({
+    front: lit(0.85), top: lit(0.55), right: lit(0.3), mascot: lit(0.4),
+    body: DC.shell, bezel: DC.bezel,
+  }, PRESET.demoShell || {});
   const FW = 140, FH = 280;
   const dx = 34, dy = -22;
   const R = 11;
@@ -42,12 +48,12 @@
     + sideSq(encA, encHT, encG, 5, "none", DET, 0.9)
     + sideSq(encB, encHT, encG, 5, "none", DET, 0.9)
     + `<g id="demoSideBtn" style="cursor:pointer">`
-    + sideSq(ctrT, pocketT, pocketG, 5, "#c3c9d2", SIL, 1)
-    + sideSq(ctrT, pocketT - 2.3, pocketG - 0.036, 4, "#b4bbc5")
-    + `<g id="demoSideCap">` + sideSq(ctrT, capT, capG, 3.5, "#d4d9e0", SIL, 1.1) + `</g>`
+    + sideSq(ctrT, pocketT, pocketG, 5, DC.btnPocket, SIL, 1)
+    + sideSq(ctrT, pocketT - 2.3, pocketG - 0.036, 4, DC.btnPocketDeep)
+    + `<g id="demoSideCap">` + sideSq(ctrT, capT, capG, 3.5, DC.btnCap, SIL, 1.1) + `</g>`
     + `</g>`
-    + sideSq(ctrT - pocketT - 36, 10.5, 0.05, 2, "#2b2f36")
-    + sideSq(ctrT + pocketT + 36, 10.5, 0.05, 2, "#2b2f36");
+    + sideSq(ctrT - pocketT - 36, 10.5, 0.05, 2, DC.hatSlot)
+    + sideSq(ctrT + pocketT + 36, 10.5, 0.05, 2, DC.hatSlot);
 
   const T = (x, y) => [x * FW / 104 + (1 - y / 44) * dx, (1 - y / 44) * dy];
   const topQuad = (x0, x1, y0, y1, r, fill, stroke, sw) =>
@@ -56,20 +62,20 @@
     const hx0 = 10, hw = 84, hy0 = 7, hh = 22, cols = 9, rows = 2, gpx = 3.4;
     const cw = (hw - gpx * (cols + 1)) / cols, ch = (hh - gpx * (rows + 1)) / rows;
     const colX = (c) => hx0 + gpx + c * (cw + gpx);
-    let out = topQuad(hx0, hx0 + hw, hy0, hy0 + hh, 4, "#3f444c", SIL, 1);
+    let out = topQuad(hx0, hx0 + hw, hy0, hy0 + hh, 4, DC.hat, SIL, 1);
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const x = colX(c), y = hy0 + gpx + r * (ch + gpx);
-      out += topQuad(x, x + cw, y, y + ch, 1.5, "#14161a");
+      out += topQuad(x, x + cw, y, y + ch, 1.5, DC.hatHole);
     }
     const vy = 0.78 * 44, slotY = hy0 + hh, slotTop = vy + ch * 0.4;
     const sw = 2 * cw + gpx;
-    out += topQuad(colX(0), colX(0) + sw, slotY, slotTop, 1.5, "#2b2f36");
+    out += topQuad(colX(0), colX(0) + sw, slotY, slotTop, 1.5, DC.hatSlot);
     const gx0 = colX(7);
     const tpoly = (pts, op) => `<polygon points="${pts.map((p) => { const q = T(p[0], p[1]); return `${q[0].toFixed(1)},${q[1].toFixed(1)}`; }).join(" ")}" fill="#ffffff" opacity="${op}"/>`;
-    out += topQuad(gx0, gx0 + sw, slotY, slotTop, 1.5, "#14161c", "#4a5160", 0.6);
+    out += topQuad(gx0, gx0 + sw, slotY, slotTop, 1.5, DC.hatGlass, DC.hatGlassLine, 0.6);
     out += tpoly([[gx0 + 0.16 * sw, slotY], [gx0 + 0.38 * sw, slotY], [gx0 + 0.24 * sw, slotTop], [gx0 + 0.02 * sw, slotTop]], 0.16);
     out += tpoly([[gx0 + 0.52 * sw, slotY], [gx0 + 0.60 * sw, slotY], [gx0 + 0.46 * sw, slotTop], [gx0 + 0.38 * sw, slotTop]], 0.07);
-    return out + [-1, 0, 1].map((k) => topQuad(52 + k * 7 - 2.2, 52 + k * 7 + 2.2, vy - 2.2, vy + 2.2, 2.2, "#565b64")).join("");
+    return out + [-1, 0, 1].map((k) => topQuad(52 + k * 7 - 2.2, 52 + k * 7 + 2.2, vy - 2.2, vy + 2.2, 2.2, DC.vent)).join("");
   })();
 
   const liftX = -dx * (1.2 / 13.5), liftY = -dy * (1.2 / 13.5);
@@ -83,13 +89,13 @@
   };
   const btnBody = `<g id="demoBtnA" style="cursor:pointer">${btnParts(1)}</g>`;
 
-  const MASCOT = ["#.......#", "##.....##", ".#######.", "#########", "#.#...#.#", "#########", "#..###..#", ".#.###.#."];
+  const MASCOT = D.mascotArt;
   const n = MASCOT[0].length, m = MASCOT.length;
   const ps = Math.min(SCR.w / n, SCR.h / m) * 0.58;
   const gx = SCR.x + (SCR.w - n * ps) / 2, gy = SCR.y + (SCR.h - m * ps) / 2;
   let mascot = "";
   for (let rr = 0; rr < m; rr++) for (let cc = 0; cc < n; cc++) if (MASCOT[rr][cc] === "#")
-    mascot += `<rect x="${(gx + cc * ps).toFixed(2)}" y="${(gy + rr * ps).toFixed(2)}" width="${(ps + 0.4).toFixed(2)}" height="${(ps + 0.4).toFixed(2)}" fill="#e6e9ee"/>`;
+    mascot += `<rect x="${(gx + cc * ps).toFixed(2)}" y="${(gy + rr * ps).toFixed(2)}" width="${(ps + 0.4).toFixed(2)}" height="${(ps + 0.4).toFixed(2)}" fill="${SHELL.mascot}"/>`;
 
   let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
   const acc = (p) => { if (p[0] < minx) minx = p[0]; if (p[0] > maxx) maxx = p[0]; if (p[1] < miny) miny = p[1]; if (p[1] > maxy) maxy = p[1]; };
@@ -119,19 +125,19 @@
     <clipPath id="demoScr"><rect x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" rx="6"/></clipPath>
     <clipPath id="demoBody"><path d="${outlineD}"/></clipPath>
     <g class="dev-body">
-    <path d="${outlineD}" fill="#ced3db"/>
+    <path d="${outlineD}" fill="${SHELL.body}"/>
     <g clip-path="url(#demoBody)">
-    ${quadPath(topFace, R, "#e9edf2")}
+    ${quadPath(topFace, R, SHELL.top)}
     ${hatFeats}
-    ${quadPath(rightFace, R, "#dee3ea")}
+    ${quadPath(rightFace, R, SHELL.right)}
     ${seam}
-    <rect width="${FW}" height="${FH}" rx="${R}" fill="#f6f8fa"/>
+    <rect width="${FW}" height="${FH}" rx="${R}" fill="${SHELL.front}"/>
     </g>
     ${edge(0, 0, FW, 0)}
     ${edge(FW, 0, FW, FH)}
     ${edge(FW, 0, FW + dx, dy)}
     <rect x="${SCR.x - 5}" y="${SCR.y - 5}" width="${SCR.w + 10}" height="${SCR.h + 10}" rx="11" fill="${DET}"/>
-    <rect x="${SCR.x - 2}" y="${SCR.y - 2}" width="${SCR.w + 4}" height="${SCR.h + 4}" rx="9" fill="#d8dce3"/>
+    <rect x="${SCR.x - 2}" y="${SCR.y - 2}" width="${SCR.w + 4}" height="${SCR.h + 4}" rx="9" fill="${SHELL.bezel}"/>
     <rect x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" rx="6" fill="#0e0f12"/>
     <g clip-path="url(#demoScr)">${mascot}</g>
     <foreignObject id="demoFO" x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" clip-path="url(#demoScr)"></foreignObject>
@@ -173,17 +179,18 @@
   screen.className = "demo-screen";
   svg.querySelector("#demoFO").appendChild(screen);
 
-  const SCENARIOS = [
-    { id: "mood", title: "Live mood", desc: "The mascot idles and fidgets while a live metric ticks, easing its mood as the numbers move.",
-      markers: [{ a: 0.35, b: 0.42, kind: "warn" }, { a: 0.42, b: 0.585, kind: "crit" }, { a: 0.585, b: 0.75, kind: "warn" }] },
+  const DEMO = PRESET.demo || {};
+  const SCENARIOS = DEMO.scenarios || [
+    { id: "mood", title: "Live mood", desc: "The mascot idles and fidgets while a live metric ticks, easing its mood as the numbers move.", metrics: true,
+      markers: [{ a: 0.35, kind: "warn" }, { a: 0.42, kind: "crit" }, { a: 0.585, kind: "warn" }] },
     { id: "metrics", title: "Powered by your metrics", desc: "Your live numbers flow in from Stripe, PostHog and Datadog. The device cycles through them as a launch spike lands.",
-      markers: [{ a: 0.29, b: 0.44, kind: "hi" }] },
-    { id: "agents", title: "Working with Claude & Cursor", desc: "An agent session starts, the mascot heads down to work, then celebrates when the task lands.",
-      markers: [{ a: 0.39, b: 0.57, kind: "hi" }] },
+      markers: [{ a: 0.29, kind: "hi" }] },
+    { id: "agents", title: "Co-work with Claude & Cursor", desc: "The mascot works alongside an agent session and celebrates the landed task. Then you press A, speak, and Claude answers on the device.",
+      markers: [{ a: 0.28, kind: "hi" }, { a: 0.46, kind: "hi" }, { a: 0.56, kind: "warn" }, { a: 0.70, kind: "hi" }] },
     { id: "alerts", title: "Approvals & alerts", desc: "An approval slides up to approve or deny, then an alert fires as a threshold is crossed.",
-      markers: [{ a: 0.05, b: 0.16, kind: "warn" }, { a: 0.25, b: 0.36, kind: "warn" }, { a: 0.50, b: 0.60, kind: "crit" }] },
-    { id: "brand", title: "Games & your brand", desc: "A quick mini-game flows into your logo and a couple of swappable mascot skins.",
-      markers: [{ a: 0.19, b: 0.33, kind: "hi" }] },
+      markers: [{ a: 0.05, kind: "warn" }, { a: 0.25, kind: "warn" }, { a: 0.50, kind: "crit" }] },
+    { id: "brand", title: "Make it yours", desc: "A quick mini-game, then the shell gets rebranded live: the Clawd mascot pack and the terra theme.", gameWin: { start: 50 / 290, end: 99 / 290 },
+      markers: [{ a: 0.53, kind: "hi" }, { a: 0.62, kind: "hi" }] },
   ];
 
   const video = document.createElement("video");
@@ -241,11 +248,11 @@
   metricsEl.appendChild(cap);
   if (stage) stage.appendChild(metricsEl);
 
-  const LEGENDS = {
+  const LEGENDS = DEMO.legends || {
     metrics: { h: "POWERED BY", rows: [["MRR", "Stripe"], ["SIGNUPS", "PostHog"], ["ACTIVE", "PostHog"], ["UPTIME", "Datadog"]] },
-    agents: { h: "WORKS WITH", rows: [["Claude", "live"], ["Cursor", "live"]] },
+    agents: { h: "WORKS WITH", rows: [["Claude", "live"], ["Cursor", "live"], ["Voice", "hold A"]] },
     alerts: { h: "IN THE LOOP", rows: [["Approvals", "Cursor"], ["Alerts", "Datadog"]] },
-    brand: { h: "MAKE IT YOURS", rows: [["Logo", "yours"], ["Theme", "4"], ["Mascot", "swap"], ["Games", "3"]] },
+    brand: { h: "MAKE IT YOURS", rows: [["Logo", "yours"], ["Theme", "5"], ["Mascot", "swap"], ["Games", "3"]] },
   };
   const legendEl = document.createElement("div");
   legendEl.className = "demo-sources";
@@ -270,8 +277,13 @@
 
   function renderMarks(list) {
     marks.innerHTML = (list || [])
-      .map((k) => `<span class="scrub-mark ${k.kind}" style="left:${(k.a * 100).toFixed(2)}%;width:${((k.b - k.a) * 100).toFixed(2)}%"></span>`)
+      .map((k) => `<span class="scrub-mark ${k.kind}" data-at="${k.a}" style="left:${(k.a * 100).toFixed(2)}%"></span>`)
       .join("");
+  }
+
+  function paintMarks(p) {
+    marks.querySelectorAll(".scrub-mark").forEach((m) =>
+      m.classList.toggle("passed", p >= parseFloat(m.dataset.at)));
   }
 
   let scrubbing = false;
@@ -293,10 +305,11 @@
   }
   function updateScrub() {
     const dur = video.duration;
-    if (!dur) { fill.style.width = "0%"; knob.style.left = "0%"; timeEl.textContent = "0:00"; return; }
+    if (!dur) { fill.style.width = "0%"; knob.style.left = "0%"; paintMarks(0); timeEl.textContent = "0:00"; return; }
     const p = Math.min(1, video.currentTime / dur);
     fill.style.width = (p * 100).toFixed(2) + "%";
     knob.style.left = (p * 100).toFixed(2) + "%";
+    paintMarks(p);
     timeEl.textContent = fmtTime(video.currentTime) + " / " + fmtTime(dur);
   }
   function seekToClientX(clientX) {
@@ -346,15 +359,14 @@
       L.rows.map((r) => `<div class="src-row"><span class="src-m">${r[0]}</span><span class="src-dot"></span><span class="src-s">${r[1]}</span></div>`).join("");
   }
 
-  const GAME_WIN = { start: 67 / 350, end: 114 / 350 };
-  let currentId = null;
+  let current = null;
   let metricsOn = false;
   function tick() {
-    if (currentId === "brand" && video.duration) {
+    if (current && current.gameWin && video.duration) {
       const f = (video.currentTime / video.duration) % 1;
-      const land = f >= GAME_WIN.start && f <= GAME_WIN.end;
+      const land = f >= current.gameWin.start && f <= current.gameWin.end;
       mount.classList.toggle("landscape", land);
-      legendEl.classList.toggle("on", !land && !!LEGENDS.brand);
+      legendEl.classList.toggle("on", !land && !!LEGENDS[current.id]);
     }
     if (metricsOn && video.duration) {
       const dur = video.duration;
@@ -383,6 +395,12 @@
   function stopLoop() { if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; } }
 
   const list = document.querySelector(".demo-walk");
+  if (list && DEMO.note) {
+    const li = document.createElement("li");
+    li.className = "walk-item walk-note";
+    li.innerHTML = `<span class="walk-n">0</span><span class="walk-t"><b>${DEMO.note.title}</b><em>${DEMO.note.desc}</em></span>`;
+    list.appendChild(li);
+  }
   const items = SCENARIOS.map((s, i) => {
     const li = document.createElement("li");
     li.className = "walk-item";
@@ -398,8 +416,8 @@
   function select(i) {
     items.forEach((li, k) => li.classList.toggle("on", k === i));
     const s = SCENARIOS[i];
-    currentId = s.id;
-    metricsOn = s.id === "mood";
+    current = s;
+    metricsOn = !!s.metrics;
     metricsEl.classList.toggle("on", metricsOn);
     mount.classList.remove("landscape");
     renderLegend(s.id);

@@ -2,7 +2,7 @@ brand:
   id: claude
   name: CLAUDE
   mascot: Clawd
-  tagline: Your agent on your desk
+  tagline: Off the screen, on the case
   website: claude.com
   logo: logo.png
 
@@ -11,12 +11,10 @@ device:
     ble: gatt
   theme:
     custom:
-      - name: crail
-        colors: {surface: "#F0EEE6", ink: "#191919", accent: "#D97757"}
       - name: clay
         colors: {surface: "#262624", ink: "#F0EEE6", accent: "#D97757"}
-    default: crail
-    enabled: [crail, clay]
+    default: terra
+    enabled: [terra, clay]
   typeface:
     default: dejavu
     enabled: [dejavu, pixel]

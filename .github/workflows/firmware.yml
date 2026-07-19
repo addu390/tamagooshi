@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: gen
-        run: echo "builds=$(python3 firmware/tools/generator/boards.py matrix)" >> "$GITHUB_OUTPUT"
+        run: echo "builds=$(cd firmware/tools && python3 -m gen matrix)" >> "$GITHUB_OUTPUT"
 
   build:
     needs: matrix

@@ -1,5 +1,5 @@
-from engine import (INK, auto_outline, blank, kawaii_pal, kblush, keye,
-                    kmouth, px, rect, rrect)
+from gen.features.mascots.drawing import (INK, auto_outline, blank, kawaii_pal, kblush,
+                                          keye, kmouth, px, rect, rrect)
 
 
 def ktruck_pal(cab, cabsh, cabli):

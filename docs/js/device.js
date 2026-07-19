@@ -11,6 +11,10 @@
     sil: "#1b1d23", det: "#b9bec8", grid: "#e9ebf0",
     dimline: "#c7ccd4", dimtext: "#9298a4", call: "#aeb4be",
     shell: "#ced3db", shade0: [214, 217, 224], bezel: "#d8dce3",
+    well: "#f4f6f9", btnPocket: "#c3c9d2", btnPocketDeep: "#b4bbc5",
+    btnCap: "#d4d9e0", btnCapHi: "#e4e8ee",
+    hat: "#3f444c", hatHole: "#14161a", hatSlot: "#2b2f36",
+    hatGlass: "#14161c", hatGlassLine: "#4a5160", vent: "#565b64",
   }, PRESET.deviceColors || {});
   const SIL = C.sil, DET = C.det, GRID = C.grid;
   const DIMLINE = C.dimline, DIMTEXT = C.dimtext, CALL = C.call;
@@ -196,20 +200,20 @@
     const sq = (cx, midY, r, rx, fill, stroke, swd) =>
       `<rect x="${(cx - r).toFixed(1)}" y="${(midY - r).toFixed(1)}" width="${r * 2}" height="${r * 2}" rx="${rx}" fill="${fill}"${stroke ? ` stroke="${stroke}" stroke-width="${swd || 1}" vector-effect="non-scaling-stroke"` : ""}/>`;
     const slotY = cy - st.h / 2;
-    const slot = (cx) => `<rect x="${(cx - 10).toFixed(1)}" y="${(slotY - 1.7).toFixed(1)}" width="20" height="3.4" rx="1.7" fill="#2b2f36"/>`;
+    const slot = (cx) => `<rect x="${(cx - 10).toFixed(1)}" y="${(slotY - 1.7).toFixed(1)}" width="20" height="3.4" rx="1.7" fill="${C.hatSlot}"/>`;
     const seam = (x1, x2) => x2 - x1 < 4 ? "" : `<line x1="${x1.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="${DET}" stroke-width="0.9" vector-effect="non-scaling-stroke"/>`;
     return `
     ${seam(4, ex - pocket - 2)}${seam(ex + pocket + 2, st.x - 2)}${seam(st.x + st.w + 2, bx - pocket - 2)}${seam(bx + pocket + 2, W - 4)}
     ${sq(ex, cy, pocket, 3.5, "none", DET, 0.9)}
-    <rect x="${st.x.toFixed(1)}" y="${(cy - st.h / 2).toFixed(1)}" width="${st.w.toFixed(1)}" height="${st.h}" rx="2.5" fill="#f4f6f9" stroke="${DET}" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
+    <rect x="${st.x.toFixed(1)}" y="${(cy - st.h / 2).toFixed(1)}" width="${st.w.toFixed(1)}" height="${st.h}" rx="2.5" fill="${C.well}" stroke="${DET}" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
     <g transform="translate(${(st.x + st.w / 2).toFixed(1)},${cy.toFixed(1)}) scale(1,-1)"><text text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="8.5" font-weight="700" letter-spacing="0.08em" fill="${DIMTEXT}">${T("logoText", "YOUR LOGO")}</text></g>
     ${slot(st.x + st.w / 2 - 33)}${slot(st.x + st.w / 2 + 33)}
     <g class="btn-side" style="cursor:pointer">
-    ${sq(bx, cy, pocket, 3.5, "#c3c9d2", SIL, 1)}
-    ${sq(bx, cy, pocket - 1.6, 3, "#b4bbc5", null)}
+    ${sq(bx, cy, pocket, 3.5, C.btnPocket, SIL, 1)}
+    ${sq(bx, cy, pocket - 1.6, 3, C.btnPocketDeep, null)}
     <g transform="translate(${sl.x.toFixed(2)},${sl.y.toFixed(2)})">
-    ${sq(bx, cy, cap, 2.5, "#d4d9e0", SIL, 1.1)}
-    <line x1="${(bx - cap + 2).toFixed(1)}" y1="${(cy - cap + 1.6).toFixed(1)}" x2="${(bx + cap - 2).toFixed(1)}" y2="${(cy - cap + 1.6).toFixed(1)}" stroke="#e4e8ee" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    ${sq(bx, cy, cap, 2.5, C.btnCap, SIL, 1.1)}
+    <line x1="${(bx - cap + 2).toFixed(1)}" y1="${(cy - cap + 1.6).toFixed(1)}" x2="${(bx + cap - 2).toFixed(1)}" y2="${(cy - cap + 1.6).toFixed(1)}" stroke="${C.btnCapHi}" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
     </g>
     </g>`;
   } };
@@ -220,11 +224,11 @@
     const ch = (hh - gx * (rows + 1)) / rows;
     let holes = "";
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++)
-      holes += `<rect x="${(hx0 + gx + c * (cw + gx)).toFixed(1)}" y="${(hy0 + gx + r * (ch + gx)).toFixed(1)}" width="${cw.toFixed(1)}" height="${ch.toFixed(1)}" rx="0.8" fill="#14161a"/>`;
+      holes += `<rect x="${(hx0 + gx + c * (cw + gx)).toFixed(1)}" y="${(hy0 + gx + r * (ch + gx)).toFixed(1)}" width="${cw.toFixed(1)}" height="${ch.toFixed(1)}" rx="0.8" fill="${C.hatHole}"/>`;
     const vy = 0.78 * H;
     const colX = (c) => hx0 + gx + c * (cw + gx);
     const slotW = 2 * cw + gx, slotY = hy0 + hh, slotH = vy + ch * 0.4 - slotY;
-    const slot = (c) => `<rect x="${colX(c).toFixed(1)}" y="${slotY.toFixed(1)}" width="${slotW.toFixed(1)}" height="${slotH.toFixed(1)}" rx="0.8" fill="#2b2f36"/>`;
+    const slot = (c) => `<rect x="${colX(c).toFixed(1)}" y="${slotY.toFixed(1)}" width="${slotW.toFixed(1)}" height="${slotH.toFixed(1)}" rx="0.8" fill="${C.hatSlot}"/>`;
     const ix = colX(0);
     const glow = opts && opts.ir
       ? `<rect x="${ix.toFixed(1)}" y="${slotY.toFixed(1)}" width="${slotW.toFixed(1)}" height="${slotH.toFixed(1)}" fill="#ff5148" opacity="0">
@@ -232,16 +236,16 @@
         </rect>`
       : "";
     const glass = `
-    <rect x="${ix.toFixed(1)}" y="${slotY.toFixed(1)}" width="${slotW.toFixed(1)}" height="${slotH.toFixed(1)}" rx="0.8" fill="#14161c" stroke="#4a5160" stroke-width="0.6" vector-effect="non-scaling-stroke"/>
+    <rect x="${ix.toFixed(1)}" y="${slotY.toFixed(1)}" width="${slotW.toFixed(1)}" height="${slotH.toFixed(1)}" rx="0.8" fill="${C.hatGlass}" stroke="${C.hatGlassLine}" stroke-width="0.6" vector-effect="non-scaling-stroke"/>
     <clipPath id="irClip"><rect x="${ix.toFixed(1)}" y="${slotY.toFixed(1)}" width="${slotW.toFixed(1)}" height="${slotH.toFixed(1)}" rx="0.8"/></clipPath>
     <g clip-path="url(#irClip)">
       <polygon points="${(ix + slotW * 0.16).toFixed(1)},${slotY.toFixed(1)} ${(ix + slotW * 0.38).toFixed(1)},${slotY.toFixed(1)} ${(ix + slotW * 0.24).toFixed(1)},${(slotY + slotH).toFixed(1)} ${(ix + slotW * 0.02).toFixed(1)},${(slotY + slotH).toFixed(1)}" fill="#ffffff" opacity="0.16"/>
       <polygon points="${(ix + slotW * 0.52).toFixed(1)},${slotY.toFixed(1)} ${(ix + slotW * 0.60).toFixed(1)},${slotY.toFixed(1)} ${(ix + slotW * 0.46).toFixed(1)},${(slotY + slotH).toFixed(1)} ${(ix + slotW * 0.38).toFixed(1)},${(slotY + slotH).toFixed(1)}" fill="#ffffff" opacity="0.07"/>
       ${glow}
     </g>`;
-    const vents = [-1, 0, 1].map((k) => `<circle cx="${(0.50 * D + k * 7).toFixed(1)}" cy="${vy.toFixed(1)}" r="1.7" fill="#565b64"/>`).join("");
+    const vents = [-1, 0, 1].map((k) => `<circle cx="${(0.50 * D + k * 7).toFixed(1)}" cy="${vy.toFixed(1)}" r="1.7" fill="${C.vent}"/>`).join("");
     return `
-    <rect x="${hx0}" y="${hy0.toFixed(1)}" width="${hw}" height="${hh.toFixed(1)}" rx="3" fill="#3f444c" stroke="${SIL}" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <rect x="${hx0}" y="${hy0.toFixed(1)}" width="${hw}" height="${hh.toFixed(1)}" rx="3" fill="${C.hat}" stroke="${SIL}" stroke-width="1" vector-effect="non-scaling-stroke"/>
     ${holes}
     ${slot(7)}${glass}
     ${vents}`;
@@ -602,7 +606,7 @@
   }
   VB = computeViewBox();
 
-  window.TamaDevice = { SIL, DET, roundedPoly };
+  window.TamaDevice = { SIL, DET, colors: C, mascotArt: MASCOT_ART, roundedPoly };
 
   const MODES = {
     device: { yaw: DEFAULT_YAW, pitch: DEFAULT_PITCH, free: true, caption: "Drag to rotate the ESP32 handheld" },

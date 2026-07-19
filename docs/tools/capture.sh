@@ -2,7 +2,10 @@
 set -euo pipefail
 
 SCENE="${1:-mood}"
-BRAND="${BRAND:-demo}"
+case "$SCENE" in
+  claude-*) BRAND="${BRAND:-claude}" ;;
+  *)        BRAND="${BRAND:-demo}" ;;
+esac
 DEV="${DEV:-John}"
 BROKER="${BROKER:-localhost:1883}"
 FPS="${FPS:-15}"
@@ -11,6 +14,7 @@ STRIDE="${STRIDE:-8}"
 HUBSCENE=""
 INPUT=""
 BUDDY=""
+HUB=1
 case "$SCENE" in
   mood)
     START="${START:-home}"; N="${N:-300}"; WARMUP="${WARMUP:-60}"
@@ -22,7 +26,8 @@ case "$SCENE" in
     ;;
   agents)
     HUBSCENE="agents"; BUDDY="work"
-    START="${START:-buddy}"; N="${N:-270}"; WARMUP="${WARMUP:-60}"
+    START="${START:-menu}"; N="${N:-505}"; WARMUP="${WARMUP:-60}"
+    INPUT="${INPUT:-800:next,1250:next,1700:next,2150:next,2700:select,14600:next,15100:next,15500:next,15900:next,16300:next,16700:next,17200:select,18400:next,19400:select,22600:select,27600:select}"
     ;;
   alerts)
     HUBSCENE="alerts"; BUDDY="approve"
@@ -31,8 +36,22 @@ case "$SCENE" in
     ;;
   brand)
     HUBSCENE="brand"
-    START="${START:-home}"; N="${N:-350}"; WARMUP="${WARMUP:-60}"
-    INPUT="${INPUT:-3200:select,4200:next,5100:select,6000:select,6800:select,8350:select,9800:home,12200:select,13200:next,14000:next,14800:select,15600:select,16600:next,17600:select,19200:select,20800:prev,21600:select,22600:next,23600:select,25200:select}"
+    START="${START:-home}"; N="${N:-290}"; WARMUP="${WARMUP:-60}"
+    INPUT="${INPUT:-3000:select,3500:next,4000:select,4600:select,5400:select,6200:select,7000:select,8600:home,9600:select,10100:next,10600:next,11100:select,11600:next,12100:select,12600:select,13200:select,14400:back,14900:next,15400:select,16000:select,16600:select,17200:select,18400:home}"
+    ;;
+  claude-home)
+    HUB=0
+    START="${START:-home}"; N="${N:-200}"; WARMUP="${WARMUP:-60}"
+    ;;
+  claude-work)
+    HUB=0; BUDDY="work"
+    START="${START:-menu}"; N="${N:-485}"; WARMUP="${WARMUP:-60}"
+    INPUT="${INPUT:-800:next,1250:next,1700:next,2150:next,2700:select,14600:next,15100:next,15500:next,15900:next,16300:next,16700:next,17200:select,18400:select,21600:select,26600:select}"
+    ;;
+  claude-approve)
+    HUB=0; BUDDY="approve"
+    START="${START:-buddy}"; N="${N:-220}"; WARMUP="${WARMUP:-60}"
+    INPUT="${INPUT:-4200:select,8000:next,9200:select}"
     ;;
   *)
     START="${START:-home}"; N="${N:-300}"; WARMUP="${WARMUP:-60}"
@@ -47,10 +66,14 @@ trap 'rm -rf "$FRAMES"' EXIT
 cd "$ROOT/firmware"
 TAMA_BRAND="$BRAND" TAMA_DEV="$DEV" pio run -e native_sim >/dev/null
 
-cd "$ROOT"
-TAMA_BRAND="$BRAND" TAMA_SCENE="$HUBSCENE" docker compose up -d --build broker hub >/dev/null
-TAMA_BRAND="$BRAND" TAMA_SCENE="$HUBSCENE" docker compose up -d --force-recreate hub >/dev/null
-sleep 2
+if [ "$HUB" = "1" ]; then
+  cd "$ROOT"
+  TAMA_BRAND="$BRAND" TAMA_SCENE="$HUBSCENE" docker compose up -d --build broker hub >/dev/null
+  TAMA_BRAND="$BRAND" TAMA_SCENE="$HUBSCENE" docker compose up -d --force-recreate hub >/dev/null
+  sleep 2
+else
+  BROKER=""
+fi
 
 cd "$ROOT/firmware"
 TAMA_START="$START" TAMA_BROKER="$BROKER" TAMA_INPUT="$INPUT" TAMA_BUDDY="$BUDDY" \

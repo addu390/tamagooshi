@@ -49,7 +49,8 @@ int PromptOverlay::drawHeader(Gfx& g, uint16_t col, bool landscape) {
   const int hdrH = landscape ? 20 : 24;
   g.c().fillRect(0, 0, g.w(), hdrH, col);
   const char* header = isApproval(page_) ? "NEEDS YOU" : "! PAGE !";
-  g.str(header, g.w() / 2, hdrH / 2, theme::kInk, typeface::body(), textdatum_t::middle_center);
+  const uint16_t txt = page_.severity == Severity::Info ? theme::kBg : theme::kInk;
+  g.str(header, g.w() / 2, hdrH / 2, txt, typeface::body(), textdatum_t::middle_center);
 
   g.str(severityToString(page_.severity), 6, hdrH + 6, col, typeface::body(),
         textdatum_t::top_left);
@@ -91,11 +92,8 @@ void PromptOverlay::drawActions(Gfx& g, bool landscape) {
 
   widgets::SelectStyle chip;
   chip.radius = 4;
-  chip.fill = theme::kDimmer;
   chip.outline = theme::kDim;
-  chip.selectedOutline = theme::kFg;
   chip.content = theme::kDim;
-  chip.selectedContent = theme::kHi;
   for (int i = 0; i < page_.actionCount; ++i) {
     const uint16_t fg = widgets::selectionBox(g, {x, y, chipW, 18}, i == action_, chip);
     g.str(page_.actions[i].label, x + chipW / 2, y + 9, fg, typeface::body(),

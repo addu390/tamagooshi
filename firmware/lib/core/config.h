@@ -6,7 +6,7 @@
 
 namespace tama::config {
 
-// Wire format shared with tools/config/blob.py and docs/js/config-builder.js:
+// Wire format shared with tools/gen/emit/blob.py and docs/js/config-builder.js:
 // magic "TMG1", uint16 little-endian payload length, then that many JSON bytes.
 inline constexpr char kMagic[4] = {'T', 'M', 'G', '1'};
 inline constexpr size_t kHeaderSize = 6;

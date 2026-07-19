@@ -69,6 +69,7 @@
     agentDefault: prefer(ids(AGENTS), "cursor"),
     links: LINKS.reduce((m, [l]) => ((m[l] = l === "ble"), m), {}),
     linkProto: LINKS.reduce((m, [l]) => ((m[l] = protoIds(l)[0] || ""), m), {}),
+    customThemes: [],
     sources: [],
     moods: [],
     alerts: [],
@@ -229,6 +230,9 @@
     const wrap = el("div", { class: "cfg-field" }, [fieldLabel("Logo image")]);
     const preview = el("canvas", { class: "cfg-logo-prev", width: "48", height: "48" });
     const input = el("input", { type: "file", accept: "image/*" });
+    const pick = el("button", { class: "cfg-file-btn", type: "button", text: "Choose file" });
+    const fname = el("span", { class: "cfg-file-name", text: "No file chosen" });
+    pick.addEventListener("click", () => input.click());
     const clear = el("button", { class: "cfg-logo-clear", type: "button", text: "Clear" });
 
     const drawPreview = () => {
@@ -251,13 +255,20 @@
     input.addEventListener("change", () => {
       const file = input.files && input.files[0];
       if (!file) return;
+      fname.textContent = file.name;
       const img = new Image();
       img.onload = () => { state.logoMask = rasterizeLogo(img); drawPreview(); render(); };
       img.src = URL.createObjectURL(file);
     });
-    clear.addEventListener("click", () => { state.logoMask = null; input.value = ""; drawPreview(); render(); });
+    clear.addEventListener("click", () => {
+      state.logoMask = null;
+      input.value = "";
+      fname.textContent = "No file chosen";
+      drawPreview();
+      render();
+    });
 
-    wrap.appendChild(el("div", { class: "cfg-logo" }, [preview, el("div", { class: "cfg-logo-ctrl" }, [input, clear])]));
+    wrap.appendChild(el("div", { class: "cfg-logo" }, [preview, el("div", { class: "cfg-logo-ctrl" }, [pick, fname, input, clear])]));
     wrap.appendChild(el("small", { class: "cfg-hint", text: "Defaults to the brand logo shown above. Pick a file to bake your own into the browser-flash config. Local builds use the Logo path." }));
     drawPreview();
     return wrap;
@@ -343,13 +354,16 @@
     return wrap;
   }
 
-  const themeDefault = selectField("Default", () => orderBy(THEMES, state.themes), "themeDefault");
+  const customThemeNames = () => state.customThemes.map((t) => String(t.name || "").trim()).filter(Boolean);
+  const themeIds = () => THEMES.concat(customThemeNames());
+
+  const themeDefault = selectField("Default", () => orderBy(themeIds(), state.themes), "themeDefault");
   const typefaceDefault = selectField("Default", () => orderBy(TYPEFACES.map((t) => t[0]), state.typefaces), "typefaceDefault");
   const mascotDefault = selectField("Default", () => packMembers(), "mascotDefault", true);
   const agentDefault = selectField("Default agent", () => orderBy(AGENTS.map((a) => a[0]), state.agents), "agentDefault");
 
   function reconcile() {
-    const th = orderBy(THEMES, state.themes);
+    const th = orderBy(themeIds(), state.themes);
     if (!th.includes(state.themeDefault)) state.themeDefault = th[0] || "";
     const tf = orderBy(TYPEFACES.map((t) => t[0]), state.typefaces);
     if (!tf.includes(state.typefaceDefault)) state.typefaceDefault = tf[0] || "";
@@ -362,6 +376,79 @@
     mascotDefault._fill();
     agentDefault._fill();
   }
+
+  const themeEnabledField = el("div", { class: "cfg-field" });
+  function rebuildThemeEnabled() {
+    themeEnabledField.innerHTML = "";
+    themeEnabledField.appendChild(fieldLabel("Enabled"));
+    themeEnabledField.appendChild(multiselect(themeIds(), "themes", reconcile));
+  }
+
+  function colorCell(obj, key, onInput) {
+    const input = el("input", { type: "color", value: obj[key] });
+    input.addEventListener("input", () => { obj[key] = input.value; onInput(); render(); });
+    return cell(key, input);
+  }
+
+  function customThemeCard(t, onRemove) {
+    const preview = el("span", { class: "cfg-theme-prev" }, [el("b", { text: "Aa" }), el("i")]);
+    const paint = () => {
+      preview.style.background = t.surface;
+      preview.firstChild.style.color = t.ink;
+      preview.lastChild.style.background = t.accent;
+    };
+    paint();
+
+    const name = el("input", { type: "text", value: t.name, placeholder: "clay" });
+    name.addEventListener("input", () => {
+      const prev = String(t.name || "").trim();
+      const next = name.value.trim();
+      t.name = name.value;
+      state.themes = state.themes.map((x) => (x === prev ? next : x)).filter(Boolean);
+      if (next && !state.themes.includes(next)) state.themes.push(next);
+      if (state.themeDefault === prev) state.themeDefault = next;
+      rebuildThemeEnabled();
+      reconcile();
+      render();
+    });
+
+    return el("div", { class: "cfg-row" }, [
+      cell("name", name),
+      colorCell(t, "surface", paint),
+      colorCell(t, "ink", paint),
+      colorCell(t, "accent", paint),
+      cell("preview", preview),
+      delBtn(onRemove),
+    ]);
+  }
+
+  const customThemesWrap = el("div", { class: "cfg-sub" });
+  function drawCustomThemes() {
+    customThemesWrap.innerHTML = "";
+    state.customThemes.forEach((t) => {
+      customThemesWrap.appendChild(customThemeCard(t, () => {
+        state.customThemes = state.customThemes.filter((x) => x !== t);
+        state.themes = state.themes.filter((x) => x !== String(t.name || "").trim());
+        drawCustomThemes();
+        rebuildThemeEnabled();
+        reconcile();
+        render();
+      }));
+    });
+    customThemesWrap.appendChild(addBtn("custom theme", () => {
+      let n = 1;
+      while (themeIds().includes("custom" + (n > 1 ? n : ""))) n++;
+      const name = "custom" + (n > 1 ? n : "");
+      state.customThemes.push({ name, surface: "#F0EEE6", ink: "#191919", accent: "#D97757" });
+      state.themes.push(name);
+      drawCustomThemes();
+      rebuildThemeEnabled();
+      reconcile();
+      render();
+    }));
+  }
+  rebuildThemeEnabled();
+  drawCustomThemes();
 
   function buddyField() {
     const cb = el("input", { type: "checkbox" });
@@ -534,8 +621,16 @@
     o += "  transports:\n";
     LINKS.forEach(([l]) => { if (state.links[l]) o += "    " + l + ": " + state.linkProto[l] + "\n"; });
     o += "  theme:\n";
+    const customs = state.customThemes.filter((t) => bare(t.name));
+    if (customs.length) {
+      o += "    custom:\n";
+      customs.forEach((t) => {
+        o += "      - name: " + bare(t.name) + "\n";
+        o += '        colors: {surface: "' + t.surface + '", ink: "' + t.ink + '", accent: "' + t.accent + '"}\n';
+      });
+    }
     o += "    default: " + state.themeDefault + "\n";
-    o += "    enabled: " + list(orderBy(THEMES, state.themes)) + "\n";
+    o += "    enabled: " + list(orderBy(themeIds(), state.themes)) + "\n";
     o += "  typeface:\n";
     o += "    default: " + state.typefaceDefault + "\n";
     o += "    enabled: " + list(orderBy(TYPEFACES.map((t) => t[0]), state.typefaces)) + "\n";
@@ -637,7 +732,15 @@
       textField("Logo", "logo", "logo.png (in your brand folder)"),
       logoField(),
     ], true),
-    group("Theme", [themeDefault, el("div", { class: "cfg-field" }, [fieldLabel("Enabled"), multiselect(THEMES, "themes", reconcile)])]),
+    group("Theme", [
+      themeDefault,
+      themeEnabledField,
+      el("div", { class: "cfg-field" }, [
+        fieldLabel("Custom themes"),
+        customThemesWrap,
+        el("small", { class: "cfg-hint", text: "Pick surface, ink and accent; the full palette is derived from them. Custom themes are baked at build time, so browser flash ships built-in themes only." }),
+      ]),
+    ]),
     group("Typeface", [typefaceDefault, el("div", { class: "cfg-field" }, [fieldLabel("Enabled"), multiselect(TYPEFACES, "typefaces", reconcile)])]),
     group("Mascot", [
       el("div", { class: "cfg-field" }, [fieldLabel("Packs", true), multiselect(Object.keys(PACKS), "packs", reconcile)]),
@@ -700,10 +803,12 @@
     };
 
     const runtimeConfig = () => {
+      const rtThemes = orderBy(THEMES, state.themes);
       const cfg = {
         brand: { name: state.name, tagline: state.tagline, website: state.website, mascot: state.mascot },
         defaults: {
-          theme: state.themeDefault, typeface: state.typefaceDefault, mascot: state.mascotDefault,
+          theme: rtThemes.includes(state.themeDefault) ? state.themeDefault : rtThemes[0] || "",
+          typeface: state.typefaceDefault, mascot: state.mascotDefault,
           mood: state.mood, tz: tzMinutes(state.timezone),
         },
         enabled: {

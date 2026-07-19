@@ -210,26 +210,61 @@ class SimVoiceHost : public ILineSink {
     if (deserializeJson(doc, line) != DeserializationError::Ok) return;
     const std::string cmd = doc["cmd"] | "";
     if (cmd == "agents") {
-      session_->onInbound(
-          "", "{\"evt\":\"agents\",\"enabled\":[\"cursor\",\"claude\"],\"default\":\"cursor\"}");
+      session_->onInbound("", agentsEvent());
     } else if (cmd == "voice_end") {
-      const std::string agent = doc["agent"] | "cursor";
-      session_->onInbound(
-          "", "{\"evt\":\"transcript\",\"id\":\"sim_v1\",\"text\":\"what changed in the repo "
-              "since yesterday?\",\"agent\":\"" + agent + "\"}");
+      const std::string agent = doc["agent"] | TAMA_HUB_AGENT_DEFAULT;
+      schedule(900,
+               "{\"evt\":\"transcript\",\"id\":\"sim_v1\",\"text\":\"what changed in the repo "
+               "since yesterday?\",\"agent\":\"" + agent + "\"}");
     } else if (cmd == "permission" && std::string(doc["id"] | "") == "sim_v1") {
       if (std::string(doc["decision"] | "") != "once") return;
-      session_->onInbound("",
-                          "{\"evt\":\"reply\",\"text\":\"Three commits landed: the board catalog "
-                          "gained a psram flag, \",\"done\":false}");
-      session_->onInbound("",
-                          "{\"evt\":\"reply\",\"text\":\"the mic HAL grew a record API, and the "
-                          "docs got a voice section.\",\"done\":true}");
+      schedule(1800,
+               "{\"evt\":\"reply\",\"text\":\"Three commits landed: the board catalog "
+               "gained a psram flag, \",\"done\":false}");
+      schedule(2600,
+               "{\"evt\":\"reply\",\"text\":\"the mic HAL grew a record API, and the "
+               "docs got a voice section.\",\"done\":true}");
+    }
+  }
+
+  void tick(uint32_t nowMs) {
+    now_ms_ = nowMs;
+    if (session_ == nullptr) return;
+    while (!queue_.empty() && nowMs >= queue_.front().first) {
+      const std::string payload = queue_.front().second;
+      queue_.erase(queue_.begin());
+      session_->onInbound("", payload);
     }
   }
 
  private:
+  static std::string agentsEvent() {
+    JsonDocument doc;
+    doc["evt"] = "agents";
+    JsonArray enabled = doc["enabled"].to<JsonArray>();
+    const std::string joined = TAMA_HUB_AGENTS;
+    size_t i = 0;
+    while (i <= joined.size() && !joined.empty()) {
+      const size_t comma = joined.find(',', i);
+      const std::string name =
+          joined.substr(i, comma == std::string::npos ? std::string::npos : comma - i);
+      if (!name.empty()) enabled.add(name);
+      if (comma == std::string::npos) break;
+      i = comma + 1;
+    }
+    doc["default"] = TAMA_HUB_AGENT_DEFAULT;
+    std::string out;
+    serializeJson(doc, out);
+    return out;
+  }
+
+  void schedule(uint32_t delayMs, std::string payload) {
+    queue_.emplace_back(now_ms_ + delayMs, std::move(payload));
+  }
+
   AgentSession* session_ = nullptr;
+  uint32_t now_ms_ = 0;
+  std::vector<std::pair<uint32_t, std::string>> queue_;
 };
 #endif  // TAMA_ENABLE_BUDDY
 
@@ -328,7 +363,7 @@ void setup() {
 
   const char* broker = std::getenv("TAMA_BROKER");
 
-  g_transport.bind(broker && g_mqtt.tryConnect(broker, kSimId)
+  g_transport.bind(broker && *broker && g_mqtt.tryConnect(broker, kSimId)
                        ? static_cast<ITransport*>(&g_mqtt)
                        : static_cast<ITransport*>(&g_sim));
 
@@ -405,6 +440,9 @@ void loop() {
   M5.update();
   pollKeys();
   const uint32_t now = static_cast<uint32_t>(m5gfx::millis());
+#if defined(TAMA_ENABLE_BUDDY)
+  g_lineSink.tick(now);
+#endif
   g_capture.beforeFrame(now);
   g_runtime.loop(now);
   g_capture.afterFrame();

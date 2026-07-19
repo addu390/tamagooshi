@@ -1,0 +1,70 @@
+import json
+import os
+import sys
+
+
+def _paths():
+    here = os.path.dirname(os.path.abspath(__file__))
+    firmware = os.path.abspath(os.path.join(here, "..", ".."))
+    repo = os.path.abspath(os.path.join(firmware, ".."))
+    return firmware, repo
+
+
+def _brand(args):
+    from gen.pipeline import generate
+
+    firmware, repo = _paths()
+    brand = args[0] if args else os.environ.get("TAMA_BRAND", "gooshi")
+    out = args[1] if len(args) > 1 else os.path.join(firmware, ".gen", "current")
+    generate(brand, os.path.join(repo, "brands"), out, os.environ.get("TAMA_DEV", ""))
+    print(f"generated {brand} -> {out}")
+
+
+def _catalog(args):
+    from gen.emit.catalog import catalog, render
+
+    _, repo = _paths()
+    out = args[0] if args else os.path.join(repo, "docs", "js", "catalog.js")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(out, "w", encoding="utf-8") as fh:
+        fh.write(render(catalog()))
+    print(f"wrote catalog -> {out}")
+
+
+def _matrix(args):
+    from gen.platform.boards import ci_matrix
+
+    print(json.dumps({"include": ci_matrix()}))
+
+
+def _flash(args):
+    from gen.platform.boards import flash_catalog
+
+    print(json.dumps(flash_catalog(), indent=2))
+
+
+def _blob(args):
+    from gen.emit.blob import encode, from_brand
+    from gen.manifest import load
+
+    if len(args) != 2:
+        raise SystemExit("usage: python3 -m gen blob <brand-config.yaml> <out.bin>")
+    config = from_brand(load(args[0]), os.path.dirname(os.path.abspath(args[0])))
+    blob = encode(config)
+    with open(args[1], "wb") as fh:
+        fh.write(blob)
+    print(f"wrote {len(blob)}B config blob -> {args[1]}")
+
+
+COMMANDS = {"brand": _brand, "catalog": _catalog, "matrix": _matrix, "flash": _flash,
+            "blob": _blob}
+
+
+def main(argv):
+    cmd = argv[1] if len(argv) > 1 else ""
+    if cmd not in COMMANDS:
+        raise SystemExit(f"usage: python3 -m gen {{{'|'.join(COMMANDS)}}} [args]")
+    COMMANDS[cmd](argv[2:])
+
+
+main(sys.argv)

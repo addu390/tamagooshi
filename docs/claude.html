@@ -43,6 +43,7 @@
           <p class="lead">The Claude edition of Tamagooshi puts Clawd, Claude's pixel mascot, on a palm-size handheld that pairs with Claude Code over BLE. It works while your agent works, celebrates when tasks land, and lets you approve actions or talk to Claude without touching the keyboard.</p>
           <div class="hero-cta">
             <a class="btn" href="#config" data-key-hint="S">Get started <kbd>S</kbd></a>
+            <a class="btn ghost" href="index.html">Standard edition &rarr;</a>
           </div>
         </div>
 
@@ -61,15 +62,28 @@
 <div class="wrap docs">
   <aside class="side">
     <h4>Get it running</h4>
-    <a href="#run">Run it</a>
+    <a href="#demo">Demo</a>
+    <a href="#run">Quickstart</a>
     <a href="#config">Configuration</a>
     <a href="#build">Build &amp; flash</a>
   </aside>
 
   <main>
+    <section class="doc" id="demo">
+      <h2>Demo</h2>
+      <p>Real screen captures from the Claude edition, shown on the device. The firmware draws the same 135 &times; 240 screen in the simulator and on hardware, so this is exactly what ships.</p>
+      <div class="demo-box">
+        <div class="demo-stage">
+          <div class="demo-badge"><span class="rec-dot"></span>REAL RECORDING &middot; NO SOUND</div>
+          <div class="demo-device"></div>
+        </div>
+        <div class="demo-content"><ol class="demo-walk" aria-label="Walkthrough scenarios"></ol></div>
+      </div>
+    </section>
+
     <section class="doc" id="run">
-      <h2>Run it</h2>
-      <p>The Claude brand ships in the repo as <code>brands/claude/</code>: Clawd as the mascot pack, Anthropic's terracotta as a custom theme (<code>crail</code> light, <code>clay</code> dark), the Claude agent enabled, and BLE as the only transport. Try it in the simulator first, no board needed.</p>
+      <h2>Quickstart</h2>
+      <p>The Claude brand ships in the repo as <code>brands/claude/</code>: Clawd as the mascot pack, the built-in <code>terra</code> terracotta theme plus a custom <code>clay</code> dark variant, the Claude agent enabled, and BLE as the only transport. Try it in the simulator first, no board needed.</p>
       <div class="fgrid cols-2">
         <div class="fcard">
           <h3>Simulator</h3>
@@ -119,5 +133,6 @@ cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + f
 <script src="js/catalog.js"></script>
 <script src="js/config-builder.js"></script>
 <script src="js/device.js"></script>
+<script src="js/demo.js"></script>
 </body>
 </html>

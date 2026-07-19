@@ -1,5 +1,5 @@
-from engine import (INK, auto_outline, blank, ellipse, kawaii_pal, kblush, keye,
-                    kmouth, _mirror, px)
+from gen.features.mascots.drawing import (INK, auto_outline, blank, ellipse, kawaii_pal,
+                                          kblush, keye, kmouth, mirror, px)
 
 
 def build_kcat(expr, o):
@@ -12,8 +12,8 @@ def build_kcat(expr, o):
             (10, 5), (11, 5), (12, 5),
             (9, 6), (10, 6), (11, 6), (12, 6), (13, 6),
             (9, 7), (10, 7), (11, 7), (12, 7), (13, 7)]
-    _mirror(g, lear, BODY)
-    _mirror(g, [(11, 5), (11, 6)], PATCH)
+    mirror(g, lear, BODY)
+    mirror(g, [(11, 5), (11, 6)], PATCH)
     ellipse(g, 21, 11, 3, 3, PATCH, only_solid=True)
     ellipse(g, 10, 23, 4, 3, PATCH, only_solid=True)
     for (x, y) in [(25, 21), (26, 20), (27, 19), (27, 18), (26, 17)]:
@@ -38,8 +38,8 @@ def build_kdog(expr, o):
             (9, 4), (10, 4),
             (9, 5), (10, 5), (11, 5),
             (9, 6), (10, 6), (11, 6), (12, 6)]
-    _mirror(g, lear, BODY)
-    _mirror(g, [(10, 5), (10, 6)], PLIGHT)
+    mirror(g, lear, BODY)
+    mirror(g, [(10, 5), (10, 6)], PLIGHT)
     for (x, y) in [(25, 21), (26, 20), (27, 19), (27, 18), (26, 17), (25, 17)]:
         px(g, x, y, BODY)
     auto_outline(g, OUT)

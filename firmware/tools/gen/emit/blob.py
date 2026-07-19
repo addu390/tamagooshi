@@ -1,34 +1,11 @@
-"""Builds the runtime-config blob (usage: blob.py <brand-config.yaml> <out.bin>).
-
-The TMG1 wire format must stay in lockstep with firmware/lib/core/config.cpp and
-docs/js/config-builder.js.
-"""
-
 import json
-import os
 import struct
-import sys
+
+from gen.images import logo_mask, pack_mask
+from gen.manifest import tz_minutes
 
 MAGIC = b"TMG1"
 MAX_PAYLOAD = 0xFFFF
-
-_GEN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "generator")
-
-
-def tz_minutes(value):
-    if value is None:
-        return 0
-    if isinstance(value, (int, float)):
-        return int(value)
-    s = str(value).strip()
-    if not s:
-        return 0
-    sign = 1
-    if s[0] in "+-":
-        sign = -1 if s[0] == "-" else 1
-        s = s[1:]
-    hh, _, mm = s.partition(":")
-    return sign * (int(hh) * 60 + (int(mm) if mm else 0))
 
 
 def _enabled(value):
@@ -41,9 +18,6 @@ def _logo(data, base_dir):
     src = (data.get("brand") or {}).get("logo")
     if not src or not base_dir:
         return None
-    if _GEN not in sys.path:
-        sys.path.insert(0, _GEN)
-    from engine import logo_mask, pack_mask
     w, h, rows = logo_mask(src, base_dir)
     return {"w": w, "h": h, "bits": pack_mask(w, h, rows)}
 
@@ -88,26 +62,3 @@ def encode(config):
     if len(payload) > MAX_PAYLOAD:
         raise ValueError(f"config payload {len(payload)}B exceeds {MAX_PAYLOAD}B")
     return MAGIC + struct.pack("<H", len(payload)) + payload
-
-
-def _load_yaml(path):
-    try:
-        import yaml
-    except ImportError:
-        raise SystemExit("PyYAML is required: pip install pyyaml")
-    with open(path, "r", encoding="utf-8") as fh:
-        return yaml.safe_load(fh) or {}
-
-
-def main(argv):
-    if len(argv) != 3:
-        raise SystemExit("usage: blob.py <brand-config.yaml> <out.bin>")
-    config = from_brand(_load_yaml(argv[1]), os.path.dirname(os.path.abspath(argv[1])))
-    blob = encode(config)
-    with open(argv[2], "wb") as fh:
-        fh.write(blob)
-    print(f"wrote {len(blob)}B config blob -> {argv[2]}")
-
-
-if __name__ == "__main__":
-    main(sys.argv)
