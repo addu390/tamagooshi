@@ -3,6 +3,7 @@ import struct
 
 from gen.images import logo_mask, pack_mask
 from gen.manifest import tz_minutes
+from gen.ui.themes import derive
 
 MAGIC = b"TMG1"
 MAX_PAYLOAD = 0xFFFF
@@ -12,6 +13,11 @@ def _enabled(value):
     if value == "all" or value == ["all"]:
         return []
     return value or []
+
+
+def _custom_themes(theme):
+    return [{"name": c["name"], "colors": derive(c["colors"])}
+            for c in theme.get("custom") or []]
 
 
 def _logo(data, base_dir):
@@ -51,6 +57,9 @@ def from_brand(data, base_dir=None):
             "typefaces": _enabled(typeface.get("enabled")),
         },
     }
+    customs = _custom_themes(theme)
+    if customs:
+        config["themes"] = customs
     logo = _logo(data, base_dir)
     if logo:
         config["logo"] = logo

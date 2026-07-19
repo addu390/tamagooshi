@@ -8,14 +8,15 @@ from dataclasses import asdict
 from fastapi import FastAPI
 
 from .api import (agents_router, brands_router, config_router, connection_router,
-                  events_router, mount_ui, rules_router, secrets_router, sources_router,
-                  status_router)
+                  events_router, flash_router, mount_ui, rules_router, secrets_router,
+                  sources_router, status_router)
 from .config import HubConfig, load_config
 from .config.secrets import apply_secrets
 from .features.buddy import create_bridge
 from .network import InboundRegistry, InboundRouter, Publisher
 from .network.transport import create_transport
 from .services.events import EventBus
+from .services.flash import Flasher
 from .services.metrics import Pipeline
 from .services.worker import Worker
 
@@ -60,6 +61,7 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
         app.state.pipeline = pipeline
         app.state.worker = worker
         app.state.bridge = bridge
+        app.state.flasher = Flasher(lambda data: bus.publish("flash", data))
         try:
             yield
         finally:
@@ -80,6 +82,7 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
     app.include_router(rules_router)
     app.include_router(config_router)
     app.include_router(connection_router)
+    app.include_router(flash_router)
     mount_ui(app)
     return app
 

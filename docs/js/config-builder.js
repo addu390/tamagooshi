@@ -744,7 +744,7 @@
       el("div", { class: "cfg-field" }, [
         fieldLabel("Custom themes"),
         customThemesWrap,
-        el("small", { class: "cfg-hint", text: "Pick surface, ink and accent; the full palette is derived from them. Custom themes are baked at build time, so browser flash ships built-in themes only." }),
+        el("small", { class: "cfg-hint", text: "Pick surface, ink and accent; the full palette is derived from them and rides along when you flash." }),
       ]),
     ]),
     group("Typeface", [typefaceDefault, el("div", { class: "cfg-field" }, [fieldLabel("Enabled"), multiselect(TYPEFACES, "typefaces", reconcile)])]),
@@ -793,87 +793,50 @@
   root.appendChild(output);
 
   const flashRoot = document.getElementById("flash-root");
-  if (flashRoot) {
-    const RELEASE = "https://github.com/addu390/tamagooshi/releases/latest/download/";
+  if (flashRoot) Promise.all([
+    import("./wire/blob.js"), import("./wire/flasher.js"),
+  ]).then(([wireBlob, flasher]) => {
     const board = () => BOARDS.find((b) => b.id === state.board) || BOARDS[0];
-    const variant = () => (state.links.wifi ? "gooshi-wifi" : "gooshi");
-    const imageUrl = () => RELEASE + variant() + "-" + board().asset + ".bin";
 
-    const tzMinutes = (raw) => {
-      let s = (raw || "").trim();
-      if (!s) return 0;
-      let sign = 1;
-      if (s[0] === "+" || s[0] === "-") { sign = s[0] === "-" ? -1 : 1; s = s.slice(1); }
-      const [hh, mm] = s.split(":");
-      return sign * (parseInt(hh, 10) * 60 + (mm ? parseInt(mm, 10) : 0));
-    };
-
-    const runtimeConfig = () => {
-      const rtThemes = orderBy(THEMES, state.themes);
-      const cfg = {
+    const manifest = () => {
+      const themes = orderBy(themeIds(), state.themes);
+      return {
         brand: { name: state.name, tagline: state.tagline, website: state.website, mascot: state.mascot },
-        defaults: {
-          theme: rtThemes.includes(state.themeDefault) ? state.themeDefault : rtThemes[0] || "",
-          typeface: state.typefaceDefault, mascot: state.mascotDefault,
-          mood: state.mood, tz: tzMinutes(state.timezone),
-        },
-        enabled: {
-          games: orderBy(GAMES.map((g) => g[0]), state.games),
-          apps: orderBy(APPS.map((a) => a[0]), state.apps),
-          packs: state.packs.slice(),
-          themes: orderBy(THEMES, state.themes),
-          typefaces: orderBy(TYPEFACES.map((t) => t[0]), state.typefaces),
+        device: {
+          transports: Object.fromEntries(
+            LINKS.filter(([l]) => state.links[l]).map(([l]) => [l, state.linkProto[l]])),
+          timezone: state.timezone,
+          theme: {
+            custom: state.customThemes.filter((t) => bare(t.name)).map((t) => (
+              { name: bare(t.name), colors: { surface: t.surface, ink: t.ink, accent: t.accent } })),
+            default: themes.includes(state.themeDefault) ? state.themeDefault : themes[0] || "",
+            enabled: themes,
+          },
+          typeface: { default: state.typefaceDefault, enabled: orderBy(TYPEFACES.map((t) => t[0]), state.typefaces) },
+          mascot: { default: state.mascotDefault, mood: state.mood, enabled: state.packs.slice() },
+          games: { enabled: orderBy(GAMES.map((g) => g[0]), state.games) },
+          apps: { enabled: orderBy(APPS.map((a) => a[0]), state.apps) },
         },
       };
+    };
+
+    const configBlob = (m) => {
+      const cfg = wireBlob.fromManifest(m);
       if (state.logoMask) cfg.logo = state.logoMask;
-      return cfg;
+      return wireBlob.encode(cfg);
     };
 
-    const encodeBlob = () => {
-      const body = new TextEncoder().encode(JSON.stringify(runtimeConfig()));
-      const buf = new Uint8Array(6 + body.length);
-      buf[0] = 0x54; buf[1] = 0x4d; buf[2] = 0x47; buf[3] = 0x31;
-      buf[4] = body.length & 0xff;
-      buf[5] = (body.length >> 8) & 0xff;
-      buf.set(body, 6);
-      return buf;
-    };
-
-    const manifestUrl = (parts) =>
-      URL.createObjectURL(new Blob([JSON.stringify({
-        name: "Tamagooshi", version: "1", new_install_prompt_erase: true,
-        builds: [{ chipFamily: board().chipFamily, parts }],
-      })], { type: "application/json" }));
-
-    let configUrl = null;
-    let customUrl = null;
-    let stockUrl = null;
+    const image = (m) => ({ path: flasher.imageUrl(CATALOG.release, m, board()), offset: 0 });
     const customManifest = () => {
-      if (configUrl) URL.revokeObjectURL(configUrl);
-      if (customUrl) URL.revokeObjectURL(customUrl);
-      configUrl = URL.createObjectURL(new Blob([encodeBlob()], { type: "application/octet-stream" }));
-      customUrl = manifestUrl([{ path: imageUrl(), offset: 0 }, { path: configUrl, offset: board().configOffset }]);
-      return customUrl;
+      const m = manifest();
+      return flasher.installerManifest(board().chipFamily, [
+        image(m), flasher.configPart(configBlob(m), board().configOffset),
+      ]);
     };
-    const stockManifest = () => {
-      if (stockUrl) URL.revokeObjectURL(stockUrl);
-      stockUrl = manifestUrl([{ path: imageUrl(), offset: 0 }]);
-      return stockUrl;
-    };
+    const stockManifest = () => flasher.installerManifest(board().chipFamily, [image(manifest())]);
 
-    const installButton = (label, cls, manifest) => {
-      const b = document.createElement("esp-web-install-button");
-      b.setAttribute("manifest", manifest);
-      const act = el("button", { class: cls, type: "button", text: label });
-      act.setAttribute("slot", "activate");
-      b.appendChild(act);
-      b.appendChild(el("span", { slot: "unsupported", class: "flash-note", text: "This browser can't flash over USB. Use Chrome or Edge on desktop." }));
-      b.appendChild(el("span", { slot: "not-allowed", class: "flash-note", text: "Serial access was blocked. Reconnect the device and allow it." }));
-      return b;
-    };
-
-    const customBtn = installButton("Flash my config", "btn", customManifest());
-    const stockBtn = installButton("Flash defaults", "btn ghost", stockManifest());
+    const customBtn = flasher.installButton("Flash my config", "btn", customManifest());
+    const stockBtn = flasher.installButton("Flash defaults", "btn ghost", stockManifest());
 
     const boardSelect = el("select", { class: "flash-board", "aria-label": "Board" });
     BOARDS.forEach((b) => boardSelect.appendChild(el("option", { value: b.id, text: b.name })));
@@ -959,10 +922,11 @@
     ]));
 
     flashSync = () => {
+      flasher.revokeUrls();
       customBtn.setAttribute("manifest", customManifest());
       stockBtn.setAttribute("manifest", stockManifest());
     };
-  }
+  });
 
   reconcile();
   render();

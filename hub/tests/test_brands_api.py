@@ -6,7 +6,7 @@ import pytest
 import yaml
 from fastapi import HTTPException
 
-from src.api.brands import create_brand, delete_brand, export_brand
+from src.api.brands import brand_manifest, create_brand, delete_brand, export_brand
 
 
 def _request(active_brand):
@@ -58,6 +58,21 @@ def test_export_returns_manifest_as_attachment(dirs):
 def test_export_unknown_brand_404(dirs):
     with pytest.raises(HTTPException) as err:
         asyncio.run(export_brand("ghost"))
+    assert err.value.status_code == 404
+
+
+def test_manifest_returns_brand_config(dirs):
+    user, _ = dirs
+    _write_brand(user, "acme", "ACME")
+
+    body = asyncio.run(brand_manifest("acme"))
+
+    assert body == {"brand": {"id": "acme", "name": "ACME"}}
+
+
+def test_manifest_unknown_brand_404(dirs):
+    with pytest.raises(HTTPException) as err:
+        asyncio.run(brand_manifest("ghost"))
     assert err.value.status_code == 404
 
 

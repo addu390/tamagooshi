@@ -35,6 +35,25 @@ def _catalog(args):
             fh.write(renderer(data))
         print(f"wrote catalog -> {out}")
 
+    if not args:
+        _sync([])
+
+
+def _sync(args):
+    from gen.emit.mirror import stale, sync
+
+    _, repo = _paths()
+    if "--check" in args:
+        names = stale(repo)
+        if names:
+            raise SystemExit(f"docs wire mirror stale: {', '.join(names)} "
+                             "(run: python3 -m gen sync)")
+        print("docs wire mirror up to date")
+        return
+
+    for path in sync(repo):
+        print(f"mirrored wire module -> {path}")
+
 
 def _matrix(args):
     from gen.platform.boards import ci_matrix
@@ -62,7 +81,7 @@ def _blob(args):
 
 
 COMMANDS = {"brand": _brand, "catalog": _catalog, "matrix": _matrix, "flash": _flash,
-            "blob": _blob}
+            "blob": _blob, "sync": _sync}
 
 
 def main(argv):

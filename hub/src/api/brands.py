@@ -52,6 +52,14 @@ async def create_brand(request: Request):
     return {"id": bid}
 
 
+@router.get("/api/brands/{bid}/manifest")
+async def brand_manifest(bid: str):
+    try:
+        return store.read_manifest(bid)
+    except FileNotFoundError as err:
+        raise HTTPException(status_code=404, detail=str(err)) from err
+
+
 @router.get("/api/brands/{bid}/export")
 async def export_brand(bid: str):
     try:

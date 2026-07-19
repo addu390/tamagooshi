@@ -2,9 +2,11 @@ import { api } from "../../core/api.js";
 import { $, el, renderList } from "../../core/dom.js";
 import { ago } from "../../core/format.js";
 import { connectionCard } from "./connection.js";
+import { flashSection } from "./flash.js";
 
-function render({ conn, devices }) {
+function render({ conn, devices, flash, brands, manifest }) {
   connectionCard(conn);
+  flashSection({ flash, brands, manifest });
 
   renderList($("devices"), $("devices-empty"), devices, (d) => {
     const row = el("li");
@@ -18,9 +20,12 @@ function render({ conn, devices }) {
 export default {
   id: "devices",
   title: "Devices",
-  load: async (status) => ({
-    conn: await api("GET", "/api/connection"),
-    devices: Object.values(status.devices || {}),
-  }),
+  load: async (status) => {
+    const [conn, flash, brands, manifest] = await Promise.all([
+      api("GET", "/api/connection"), api("GET", "/api/flash"),
+      api("GET", "/api/brands"), api("GET", "/api/config"),
+    ]);
+    return { conn, flash, brands, manifest, devices: Object.values(status.devices || {}) };
+  },
   render,
 };

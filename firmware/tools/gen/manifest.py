@@ -8,13 +8,18 @@ from gen.ui.themes import THEMES, derive as derive_theme
 from gen.ui.typefaces import TYPEFACES
 
 
+def manifest_candidates(brands_dir, brand_id):
+    # Order shared with hub/src/config/loader.py
+    return [os.path.join(brands_dir, brand_id, "config.yaml"),
+            os.path.join(brands_dir, brand_id + ".yaml")]
+
+
 def resolve_manifest(brand_id, brands_dir):
-    folder = os.path.join(brands_dir, brand_id, "config.yaml")
-    flat = os.path.join(brands_dir, brand_id + ".yaml")
-    path = folder if os.path.exists(folder) else flat
-    if not os.path.exists(path):
-        raise SystemExit(f"brand '{brand_id}' not found (looked for {folder} and {flat})")
-    return path
+    candidates = manifest_candidates(brands_dir, brand_id)
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    raise SystemExit(f"brand '{brand_id}' not found (looked for {' and '.join(candidates)})")
 
 
 def load(path):
@@ -157,6 +162,7 @@ def parse_transports(value):
     return spec
 
 
+# Same as hub/src/config/loader.py _tz_minutes
 def tz_minutes(value):
     if value is None:
         return 0

@@ -1,6 +1,8 @@
 SCREEN_W = 135
 SCREEN_H = 240
 
+RELEASE_BASE = "https://github.com/addu390/tamagooshi/releases/latest/download/"
+
 BOARDS = {
     "m5stickc-plus": {
         "name": "M5StickC Plus",

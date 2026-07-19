@@ -43,6 +43,19 @@ bool hexDecode(const char* s, std::vector<uint8_t>& out) {
   return s[0] == '\0';
 }
 
+void applyThemes(JsonVariantConst themes) {
+  if (!themes.is<JsonArrayConst>()) return;
+  for (JsonVariantConst t : themes.as<JsonArrayConst>()) {
+    const char* name = t["name"].as<const char*>();
+    JsonVariantConst colors = t["colors"];
+    if (!name || !colors.is<JsonArrayConst>() || colors.as<JsonArrayConst>().size() != 9) continue;
+
+    uint16_t roles[9];
+    for (size_t i = 0; i < 9; ++i) roles[i] = colors[i].as<uint16_t>();
+    theme::addRuntime(name, roles);
+  }
+}
+
 void applyLogo(JsonVariantConst logo, DeviceState& state) {
   if (!logo.is<JsonObjectConst>()) return;
   const int w = logo["w"] | 0;
@@ -72,6 +85,8 @@ bool apply(const std::string& blob, DeviceState& state) {
   assign(brand["tagline"], state.branding.tagline);
   assign(brand["website"], state.branding.website);
   assign(brand["mascot"], state.branding.mascot_name);
+
+  applyThemes(doc["themes"]);
 
   JsonVariantConst defaults = doc["defaults"];
   if (const char* t = defaults["theme"].as<const char*>()) theme::setThemeByName(t);

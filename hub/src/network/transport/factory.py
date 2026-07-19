@@ -23,6 +23,7 @@ def _mqtt(config: HubConfig) -> Transport:
     return MqttTransport(config.broker.host, config.broker.port, config.device_id)
 
 
+# Keys mirror firmware/tools/gen/network/transports.py
 TRANSPORTS: dict[str, dict[str, TransportFactory]] = {
     "ble": {"gatt": _ble},
     "wifi": {"mqtt": _mqtt},

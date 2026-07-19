@@ -26,16 +26,21 @@ def brand_dirs() -> list[str]:
     return [user_brands_dir(), _builtin_brands_dir()]
 
 
+def manifest_candidates(brands_dir: str, brand_id: str) -> list[str]:
+    # Order shared with firmware/tools/gen/manifest.py
+    return [os.path.join(brands_dir, brand_id, "config.yaml"),
+            os.path.join(brands_dir, brand_id + ".yaml")]
+
+
 def resolve_brand(brand_id: str) -> str:
     for brands in brand_dirs():
-        folder = os.path.join(brands, brand_id, "config.yaml")
-        flat = os.path.join(brands, brand_id + ".yaml")
-        for candidate in (folder, flat):
+        for candidate in manifest_candidates(brands, brand_id):
             if os.path.exists(candidate):
                 return candidate
     raise FileNotFoundError(f"brand '{brand_id}' not found under {brand_dirs()}")
 
 
+# Same as firmware/tools/gen/manifest.py tz_minutes
 def _tz_minutes(value) -> int:
     if value is None:
         return 0

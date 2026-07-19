@@ -5,12 +5,11 @@ import { chipPicker, chipValues, fieldInput, selectField, switchControl }
   from "../../components/controls.js";
 import { formActions, settingRow } from "../../components/rows.js";
 import { readFields } from "../../components/schema.js";
+import { isAll } from "../../wire/blob.js";
 
 const FLASH_HINT = "Applies at the next firmware flash.";
 
 const pairs = (list) => list.map((x) => (Array.isArray(x) ? x : [x, x]));
-
-const isAll = (v) => v === "all" || (Array.isArray(v) && v.length === 1 && v[0] === "all");
 
 function expand(enabled, options, fallback = []) {
   if (isAll(enabled)) return options.map(([value]) => value);

@@ -34,4 +34,8 @@ const char* name(int i);
 void setTheme(int i);
 bool setThemeByName(const char* name);
 
+// Registers a palette from the runtime config blob. Role order matches
+// tools/gen/ui/themes.py: bg, fg, hi, dim, dimmer, warn, crit, ink, blush.
+bool addRuntime(const char* name, const uint16_t colors[9]);
+
 }  // namespace tama::theme

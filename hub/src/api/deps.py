@@ -4,6 +4,7 @@ from fastapi import Request
 
 from ..config.models import HubConfig
 from ..network.transport.base import Transport
+from ..services.flash import Flasher
 from ..services.worker import Worker
 
 
@@ -13,6 +14,10 @@ def worker(request: Request) -> Worker:
 
 def transport(request: Request) -> Transport:
     return request.app.state.transport
+
+
+def flasher(request: Request) -> Flasher:
+    return request.app.state.flasher
 
 
 def hub_config(request: Request) -> HubConfig:

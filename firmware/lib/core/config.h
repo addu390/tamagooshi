@@ -6,8 +6,10 @@
 
 namespace tama::config {
 
-// Wire format shared with tools/gen/emit/blob.py and docs/js/config-builder.js:
-// magic "TMG1", uint16 little-endian payload length, then that many JSON bytes.
+// Wire format shared with tools/gen/emit/blob.py and app/ui/js/wire/blob.js
+// (mirrored to docs/js/wire/blob.js by gen): magic "TMG1", uint16 little-endian
+// payload length, then that many JSON bytes. Custom themes ride as
+// themes: [{name, colors: [9 x uint16]}] with the role order from tools/gen/ui/themes.py.
 inline constexpr char kMagic[4] = {'T', 'M', 'G', '1'};
 inline constexpr size_t kHeaderSize = 6;
 

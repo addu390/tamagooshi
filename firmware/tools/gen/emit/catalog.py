@@ -7,7 +7,7 @@ from gen.features.games import GAMES
 from gen.features.mascots import MASCOT_CATEGORIES, MASCOTS
 from gen.images import logo_mask, pack_mask
 from gen.network.transports import LINKS, PROTOCOLS
-from gen.platform.boards import flash_catalog
+from gen.platform.boards import RELEASE_BASE, flash_catalog
 from gen.ui.themes import THEMES
 from gen.ui.typefaces import TYPEFACES
 
@@ -47,6 +47,7 @@ def _default_logo(brand="gooshi"):
 
 def catalog():
     return {
+        "release": RELEASE_BASE,
         "boards": flash_catalog(),
         "themes": list(THEMES),
         "typefaces": [[tid, spec.get("label", tid)] for tid, spec in TYPEFACES.items()],
