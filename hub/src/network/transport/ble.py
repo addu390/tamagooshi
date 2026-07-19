@@ -27,6 +27,16 @@ def _frame(topic: str, payload: bytes) -> bytes:
     return struct.pack(">I", len(msg)) + msg
 
 
+async def discover(timeout: float = 6.0) -> list[dict]:
+    found = await BleakScanner.discover(timeout=timeout,
+                                        service_uuids=[SERVICE_UUID], return_adv=True)
+
+    devices = [{"name": device.name or "tamagooshi", "address": device.address,
+                "rssi": adv.rssi} for device, adv in found.values()]
+    devices.sort(key=lambda entry: entry["rssi"], reverse=True)
+    return devices
+
+
 class BleTransport(Transport, LineChannel):
     QUEUE_LIMIT = 256
 
@@ -34,6 +44,7 @@ class BleTransport(Transport, LineChannel):
                  scan_timeout: float = 12.0):
         self._name = name
         self._address = address
+        self._found_name = name
         self._scan_timeout = scan_timeout
         self._handler: Optional[MessageHandler] = None
         self._line_handler: Optional[LineHandler] = None
@@ -61,9 +72,12 @@ class BleTransport(Transport, LineChannel):
 
     def connect(self) -> None:
         self._thread.start()
-        asyncio.run_coroutine_threadsafe(self._connect(), self._loop).result(
-            timeout=self._scan_timeout + 15
-        )
+        self._loop.call_soon_threadsafe(lambda: self._loop.create_task(self._run()))
+
+    def device_info(self) -> Optional[dict]:
+        if not (self._address or self._found_name):
+            return None
+        return {"name": self._found_name, "address": self._address}
 
     def close(self) -> None:
         self._closing = True
@@ -85,28 +99,51 @@ class BleTransport(Transport, LineChannel):
     async def _find(self) -> str:
         if self._address:
             return self._address
+
         log.info("scanning for %s", self._name or "any tamagooshi device")
         devices = await BleakScanner.discover(timeout=self._scan_timeout, service_uuids=[SERVICE_UUID])
+
         for d in devices:
             if not self._name or (d.name and self._name.lower() in d.name.lower()):
                 log.info("found %s (%s)", d.name, d.address)
+                self._found_name = d.name or self._found_name
                 return d.address
+
         raise RuntimeError(f"no tamagooshi device matching '{self._name}' found")
 
-    async def _connect(self) -> None:
-        self._address = await self._find()
-        await self._attach()
+    async def _run(self) -> None:
         self._loop.create_task(self._drain())
         self._loop.create_task(self._drain_lines())
+        await self._retry(self._locate_and_attach, "no device yet", backoff=2.0)
+
+    async def _locate_and_attach(self) -> None:
+        self._set_state("scanning")
+        self._address = await self._find()
+
+        self._set_state("connecting")
+        await self._attach()
+
+    async def _retry(self, step, describe: str, backoff: float) -> None:
+        while not self._closing:
+            try:
+                await step()
+                self._set_state("connected")
+                return
+            except Exception:  # noqa: BLE001
+                log.info("%s; retrying in %.0fs", describe, backoff)
+                await asyncio.sleep(backoff)
+                backoff = min(backoff * 2, 30.0)
 
     async def _attach(self) -> None:
         client = BleakClient(self._address, disconnected_callback=self._on_disconnect)
         await client.connect()
+
         await client.start_notify(OUTBOUND_UUID, self._on_notify)
         try:
             await client.start_notify(NUS_TX_UUID, self._on_nus_notify)
         except Exception:  # noqa: BLE001
             log.info("device has no agent channel (NUS); voice bridge disabled")
+
         self._client = client
         log.info("connected to %s", self._address)
 
@@ -115,27 +152,22 @@ class BleTransport(Transport, LineChannel):
         if self._closing:
             return
         log.warning("ble link lost; reconnecting")
+        self._set_state("reconnecting")
         self._loop.call_soon_threadsafe(lambda: self._loop.create_task(self._reconnect()))
 
     async def _reconnect(self) -> None:
-        backoff = 1.0
-        while not self._closing:
-            try:
-                await self._attach()
-                return
-            except Exception:  # noqa: BLE001
-                log.warning("reconnect failed; retrying in %.0fs", backoff)
-                await asyncio.sleep(backoff)
-                backoff = min(backoff * 2, 30.0)
+        await self._retry(self._attach, "reconnect failed", backoff=1.0)
 
     async def _drain(self) -> None:
         while True:
             data = await self._queue.get()
+
             while not self._closing:
                 client = self._client
                 if client is None or not client.is_connected:
                     await asyncio.sleep(0.5)
                     continue
+
                 try:
                     await self._write(INBOUND_UUID, data)
                     break
@@ -146,11 +178,13 @@ class BleTransport(Transport, LineChannel):
     async def _drain_lines(self) -> None:
         while True:
             data = await self._line_queue.get()
+
             while not self._closing:
                 client = self._client
                 if client is None or not client.is_connected:
                     await asyncio.sleep(0.5)
                     continue
+
                 try:
                     await self._write(NUS_RX_UUID, data)
                     break
@@ -167,21 +201,26 @@ class BleTransport(Transport, LineChannel):
 
     def _on_notify(self, _char, data: bytearray) -> None:
         self._rx.extend(data)
+
         while len(self._rx) >= 4:
             total = struct.unpack(">I", self._rx[0:4])[0]
             if len(self._rx) < 4 + total:
                 break
+
             frame = bytes(self._rx[4:4 + total])
             del self._rx[0:4 + total]
             if total < 2:
                 continue
+
             topic_len = struct.unpack(">H", frame[0:2])[0]
             if 2 + topic_len > total:
                 continue
+
             topic = frame[2:2 + topic_len].decode("utf-8", "replace")
             payload = frame[2 + topic_len:].decode("utf-8", "replace")
             if self._handler is None:
                 continue
+
             try:
                 self._handler(topic, payload)
             except Exception:  # noqa: BLE001
@@ -189,11 +228,13 @@ class BleTransport(Transport, LineChannel):
 
     def _on_nus_notify(self, _char, data: bytearray) -> None:
         self._nus_rx.extend(data)
+
         while (nl := self._nus_rx.find(b"\n")) != -1:
             line = self._nus_rx[:nl].decode("utf-8", "replace").rstrip("\r")
             del self._nus_rx[:nl + 1]
             if not line or self._line_handler is None:
                 continue
+
             try:
                 self._line_handler(line)
             except Exception:  # noqa: BLE001

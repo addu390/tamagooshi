@@ -14,4 +14,8 @@ class MetricSpec(BaseModel):
 
 class SourceConfigBase(BaseModel):
     type: str
+    enabled: bool = True
     interval_secs: float = 3.0
+
+    def secret_envs(self) -> list[str]:
+        return [value for key, value in self.model_dump().items() if key.endswith("_env")]

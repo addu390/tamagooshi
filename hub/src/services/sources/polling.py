@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from typing import Dict, List
 
 import httpx
@@ -31,6 +32,7 @@ class PollingSource(Source):
         self._metrics = metrics
         self._timeout = timeout_secs
         self._last: Dict[str, float] = {}
+        self._status: Dict[str, dict] = {}
 
     async def fetch(self, client: httpx.AsyncClient, metric: MetricSpec) -> float:
         raise NotImplementedError
@@ -38,6 +40,7 @@ class PollingSource(Source):
     def _to_update(self, metric: MetricSpec, value: float) -> MetricUpdate:
         delta = value - self._last.get(metric.key, value)
         self._last[metric.key] = value
+
         return MetricUpdate(
             key=metric.key,
             label=metric.label,
@@ -49,14 +52,23 @@ class PollingSource(Source):
 
     async def poll(self, client: httpx.AsyncClient) -> List[MetricUpdate]:
         updates: List[MetricUpdate] = []
+
         for metric in self._metrics:
             try:
                 value = await self.fetch(client, metric)
             except _FETCH_ERRORS as exc:
                 log.warning("%s: fetch failed for %s: %s", self.name, metric.key, exc)
+                self._status[metric.key] = {"value": None, "error": str(exc), "ts": time.time()}
                 continue
-            updates.append(self._to_update(metric, value))
+
+            update = self._to_update(metric, value)
+            self._status[metric.key] = {"value": update.value, "error": None, "ts": time.time()}
+            updates.append(update)
+
         return updates
+
+    def metric_status(self) -> Dict[str, dict]:
+        return dict(self._status)
 
     async def run(self, emit: Emit) -> None:
         async with httpx.AsyncClient(timeout=self._timeout) as client:
@@ -64,3 +76,8 @@ class PollingSource(Source):
                 for update in await self.poll(client):
                     await emit(update)
                 await asyncio.sleep(self._interval)
+
+    async def poll_once(self, emit: Emit) -> None:
+        async with httpx.AsyncClient(timeout=self._timeout) as client:
+            for update in await self.poll(client):
+                await emit(update)

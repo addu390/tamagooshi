@@ -39,6 +39,7 @@ def _decode_nibble(state: State, code: int) -> int:
         vpdiff += step >> 1
     if code & 1:
         vpdiff += step >> 2
+
     state.predictor = _clamp(
         state.predictor - vpdiff if code & 8 else state.predictor + vpdiff, -32768, 32767
     )
@@ -53,6 +54,7 @@ def _encode_sample(state: State, sample: int) -> int:
     if diff < 0:
         code = 8
         diff = -diff
+
     vpdiff = step >> 3
     if diff >= step:
         code |= 4
@@ -65,6 +67,7 @@ def _encode_sample(state: State, sample: int) -> int:
     if diff >= step >> 2:
         code |= 1
         vpdiff += step >> 2
+
     state.predictor = _clamp(
         state.predictor - vpdiff if code & 8 else state.predictor + vpdiff, -32768, 32767
     )

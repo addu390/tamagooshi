@@ -28,6 +28,7 @@ class _MetricState:
         period = keys[-1].at
         if period <= 0:
             return keys[0].value
+
         t = elapsed % period
         prev = keys[0]
         for kf in keys[1:]:
@@ -36,6 +37,7 @@ class _MetricState:
                 frac = 0.0 if span <= 0 else (t - prev.at) / span
                 return prev.value + (kf.value - prev.value) * frac
             prev = kf
+
         return keys[-1].value
 
     def step(self, rng: random.Random, elapsed: float) -> MetricUpdate:
@@ -44,8 +46,10 @@ class _MetricState:
         else:
             self.baseline = max(0.0, self.baseline + rng.uniform(-self.spec.drift, self.spec.drift))
             new_value = self.spec.incident.value if self._incident_active(elapsed) else self.baseline
+
         delta = new_value - self.value
         self.value = new_value
+
         return MetricUpdate(
             key=self.spec.key,
             label=self.spec.label,
@@ -68,14 +72,28 @@ class DemoSource(Source):
         self._rng = rng or random.Random()
         self._clock = clock or time.monotonic
         self._start = self._clock()
+        self._status: dict[str, dict] = {}
 
     def tick(self, elapsed: float | None = None) -> List[MetricUpdate]:
         if elapsed is None:
             elapsed = self._clock() - self._start
-        return [state.step(self._rng, elapsed) for state in self._states]
+
+        updates = [state.step(self._rng, elapsed) for state in self._states]
+        now = time.time()
+        for update in updates:
+            self._status[update.key] = {"value": update.value, "error": None, "ts": now}
+
+        return updates
+
+    def metric_status(self) -> dict[str, dict]:
+        return dict(self._status)
 
     async def run(self, emit: Emit) -> None:
         while True:
             for update in self.tick():
                 await emit(update)
             await asyncio.sleep(self._interval)
+
+    async def poll_once(self, emit: Emit) -> None:
+        for update in self.tick():
+            await emit(update)

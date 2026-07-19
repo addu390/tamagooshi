@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamagooshi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Fredoka:wght@500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<aside class="side">
+  <div class="brand">
+    <span id="brand-logo" class="logo">T</span>
+    <div class="brand-text">
+      <span id="brand-name" class="wordmark">Tamagooshi</span>
+      <span id="brand-tagline" class="tagline"></span>
+    </div>
+  </div>
+
+  <nav id="nav"></nav>
+
+  <div class="side-foot">
+    <span id="hub-dot" class="dot"></span>
+    <span id="hub-line">hub</span>
+  </div>
+</aside>
+
+<main>
+  <header class="page-head">
+    <h1 id="page-title">Overview</h1>
+    <div class="chips">
+      <span id="mood-chip" class="chip">mood: —</span>
+      <span id="device-chip" class="chip">no device</span>
+    </div>
+  </header>
+
+  <section id="view-overview" class="view">
+    <div id="mood-hero" class="hero card">
+      <div class="hero-label">current mood</div>
+      <div id="hero-mood" class="hero-value">—</div>
+      <div id="hero-facts" class="hero-facts"></div>
+    </div>
+
+    <h2>Metrics</h2>
+    <div id="metrics" class="cards"></div>
+    <p id="metrics-empty" class="empty">No metrics yet. Sources publish as they poll.</p>
+
+    <h2>Alerts</h2>
+    <ul id="alerts" class="rows"></ul>
+    <p id="alerts-empty" class="empty">All quiet.</p>
+  </section>
+
+  <section id="view-sources" class="view hide">
+    <div id="source-list" class="stack"></div>
+    <p id="sources-empty" class="empty">No sources yet. Add one to start feeding metrics.</p>
+    <button class="add-row" id="add-source">+ Add source</button>
+    <div id="wizard" class="card wizard hide"></div>
+    <p id="sources-note" class="empty hide">Restarting the hub…</p>
+  </section>
+
+  <section id="view-rules" class="view hide">
+    <div class="list-head">
+      <h2>Mood rules</h2>
+      <button id="add-mood" class="ghost">+ Add rule</button>
+    </div>
+    <ul id="moods" class="rows"></ul>
+    <p id="moods-empty" class="empty">No mood rules, the default mood sticks.</p>
+    <div class="list-head">
+      <h2>Alert rules</h2>
+      <button id="add-alert" class="ghost">+ Add rule</button>
+    </div>
+    <ul id="rule-alerts" class="rows"></ul>
+    <p id="rule-alerts-empty" class="empty">No alert rules.</p>
+    <datalist id="metric-keys"></datalist>
+    <p id="rules-note" class="empty hide">Restarting the hub…</p>
+  </section>
+
+  <section id="view-agents" class="view hide">
+    <ul id="agents" class="rows"></ul>
+    <p id="agents-note" class="empty hide">Restarting the hub…</p>
+  </section>
+
+  <section id="view-devices" class="view hide">
+    <h2>Connection</h2>
+    <div id="connection" class="set card"></div>
+    <div id="scan-panel" class="card wizard hide"></div>
+    <h2>Seen recently</h2>
+    <ul id="devices" class="rows"></ul>
+    <p id="devices-empty" class="empty">Nothing paired yet. Power a flashed stick nearby.</p>
+    <p id="devices-note" class="empty hide">Restarting the hub…</p>
+  </section>
+
+  <section id="view-brand" class="view hide">
+    <ul id="brands" class="rows"></ul>
+    <div class="add-split">
+      <button class="add-row" id="brand-new">+ New brand</button>
+      <label class="add-row" for="brand-file">+ Import config.yaml</label>
+    </div>
+    <input type="file" id="brand-file" accept=".yaml,.yml" hidden>
+    <div id="brand-wizard" class="card wizard hide"></div>
+    <h2>Identity</h2>
+    <div id="brand-identity"></div>
+    <h2>Device</h2>
+    <div id="brand-device"></div>
+    <p id="brand-note" class="empty hide">Restarting the hub…</p>
+  </section>
+
+  <section id="view-settings" class="view hide">
+    <h2>Appearance</h2>
+    <div id="set-appearance" class="set card"></div>
+    <h2>Interface</h2>
+    <div id="set-interface" class="set card"></div>
+  </section>
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

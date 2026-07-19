@@ -29,22 +29,26 @@ class VoiceAssembler:
             self.reset()
         if self._broken:
             return
+
         if seq != self._next_seq:
             log.warning("voice chunk gap: expected seq %d, got %d", self._next_seq, seq)
             self._broken = True
             return
+
         try:
             self._chunks.append(base64.b64decode(data, validate=True))
         except (binascii.Error, ValueError):
             log.warning("voice chunk %d is not valid base64", seq)
             self._broken = True
             return
+
         self._next_seq += 1
 
     def finish(self) -> Optional[bytes]:
         """Returns 16-bit little-endian PCM at SAMPLE_RATE, or None on a broken stream."""
         broken, chunks = self._broken, self._chunks
         self.reset()
+
         if broken or not chunks:
             return None
         return adpcm.decode(b"".join(chunks))

@@ -82,6 +82,7 @@ def emit_logo(out_dir, data, base_dir, brand_id):
 
     w, h, mask = logo_mask(src, base_dir)
     flat = ",".join(str(mask[y][x]) for y in range(h) for x in range(w))
+
     lines = [
         '#pragma once', '', '#define TAMA_HAS_LOGO 1', '',
         '#include <algorithm>', '#include <cstdint>', '', '#include "gfx.h"', '',
@@ -103,6 +104,7 @@ def emit_logo(out_dir, data, base_dir, brand_id):
         '  }',
         '}', '', '}  // namespace tama::logos', '',
     ]
+
     write(os.path.join(out_dir, "logo.gen.h"), "\n".join(lines))
     return brand_id
 
@@ -116,6 +118,7 @@ def emit_boards(out_dir):
     flags = ("buzzer", "speaker", "mic", "imu", "joystick", "haptics", "ir", "wearable",
              "psram")
     lines = ['#pragma once', '', '#include "model.h"', '', 'namespace tama::board {', '']
+
     for i, (bid, b) in enumerate(BOARDS.items()):
         guard = "#if" if i == 0 else "#elif"
         c = b["caps"]
@@ -133,17 +136,20 @@ def emit_boards(out_dir):
         ]
         lines += [f'  caps.{f} = {"true" if c[f] else "false"};' for f in flags]
         lines += ['  return caps;', '}']
+
     lines += [
         '#else',
         '#error "No TAMA_BOARD_* defined; set one in the PlatformIO env build_flags"',
         '#endif', '', '}  // namespace tama::board', '',
     ]
+
     write(os.path.join(out_dir, "board.gen.h"), "\n".join(lines))
 
 
 def emit_portal(out_dir):
     with open(PORTAL, "r", encoding="utf-8") as fh:
         head, setup, saved = (_minify(p) for p in fh.read().split("<!--PART-->"))
+
     lines = [
         '#pragma once', '',
         'namespace tama::portal {', '',
@@ -161,6 +167,7 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
     agent = (data.get("hub") or {}).get("agent") or {}
     agents = agent.get("enabled") or []
     agent_default = agent.get("default") or (agents[0] if agents else "")
+
     lines = ['#pragma once', '',
              f'#define TAMA_BRAND_ID {cstr(ident.get("id", brand_id))}',
              f'#define TAMA_PRODUCT_NAME {cstr(ident.get("name", "TAMAGOOSHI"))}',
@@ -176,10 +183,12 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
              f'#define TAMA_TZ_OFFSET_MIN {int(tz_offset_min)}',
              f'#define TAMA_HUB_AGENTS {cstr(",".join(agents))}',
              f'#define TAMA_HUB_AGENT_DEFAULT {cstr(agent_default)}', '']
+
     lines += [f'#define {GAME_MACRO[g]} 1' for g in games]
     lines += [f'#define {APP_MACRO[a]} 1' for a in apps]
     if buddy:
         lines += ['#define TAMA_ENABLE_BUDDY 1']
+
     lines += ['',
               '#include "model.h"', '#include "theme.h"', '#include "typeface.h"', '',
               'namespace tama::brand {', '',
@@ -197,4 +206,5 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
               '  typeface::setTypefaceByName(TAMA_DEFAULT_TYPEFACE);',
               '}', '',
               '}  // namespace tama::brand', '']
+
     write(os.path.join(out_dir, "brand.gen.h"), "\n".join(lines))

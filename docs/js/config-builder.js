@@ -609,6 +609,7 @@
   function yaml() {
     const list = (a) => "[" + a.join(", ") + "]";
     let o = "";
+
     o += "brand:\n";
     o += "  id: " + state.id + "\n";
     o += "  name: " + state.name + "\n";
@@ -617,9 +618,11 @@
     o += "  website: " + state.website + "\n";
     if (state.logo.trim()) o += "  logo: " + state.logo.trim() + "\n";
     o += "\n";
+
     o += "device:\n";
     o += "  transports:\n";
     LINKS.forEach(([l]) => { if (state.links[l]) o += "    " + l + ": " + state.linkProto[l] + "\n"; });
+
     o += "  theme:\n";
     const customs = state.customThemes.filter((t) => bare(t.name));
     if (customs.length) {
@@ -631,13 +634,16 @@
     }
     o += "    default: " + state.themeDefault + "\n";
     o += "    enabled: " + list(orderBy(themeIds(), state.themes)) + "\n";
+
     o += "  typeface:\n";
     o += "    default: " + state.typefaceDefault + "\n";
     o += "    enabled: " + list(orderBy(TYPEFACES.map((t) => t[0]), state.typefaces)) + "\n";
+
     o += "  mascot:\n";
     o += "    default: " + state.mascotDefault + "\n";
     o += "    mood: " + state.mood + "\n";
     o += "    enabled: " + list(state.packs) + "\n";
+
     o += "  games:\n";
     o += "    enabled: " + list(orderBy(GAMES.map((g) => g[0]), state.games)) + "\n";
     o += "  apps:\n";

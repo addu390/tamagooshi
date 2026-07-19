@@ -63,6 +63,7 @@ class VoiceBridge:
         except json.JSONDecodeError:
             log.debug("ignoring non-json line: %.80s", line)
             return
+
         cmd = msg.get("cmd")
         if cmd == "agents":
             self._send_roster()
@@ -92,6 +93,7 @@ class VoiceBridge:
         if pcm is None:
             self._send_reply("I lost part of that recording, please try again.", done=True)
             return
+
         try:
             text = await asyncio.to_thread(self._transcriber.transcribe, pcm, SAMPLE_RATE)
         except Exception:  # noqa: BLE001
@@ -101,9 +103,11 @@ class VoiceBridge:
         if not text:
             self._send_reply("I didn't catch any speech in that, please try again.", done=True)
             return
+
         self._seq += 1
         voice_id = f"v{self._seq}"
         self._pending[voice_id] = (text, agent)
+
         log.info("transcript %s (%s): %s", voice_id, agent, text)
         self._send({"evt": "transcript", "id": voice_id, "text": text, "agent": agent})
 
@@ -111,10 +115,12 @@ class VoiceBridge:
         pending = self._pending.pop(voice_id, None)
         if pending is None:
             return
+
         text, agent = pending
         if not approved:
             log.info("prompt %s cancelled on device", voice_id)
             return
+
         async with self._submit_lock:
             await self._submit(text, agent)
 

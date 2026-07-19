@@ -12,3 +12,10 @@ class Source(abc.ABC):
     @abc.abstractmethod
     async def run(self, emit: Emit) -> None:
         raise NotImplementedError
+
+    @abc.abstractmethod
+    async def poll_once(self, emit: Emit) -> None:
+        raise NotImplementedError
+
+    def metric_status(self) -> dict[str, dict]:
+        return {}

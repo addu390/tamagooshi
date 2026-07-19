@@ -19,6 +19,7 @@ firmware/include/secrets.h
 
 build/
 build-gui/
+app/macos/.build/
 sim/build/
 sim/build-gui/
 *.o

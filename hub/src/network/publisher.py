@@ -24,7 +24,8 @@ class Publisher:
         self._transport.close()
 
     def publish_envelope(self, topic: str, type_: str, body: protocol.BaseModel, retain: bool = True) -> None:
-        self._transport.publish(topic, protocol.envelope(type_, body), qos=1, retain=retain)
+        payload = protocol.envelope(type_, body).encode("utf-8")
+        self._transport.publish(topic, payload, qos=1, retain=retain)
 
     def publish_branding(self, brand: BrandConfig) -> None:
         body = protocol.Branding(name=brand.name, tagline=brand.tagline, logo_id=brand.logo_id)

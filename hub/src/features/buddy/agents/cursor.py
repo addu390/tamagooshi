@@ -38,6 +38,7 @@ class CursorBackend(AgentBackend):
                     on_delta(chunk)
             finally:
                 result = run.wait()
+
             if result.status == "error":
                 raise AgentRunError(f"cursor run {result.id} failed")
             return "".join(parts)

@@ -18,10 +18,12 @@ def ulid(now_ms: Optional[int] = None) -> str:
     ms = int(time.time() * 1000) if now_ms is None else now_ms
     rand = int.from_bytes(os.urandom(10), "big")
     value = (ms << 80) | rand
+
     out = bytearray(26)
     for i in range(25, -1, -1):
         out[i] = ord(_CROCKFORD[value & 0x1F])
         value >>= 5
+
     return out.decode("ascii")
 
 

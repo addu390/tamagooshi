@@ -20,17 +20,26 @@ class DeviceInfo:
     last_body: dict = field(default_factory=dict)
 
 
+DeviceObserver = Callable[[DeviceInfo], None]
+
+
 class InboundRegistry:
-    def __init__(self):
+    def __init__(self, observer: DeviceObserver | None = None):
         self._devices: Dict[str, DeviceInfo] = {}
+        self._observer = observer
 
     def track(self, topic: str, body: dict) -> None:
         parts = topic.split("/")
         device_id = parts[1] if len(parts) > 1 else "?"
+        fresh = device_id not in self._devices
+
         info = self._devices.setdefault(device_id, DeviceInfo(device_id=device_id))
         info.last_topic = topic
         info.last_seen = time.time()
         info.last_body = body
+
+        if fresh and self._observer is not None:
+            self._observer(info)
 
     def snapshot(self) -> Dict[str, dict]:
         return {
@@ -58,8 +67,10 @@ class InboundRouter:
             log.warning("unparseable inbound on %s", topic)
             self._registry.track(topic, {})
             return
+
         log.info("inbound %s: %s", topic, env.type)
         self._registry.track(topic, env.body)
+
         handler = self._handlers.get(env.type)
         if handler:
             handler(topic, env)

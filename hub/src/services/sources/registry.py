@@ -12,6 +12,8 @@ class SourceProvider:
     type: str
     config_model: type[SourceConfigBase]
     factory: Callable[[SourceConfigBase], Source]
+    label: str = ""
+    description: str = ""
 
 
 _PROVIDERS: Dict[str, SourceProvider] = {}
@@ -21,7 +23,7 @@ def register(provider: SourceProvider) -> None:
     _PROVIDERS[provider.type] = provider
 
 
-def _provider(type_: str) -> SourceProvider:
+def provider(type_: str) -> SourceProvider:
     try:
         return _PROVIDERS[type_]
     except KeyError:
@@ -29,9 +31,13 @@ def _provider(type_: str) -> SourceProvider:
         raise ValueError(f"unknown source type: {type_!r} (known: {known})")
 
 
+def providers() -> List[SourceProvider]:
+    return [_PROVIDERS[type_] for type_ in sorted(_PROVIDERS)]
+
+
 def parse_sources(raw: List[dict]) -> List[SourceConfigBase]:
-    return [_provider(item.get("type")).config_model.model_validate(item) for item in raw]
+    return [provider(item.get("type")).config_model.model_validate(item) for item in raw]
 
 
 def build_source(cfg: SourceConfigBase) -> Source:
-    return _provider(cfg.type).factory(cfg)
+    return provider(cfg.type).factory(cfg)

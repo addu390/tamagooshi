@@ -21,14 +21,19 @@ def _brand(args):
 
 
 def _catalog(args):
-    from gen.emit.catalog import catalog, render
+    from gen.emit.catalog import catalog, render, render_module
 
     _, repo = _paths()
-    out = args[0] if args else os.path.join(repo, "docs", "js", "catalog.js")
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    with open(out, "w", encoding="utf-8") as fh:
-        fh.write(render(catalog()))
-    print(f"wrote catalog -> {out}")
+    data = catalog()
+    targets = ([(args[0], render)] if args else
+               [(os.path.join(repo, "docs", "js", "catalog.js"), render),
+                (os.path.join(repo, "app", "ui", "js", "catalog.gen.js"), render_module)])
+
+    for out, renderer in targets:
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        with open(out, "w", encoding="utf-8") as fh:
+            fh.write(renderer(data))
+        print(f"wrote catalog -> {out}")
 
 
 def _matrix(args):

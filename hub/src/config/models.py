@@ -31,6 +31,7 @@ class BrandConfig(BaseModel):
 class HubConfig(BaseModel):
     broker: BrokerConfig = Field(default_factory=BrokerConfig)
     device_id: str = "sim"
+    brand_id: str = "gooshi"
     brand: BrandConfig = Field(default_factory=BrandConfig)
     agent: AgentConfig = Field(default_factory=AgentConfig)
     default_mood: Mood = "happy"
