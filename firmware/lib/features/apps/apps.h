@@ -21,6 +21,7 @@ AppScreen& clock();
 AppScreen& stopwatch();
 AppScreen& flashlight();
 AppScreen& level();
+AppScreen& pomodoro();
 AppScreen& about();
 
 const AppInfo* list();

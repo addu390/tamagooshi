@@ -4,6 +4,7 @@
 #include <string>
 
 #include "mascots/character.h"
+#include "expression.h"
 #include "input.h"
 #include "mascots/registry.h"
 #include "mascot.h"
@@ -29,6 +30,7 @@ struct ShellContext {
   IMicSource& mic;
   ISensorSource& sensor;
   IVoiceUplink* voice;
+  IExpressionSink* expression;
 };
 
 }  // namespace tama

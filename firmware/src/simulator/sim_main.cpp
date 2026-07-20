@@ -60,10 +60,10 @@ class SimSensor : public ISensorSource {
     const Uint8* ks = SDL_GetKeyboardState(&n);
     ax = ay = 0.0f;
     if (ks) {
-      if (ks[SDL_SCANCODE_RIGHT]) ax = 0.35f;
-      if (ks[SDL_SCANCODE_LEFT]) ax = -0.35f;
-      if (ks[SDL_SCANCODE_UP]) ay = 0.35f;
-      if (ks[SDL_SCANCODE_DOWN]) ay = -0.35f;
+      if (ks[SDL_SCANCODE_RIGHT]) ax = 0.8f;
+      if (ks[SDL_SCANCODE_LEFT]) ax = -0.8f;
+      if (ks[SDL_SCANCODE_UP]) ay = 0.8f;
+      if (ks[SDL_SCANCODE_DOWN]) ay = -0.8f;
     }
     az = std::sqrt(std::max(0.0f, 1.0f - ax * ax - ay * ay));
     return true;

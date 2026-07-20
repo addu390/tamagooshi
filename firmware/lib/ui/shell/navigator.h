@@ -27,6 +27,7 @@ class Navigator {
   void setMic(IMicSource& mic);
   void setSensor(ISensorSource& sensor);
   void setVoice(IVoiceUplink* voice);
+  void setExpression(IExpressionSink& expression);
   void setResolver(PromptResolver resolver);
 
   void start(const char* firstId);
@@ -61,6 +62,7 @@ class Navigator {
   IMicSource* mic_ = nullptr;
   ISensorSource* sensor_ = nullptr;
   IVoiceUplink* voice_ = nullptr;
+  IExpressionSink* expression_ = nullptr;
   std::vector<AppScreen*> screens_;
   std::vector<AppScreen*> stack_;
   PromptOverlay* prompt_ = nullptr;

@@ -81,6 +81,10 @@ export default {
       "Spirit level"
     ],
     [
+      "pomodoro",
+      "Pomodoro timer"
+    ],
+    [
       "about",
       "Device info"
     ]

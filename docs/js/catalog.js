@@ -81,6 +81,10 @@ window.TAMA_CATALOG = {
       "Spirit level"
     ],
     [
+      "pomodoro",
+      "Pomodoro timer"
+    ],
+    [
       "about",
       "Device info"
     ]

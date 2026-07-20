@@ -60,6 +60,7 @@ void Runtime::begin() {
   screens::install(nav_, characters_, prompt_);
   nav_.setMic(mic_);
   nav_.setSensor(sensor_);
+  nav_.setExpression(expression_);
   handlers_.bind(router_);
 
   auto wire = [this](Channel& ch, bool isHub) {

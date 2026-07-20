@@ -9,7 +9,7 @@
 
 namespace tama {
 
-enum class OrientationPref { Inherit, Portrait, Landscape };
+enum class OrientationPref { Inherit, Portrait, Landscape, PortraitFlipped };
 
 class AppScreen {
  public:

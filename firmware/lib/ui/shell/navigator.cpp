@@ -29,6 +29,8 @@ void Navigator::setSensor(ISensorSource& sensor) { sensor_ = &sensor; }
 
 void Navigator::setVoice(IVoiceUplink* voice) { voice_ = voice; }
 
+void Navigator::setExpression(IExpressionSink& expression) { expression_ = &expression; }
+
 void Navigator::setResolver(PromptResolver resolver) { resolver_ = std::move(resolver); }
 
 AppScreen* Navigator::find(const char* id) const {
@@ -53,7 +55,8 @@ ShellContext Navigator::ctx() {
                       wifi_,
                       *mic_,
                       *sensor_,
-                      voice_};
+                      voice_,
+                      expression_};
 }
 
 void Navigator::start(const char* firstId) {
@@ -187,6 +190,7 @@ int Navigator::effectiveRotation() const {
       switch (t->orientation()) {
         case OrientationPref::Portrait: return rotationFor(Orientation::Portrait);
         case OrientationPref::Landscape: return rotationFor(Orientation::Landscape);
+        case OrientationPref::PortraitFlipped: return rotationFor(Orientation::Portrait) + 2;
         case OrientationPref::Inherit: break;
       }
     }
