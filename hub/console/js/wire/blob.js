@@ -1,6 +1,6 @@
 // JS definition of the device config wire format, co-owned with
 // firmware/lib/core/config.h, firmware/tools/gen/emit/blob.py and the generated
-// docs mirror docs/js/wire/blob.js: magic "TMG1", uint16 LE payload length, JSON bytes.
+// docs mirror docs/js/gen/wire/blob.js: magic "TMG1", uint16 LE payload length, JSON bytes.
 
 const to565 = ([r, g, b]) => ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
 

@@ -1,0 +1,63 @@
+.appmock-wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: center; margin-top: 16px; }
+.appmock { display: block; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card); transition: border-color .15s, transform .15s; }
+.appmock:hover { border-color: var(--text-soft); transform: translateY(-1px); }
+.appmock-chrome { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-soft); border-bottom: 1px solid var(--border); }
+.appmock-chrome i { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+.appmock-chrome b { margin-left: 6px; font-size: 11px; font-weight: 500; color: var(--muted); }
+.appmock-chrome.dark { background: var(--term-chrome); border-bottom: 1px solid var(--term-line); }
+.appmock-chrome.dark i { background: var(--term-soft); }
+.appmock-chrome.dark b { color: var(--term-text); }
+.appmock-body { display: grid; grid-template-columns: 104px 1fr; background: var(--panel); }
+.appmock-side { display: flex; flex-direction: column; gap: 2px; padding: 12px 10px; border-right: 1px solid var(--border); background: var(--bg-soft); font-size: 11px; }
+.appmock-side b { font-family: var(--mono); font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 8px 0 2px; }
+.appmock-side b:first-child { margin-top: 0; }
+.appmock-side span { padding: 3px 7px; border-radius: var(--radius); color: var(--text-soft); }
+.appmock-side span.on { background: var(--accent-soft); color: var(--accent-strong); }
+.appmock-main { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
+.appmock-title { display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; font-weight: 500; }
+.appmock-title em { font-style: normal; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.appmock-row { display: flex; align-items: center; gap: 8px; padding: 5px 9px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); font-size: 11.5px; color: var(--text-soft); }
+.appmock-row em { font-style: normal; margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.mock-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+.mock-dot.ok { background: var(--accent); }
+.appmock-cta { align-self: flex-start; margin-top: 2px; padding: 3px 9px; border: 1px solid var(--accent-line); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent-strong); font-size: 11px; font-weight: 500; }
+.appmock-copy ul { margin: 0 0 16px; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: var(--text-soft); }
+
+.refmock { display: flex; align-items: center; gap: 28px; margin: 18px 0; }
+.refmock-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.refmock-side pre { margin: 4px 0 0; }
+.refmock-cap { margin: 0; font-size: 13.5px; color: var(--text-soft); }
+.screenmock { --sm-bg: var(--bg-soft); --sm-ink: var(--text); --sm-hi: var(--accent-strong); flex: none; width: 150px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--sm-bg); color: var(--sm-ink); font-family: var(--mono); transition: background .25s, color .25s; }
+.screenmock .sm-name { font-size: 13px; font-weight: 500; letter-spacing: .09em; color: var(--sm-ink); }
+.screenmock .sm-face { font-size: 28px; color: var(--sm-hi); transition: color .25s; }
+.screenmock .sm-mascot { font-size: 12px; font-weight: 500; letter-spacing: .07em; color: var(--sm-ink); }
+.screenmock .sm-tagline, .screenmock .sm-site { font-style: normal; font-size: 11px; opacity: .68; }
+.screenmock sup { font-size: 9px; color: var(--sm-hi); margin-left: 2px; }
+
+.buildmock { display: grid; grid-template-columns: 1fr 1.1fr; background: var(--panel); }
+.buildmock-form { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-right: 1px solid var(--border); }
+.buildmock-field { display: flex; flex-direction: column; gap: 4px; }
+.buildmock-field b { font-family: var(--mono); font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.buildmock-field i { display: block; height: 9px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-soft); }
+.buildmock-yaml { display: flex; flex-direction: column; gap: 7px; padding: 12px 14px; background: var(--term-bg); }
+.buildmock-yaml em { font-style: normal; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--term-dim); margin-bottom: 2px; }
+.buildmock-yaml i { display: block; height: 6px; border-radius: var(--radius); background: var(--term-soft); }
+.buildmock-foot { display: flex; justify-content: flex-end; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--bg-soft); }
+.buildmock-foot .appmock-cta { margin: 0; }
+
+.hostmock { display: flex; align-items: stretch; gap: 14px; margin: 16px 0 18px; }
+.hostmock-term { flex: 1.15; display: flex; flex-direction: column; border: 1px solid var(--term-border); border-radius: var(--radius); background: var(--term-bg); overflow: hidden; }
+.hostmock-lines { flex: 1; padding: 12px 14px; font-family: var(--mono); font-size: 11.5px; line-height: 1.75; color: var(--term-muted); white-space: pre; }
+.hostmock-lines em { font-style: normal; color: var(--term-bright); }
+.hostmock-arrow { align-self: center; color: var(--muted); font-size: 16px; }
+.hostmock-browser { flex: 1.35; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; }
+.hostmock-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-soft); border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.hostmock-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+.hostmock-browser .appmock-body { flex: 1; }
+
+@media (max-width: 900px) {
+  .appmock-wrap { grid-template-columns: 1fr; }
+  .hostmock { flex-direction: column; }
+  .hostmock-arrow { transform: rotate(90deg); }
+  .refmock { flex-direction: column; align-items: flex-start; }
+}

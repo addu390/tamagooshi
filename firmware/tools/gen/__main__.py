@@ -21,18 +21,18 @@ def _brand(args):
 
 
 def _catalog(args):
-    from gen.emit.catalog import catalog, render, render_module
+    from gen.emit.catalog import catalog, render
 
     _, repo = _paths()
     data = catalog()
-    targets = ([(args[0], render)] if args else
-               [(os.path.join(repo, "docs", "js", "catalog.js"), render),
-                (os.path.join(repo, "hub", "console", "js", "catalog.gen.js"), render_module)])
+    targets = (args if args else
+               [os.path.join(repo, "docs", "js", "gen", "catalog.js"),
+                os.path.join(repo, "hub", "console", "js", "catalog.gen.js")])
 
-    for out, renderer in targets:
+    for out in targets:
         os.makedirs(os.path.dirname(out), exist_ok=True)
         with open(out, "w", encoding="utf-8") as fh:
-            fh.write(renderer(data))
+            fh.write(render(data))
         print(f"wrote catalog -> {out}")
 
     if not args:

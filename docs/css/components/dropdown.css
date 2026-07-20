@@ -1,0 +1,22 @@
+.ms { position: relative; }
+.ms-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 9px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; cursor: pointer; text-align: left; }
+.ms-trigger:hover { border-color: var(--muted); }
+.ms.open .ms-trigger { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.ms-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms-caret { flex: none; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .15s ease; margin: -3px 2px 0 0; }
+.ms.open .ms-caret { transform: rotate(-135deg); margin-top: 2px; }
+.ms-panel { display: none; margin-top: 6px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow-panel); overflow: hidden; }
+.ms.open .ms-panel { display: block; }
+.ms-list { max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; }
+.ms-opt { display: flex; align-items: center; gap: 9px; padding: 8px 11px; border: 0; border-bottom: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; cursor: pointer; text-align: left; }
+.ms-opt:last-child { border-bottom: 0; }
+.ms-opt:hover { background: var(--bg-soft); }
+.ms-check { flex: none; width: 16px; height: 16px; border: 1px solid var(--border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.ms-opt.on .ms-check { background: var(--accent); border-color: var(--accent); }
+.ms-opt.on .ms-check::after { content: ""; width: 4px; height: 8px; border: solid var(--on-accent); border-width: 0 2px 2px 0; transform: rotate(45deg); margin-top: -2px; }
+.ms-opt-l { font-family: var(--mono); font-size: 12.5px; }
+.ms-opt-d { color: var(--muted); font-size: 11.5px; margin-left: auto; padding-left: 10px; }
+
+.ms.float .ms-panel { position: absolute; left: 0; top: 100%; margin-top: 4px; min-width: 100%; width: max-content; max-width: 260px; z-index: 10; }
+.ms.slim { display: inline-block; }
+.ms.slim .ms-trigger { font-family: var(--mono); font-size: 12.5px; padding: 3px 6px; background: var(--panel); }

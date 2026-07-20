@@ -1,4 +1,4 @@
-(function () {
+export function initChrome() {
   const cfg = window.TAMA_PAGE || {};
   const chrome = (window.TAMA_PRESET || {}).chrome || {};
 
@@ -37,4 +37,4 @@
       `<span class="buildmock-yaml"><em>config.yaml</em>${lines}</span></span>` +
       `<span class="buildmock-foot"><span class="appmock-cta">Flash my config</span></span>`;
   });
-})();
+}

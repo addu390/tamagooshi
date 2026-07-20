@@ -1,7 +1,8 @@
-(function () {
+import { theme as D } from "./device.js";
+
+export function initDemo() {
   const mount = document.querySelector(".demo-device");
-  const D = window.TamaDevice;
-  if (!mount || !D) return;
+  if (!mount) return;
 
   const PRESET = window.TAMA_PRESET || {};
   const SIL = D.SIL, DET = D.DET, DC = D.colors, GRID = DC.grid;
@@ -42,6 +43,7 @@
   const encHT = 13, encG = 0.21;
   const pocketT = 19.5, pocketG = 0.26, capT = 14.5, capG = 0.19;
   const seamLine = (t1, t2) => t2 - t1 < 6 ? "" : `<line x1="${S(t1, 0.5)[0].toFixed(1)}" y1="${S(t1, 0.5)[1].toFixed(1)}" x2="${S(t2, 0.5)[0].toFixed(1)}" y2="${S(t2, 0.5)[1].toFixed(1)}" stroke="${DET}" stroke-width="0.9" stroke-linecap="round"/>`;
+
   const seam =
     seamLine(6, encA - encHT - 3) + seamLine(encA + encHT + 3, ctrT - pocketT - 3)
     + seamLine(ctrT + pocketT + 3, encB - encHT - 3) + seamLine(encB + encHT + 3, FH - 6)
@@ -58,23 +60,28 @@
   const T = (x, y) => [x * FW / 104 + (1 - y / 44) * dx, (1 - y / 44) * dy];
   const topQuad = (x0, x1, y0, y1, r, fill, stroke, sw) =>
     quadPath([T(x0, y0), T(x1, y0), T(x1, y1), T(x0, y1)], r, fill, stroke, sw);
+
   const hatFeats = (() => {
     const hx0 = 10, hw = 84, hy0 = 7, hh = 22, cols = 9, rows = 2, gpx = 3.4;
     const cw = (hw - gpx * (cols + 1)) / cols, ch = (hh - gpx * (rows + 1)) / rows;
     const colX = (c) => hx0 + gpx + c * (cw + gpx);
+
     let out = topQuad(hx0, hx0 + hw, hy0, hy0 + hh, 4, DC.hat, SIL, 1);
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const x = colX(c), y = hy0 + gpx + r * (ch + gpx);
       out += topQuad(x, x + cw, y, y + ch, 1.5, DC.hatHole);
     }
+
     const vy = 0.78 * 44, slotY = hy0 + hh, slotTop = vy + ch * 0.4;
     const sw = 2 * cw + gpx;
     out += topQuad(colX(0), colX(0) + sw, slotY, slotTop, 1.5, DC.hatSlot);
+
     const gx0 = colX(7);
     const tpoly = (pts, op) => `<polygon points="${pts.map((p) => { const q = T(p[0], p[1]); return `${q[0].toFixed(1)},${q[1].toFixed(1)}`; }).join(" ")}" fill="#ffffff" opacity="${op}"/>`;
     out += topQuad(gx0, gx0 + sw, slotY, slotTop, 1.5, DC.hatGlass, DC.hatGlassLine, 0.6);
     out += tpoly([[gx0 + 0.16 * sw, slotY], [gx0 + 0.38 * sw, slotY], [gx0 + 0.24 * sw, slotTop], [gx0 + 0.02 * sw, slotTop]], 0.16);
     out += tpoly([[gx0 + 0.52 * sw, slotY], [gx0 + 0.60 * sw, slotY], [gx0 + 0.46 * sw, slotTop], [gx0 + 0.38 * sw, slotTop]], 0.07);
+
     return out + [-1, 0, 1].map((k) => topQuad(52 + k * 7 - 2.2, 52 + k * 7 + 2.2, vy - 2.2, vy + 2.2, 2.2, DC.vent)).join("");
   })();
 
@@ -298,20 +305,24 @@
     const s = Math.floor(t);
     return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
   }
+
   function setPlayIcon() {
     const paused = video.paused;
     playBtn.innerHTML = paused ? ICON_PLAY : ICON_PAUSE;
     playBtn.setAttribute("aria-label", paused ? "Play" : "Pause");
   }
+
   function updateScrub() {
     const dur = video.duration;
     if (!dur) { fill.style.width = "0%"; knob.style.left = "0%"; paintMarks(0); timeEl.textContent = "0:00"; return; }
+
     const p = Math.min(1, video.currentTime / dur);
     fill.style.width = (p * 100).toFixed(2) + "%";
     knob.style.left = (p * 100).toFixed(2) + "%";
     paintMarks(p);
     timeEl.textContent = fmtTime(video.currentTime) + " / " + fmtTime(dur);
   }
+
   function seekToClientX(clientX) {
     const rect = track.getBoundingClientRect();
     if (!video.duration || rect.width <= 0) return;
@@ -329,6 +340,7 @@
       video.pause();
     }
   });
+
   track.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     scrubbing = true;
@@ -338,6 +350,7 @@
     seekToClientX(e.clientX);
   });
   track.addEventListener("pointermove", (e) => { if (scrubbing) seekToClientX(e.clientX); });
+
   const endScrub = (e) => {
     if (!scrubbing) return;
     scrubbing = false;
@@ -346,6 +359,7 @@
   };
   track.addEventListener("pointerup", endScrub);
   track.addEventListener("pointercancel", endScrub);
+
   video.addEventListener("play", setPlayIcon);
   video.addEventListener("pause", setPlayIcon);
   setPlayIcon();
@@ -361,6 +375,7 @@
 
   let current = null;
   let metricsOn = false;
+
   function tick() {
     if (current && current.gameWin && video.duration) {
       const f = (video.currentTime / video.duration) % 1;
@@ -368,10 +383,12 @@
       mount.classList.toggle("landscape", land);
       legendEl.classList.toggle("on", !land && !!LEGENDS[current.id]);
     }
+
     if (metricsOn && video.duration) {
       const dur = video.duration;
       const f = (video.currentTime / dur) % 1;
       const back = (f - 0.02 + 1) % 1;
+
       tiles.forEach((t) => {
         const now = interp(t.def.kf, f);
         const prev = interp(t.def.kf, back);
@@ -384,13 +401,16 @@
         t.arrow.className = "mtile-a " + cls;
         t.el.className = "mtile" + (h === "ok" ? "" : " " + h);
       });
+
       const up = interp(UPTIME_KF, f);
       cap.textContent = up < 95 ? "SLA breached, uptime critical" : up < 99 ? "SLA at risk, uptime slipping" : "";
       cap.className = "demo-cap" + (up < 99 ? " on " + (up < 95 ? "crit" : "warn") : "");
     }
+
     updateScrub();
     rafId = requestAnimationFrame(tick);
   }
+
   function startLoop() { if (rafId === null) rafId = requestAnimationFrame(tick); }
   function stopLoop() { if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; } }
 
@@ -418,10 +438,12 @@
     const s = SCENARIOS[i];
     current = s;
     metricsOn = !!s.metrics;
+
     metricsEl.classList.toggle("on", metricsOn);
     mount.classList.remove("landscape");
     renderLegend(s.id);
     renderMarks(s.markers);
+
     userPaused = false;
     video.innerHTML = `<source src="assets/videos/${s.id}.webm" type="video/webm"><source src="assets/videos/${s.id}.mp4" type="video/mp4">`;
     video.style.display = "none";
@@ -442,4 +464,4 @@
     }
   }, { threshold: 0.2 });
   io.observe(mount);
-})();
+}

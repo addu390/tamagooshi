@@ -1,0 +1,22 @@
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 84px; overflow-x: clip; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg) radial-gradient(1100px 380px at 50% -160px, var(--accent-bg), transparent) no-repeat;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4, h5, h6 { font-weight: 600; }
+b, strong { font-weight: 500; color: var(--text); }
+main p a { text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--link-line); }
+main p a:hover { text-decoration-color: var(--text); }
+
+code, pre { font-family: var(--mono); }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }

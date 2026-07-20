@@ -1,0 +1,35 @@
+.flash { margin: 18px 0 8px; }
+.flash-card { display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 18px 20px; }
+.flash-copy { display: flex; flex-direction: column; gap: 4px; max-width: 62ch; }
+.flash-copy b { font-size: 15px; }
+.flash-copy span { font-size: 13.5px; color: var(--text-soft); }
+.flash-controls { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.flash-board-field { display: flex; flex-direction: column; gap: 5px; }
+.flash-board-field > span { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.flash-board-field .ms { min-width: 180px; }
+.flash-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.flash-note { display: block; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+.flash-bar { display: flex; align-items: center; gap: 12px; }
+.flash-bar-track { flex: 1 1 auto; height: 8px; background: var(--border); border-radius: var(--radius); overflow: hidden; }
+.flash-bar-fill { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
+.flash-bar-fill.done { background: var(--accent-strong); }
+.flash-bar-fill.error { background: var(--crit); }
+.flash-bar-label { flex: none; min-width: 104px; text-align: right; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.flash-log { border: 1px solid var(--term-border); border-radius: var(--radius); background: var(--term-bg); overflow: hidden; }
+.flash-log-bar { padding: 7px 12px; background: var(--term-chrome); color: var(--term-text); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; border-bottom: 1px solid var(--term-line); }
+.flash-log-body { max-height: 200px; overflow-y: auto; padding: 10px 12px; font-family: var(--mono); font-size: 12px; line-height: 1.55; color: var(--term-bright); }
+.flash-log-empty { color: var(--term-dim); }
+.flash-log-line { white-space: pre-wrap; word-break: break-word; }
+.flash-log-line.err { color: var(--term-err); }
+
+ewt-install-dialog, ewt-no-port-picked-dialog, ewt-page-message, ewt-page-progress {
+  --md-sys-color-primary: var(--accent) !important;
+  --md-ref-typeface-plain: var(--font) !important;
+  --md-ref-typeface-brand: var(--font) !important;
+  --md-sys-shape-corner-extra-large: var(--radius) !important;
+  --md-sys-shape-corner-large: var(--radius) !important;
+  --md-sys-shape-corner-medium: var(--radius) !important;
+  --md-sys-shape-corner-small: var(--radius) !important;
+  --md-sys-shape-corner-extra-small: var(--radius) !important;
+  --md-sys-shape-corner-full: var(--radius) !important;
+}

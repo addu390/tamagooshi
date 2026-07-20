@@ -1,0 +1,16 @@
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--text); color: var(--on-accent); padding: 8px 16px; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; border: 1px solid var(--text);
+  transition: transform .08s ease, opacity .15s ease;
+}
+.btn:hover { opacity: .9; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn:active { transform: translateY(1px); }
+.btn kbd {
+  display: inline-grid; place-items: center;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: var(--radius); font-family: var(--mono); font-size: 11px; font-weight: 600; line-height: 1;
+}
+.btn:not(.ghost) kbd { background: color-mix(in srgb, var(--on-accent) 16%, transparent); border: 1px solid color-mix(in srgb, var(--on-accent) 24%, transparent); color: var(--on-accent); }
+.btn.ghost kbd { background: var(--bg-soft); border: 1px solid var(--border); color: var(--muted); }

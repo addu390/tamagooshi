@@ -1,0 +1,22 @@
+.fgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 22px 0; }
+.fgrid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.fcard { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; transition: border-color .15s ease, box-shadow .15s ease; }
+.fcard:hover { border-color: var(--border-strong); box-shadow: var(--shadow-lift); }
+.fcard h3 { margin: 18px 20px 6px; font-size: 16px; }
+.fcard p { margin: 0 20px 16px; font-size: 13.5px; color: var(--text-soft); }
+.fcard pre { margin: 0 20px 20px; }
+.fcard h3 + p + pre { margin-top: 0; }
+
+.confmap { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; margin: 18px 0; box-shadow: var(--shadow-card); }
+.confmap-name { padding: 8px 14px; background: var(--code-chrome); border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--code-comment); }
+.confmap-row { display: flex; align-items: baseline; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-soft); transition: background .15s; }
+.confmap-row:last-child { border-bottom: 0; }
+.confmap-row code { flex: none; width: 132px; font-size: 12.5px; color: var(--text); }
+.confmap-row.in code { padding-left: 20px; width: 152px; }
+.confmap-row em { font-style: normal; margin-left: auto; color: var(--muted); }
+a.confmap-row:hover { background: var(--bg-soft); }
+a.confmap-row:hover em { color: var(--text); }
+
+@media (max-width: 900px) {
+  .fgrid, .fgrid.cols-2 { grid-template-columns: 1fr; }
+}

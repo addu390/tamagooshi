@@ -9,12 +9,14 @@
     ".#.#...#.#.",
     ".#.#...#.#.",
   ];
+
   window.TAMA_PRESET = {
     chrome: {
       href: "claude.html", logo: "C", accent: true, pre: "Claude &times; ",
       note: "An independent project, not affiliated with Anthropic PBC",
       footer: "An independent, fan-made project. Claude and Clawd belong to Anthropic PBC.",
     },
+
     deviceName: "CLAWD",
     deviceColors: {
       sil: "#221d1a", det: "#c4bcae", grid: "#efece3",
@@ -23,10 +25,12 @@
       well: "#f6f4ec", btnPocket: "#c9c1b1", btnPocketDeep: "#b9b09e",
       btnCap: "#dad4c6", btnCapHi: "#eae5d9",
     },
+
     logo: {
       w: 24, h: 24, name: "logo.png",
       bits: "00000000000000000000080001088000998000d900085b18067e6003ffc000ff8007ffe01ffff800ff0001ffc0077ee00c7b1000db00009900010880010800000000000000000000",
     },
+
     agentsLabel: "CLAUDE",
     agentsSub: "your agent",
     aiCaption: "Co-work with Claude.",
@@ -42,6 +46,7 @@
       ".#.#...#.#.",
       ".#.#...#.#.",
     ],
+
     text: {
       logoText: "CLAUDE",
       brandModeCaption: "Claude on every surface: logo, name, theme.",
@@ -56,6 +61,7 @@
       coworkLabel: "CO-WORK WITH CLAUDE",
       coworkCaption: "Co-work with Claude: Clawd reacts live",
     },
+
     config: {
       id: "claude",
       name: "CLAUDE",
@@ -71,6 +77,7 @@
       agents: ["claude"],
       agentDefault: "claude",
     },
+
     demo: {
       note: {
         title: "Everything else comes standard",

@@ -30,7 +30,7 @@ window.TAMA_PAGE = {
         <div class="shopcard">
           <h3>Built and shipped <b id="built-price">$50</b></h3>
           <div class="receipt">
-            <span class="receipt-line"><span><select id="built-board" aria-label="Board"></select></span><i></i><span id="built-hw">$21.50</span></span>
+            <div class="receipt-line"><div id="built-board"></div><i></i><span id="built-hw">$21.50</span></div>
             <span class="receipt-line"><span>Shipping</span><i></i><span>$10</span></span>
             <span class="receipt-line"><span>Brand sticker &times;4</span><i></i><span>$10</span></span>
             <span class="receipt-line"><span>Development and packaging</span><i></i><span>$10</span></span>
@@ -47,7 +47,7 @@ window.TAMA_PAGE = {
         <div class="shopcard">
           <h3>Do it yourself <b id="diy-price">$21.50</b></h3>
           <div class="receipt">
-            <span class="receipt-line"><span><select id="diy-board" aria-label="Board"></select></span><i></i><span id="diy-hw">$21.50</span></span>
+            <div class="receipt-line"><div id="diy-board"></div><i></i><span id="diy-hw">$21.50</span></div>
             <span class="receipt-line"><span>Shipping (from Hong Kong)</span><i></i><span>~$10</span></span>
             <span class="receipt-line"><span>Firmware and flasher</span><i></i><span>free</span></span>
             <span class="receipt-line"><span>Docs, packs, updates</span><i></i><span>free</span></span>
@@ -67,8 +67,6 @@ window.TAMA_PAGE = {
 
 <footer><div class="wrap"></div></footer>
 
-<script src="js/page.js"></script>
-<script src="js/app.js"></script>
-<script src="js/shop.js"></script>
+<script type="module" src="js/pages/shop.js"></script>
 </body>
 </html>
