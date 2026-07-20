@@ -1,4 +1,4 @@
-name: app
+name: macos
 
 on:
   push:
@@ -22,6 +22,9 @@ jobs:
       - name: Package DMG
         run: VERSION="${GITHUB_REF_NAME#v}" hub/macos/scripts/dmg.sh
 
+      - name: Stable download name
+        run: cp build/Tamagooshi-*.dmg build/Tamagooshi.dmg
+
       - uses: actions/upload-artifact@v4
         with:
           name: tamagooshi-dmg
@@ -31,4 +34,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/Tamagooshi-*.dmg
+          files: |
+            build/Tamagooshi-*.dmg
+            build/Tamagooshi.dmg
