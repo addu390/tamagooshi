@@ -15,7 +15,7 @@
 <script>
 window.TAMA_PAGE = {
   brand: { href: "#top" },
-  nav: [["#config", "Configure"], ["#build", "Flash"]],
+  nav: [["#demo", "Demo"], ["#build", "Flash"], ["shop.html", "Shop"]],
 };
 </script>
 
@@ -103,7 +103,10 @@ make sim-live BRAND=demo</pre>
     <section class="doc" id="config">
       <h2>Configuration</h2>
       <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>, in three groups: <code>brand</code> (identity), <code>device</code> (what ships in firmware), and <code>hub</code> (metrics and rules). Anything you leave out is simply off. A brand only bakes in the packs, games, and rules it lists, keeping the image small.</p>
-      <p>The <a href="builder.html">config builder</a> writes the file for you. Pick the identity, packs, and rules on the left and the yaml updates live, ready to flash or download into <code>brands/&lt;id&gt;/</code>. The <a href="config.html">config reference</a> explains every section in depth.</p>
+      <div class="confmap">
+        <a class="confmap-row" href="builder.html"><code>config builder</code><span>writes the file for you, pick identity, packs and rules, then flash or download</span><em>&rarr;</em></a>
+        <a class="confmap-row" href="config.html"><code>config reference</code><span>every section explained in depth, with live examples to poke at</span><em>&rarr;</em></a>
+      </div>
     </section>
 
     <section class="doc" id="build">

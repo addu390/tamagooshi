@@ -1,7 +1,3 @@
-// Shared page chrome. Each page declares window.TAMA_PAGE = { brand, nav, footer }
-// and this renders the top bar, footer, and reusable mock cards from it.
-// A loaded brand preset (window.TAMA_PRESET.chrome) supplies brand chrome
-// defaults, so builder.html?brand=<id> wears the same chrome as the brand page.
 (function () {
   const cfg = window.TAMA_PAGE || {};
   const chrome = (window.TAMA_PRESET || {}).chrome || {};
