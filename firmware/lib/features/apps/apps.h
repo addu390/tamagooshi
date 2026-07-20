@@ -20,6 +20,7 @@ namespace tama::apps {
 AppScreen& clock();
 AppScreen& stopwatch();
 AppScreen& flashlight();
+AppScreen& level();
 AppScreen& about();
 
 const AppInfo* list();

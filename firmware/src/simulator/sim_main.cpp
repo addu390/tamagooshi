@@ -2,6 +2,7 @@
 #include <SDL.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -53,6 +54,20 @@ class SimSensor : public ISensorSource {
   void onMotion(MotionHandler) override {}
   float tiltX() override { return read(); }
   float tiltY() override { return read(); }
+
+  bool accel(float& ax, float& ay, float& az) override {
+    int n = 0;
+    const Uint8* ks = SDL_GetKeyboardState(&n);
+    ax = ay = 0.0f;
+    if (ks) {
+      if (ks[SDL_SCANCODE_RIGHT]) ax = 0.35f;
+      if (ks[SDL_SCANCODE_LEFT]) ax = -0.35f;
+      if (ks[SDL_SCANCODE_UP]) ay = 0.35f;
+      if (ks[SDL_SCANCODE_DOWN]) ay = -0.35f;
+    }
+    az = std::sqrt(std::max(0.0f, 1.0f - ax * ax - ay * ay));
+    return true;
+  }
 
  private:
   static float read() {

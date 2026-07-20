@@ -77,6 +77,10 @@ window.TAMA_CATALOG = {
       "Flashlight"
     ],
     [
+      "level",
+      "Spirit level"
+    ],
+    [
       "about",
       "Device info"
     ]

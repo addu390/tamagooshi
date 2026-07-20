@@ -36,6 +36,8 @@ class M5Imu : public ISensorSource {
     return M5.Imu.getAccel(&x, &y, &z) ? y : 0.0f;
   }
 
+  bool accel(float& ax, float& ay, float& az) override { return M5.Imu.getAccel(&ax, &ay, &az); }
+
  private:
   static constexpr float kShakeG = 2.2f;
   static constexpr uint32_t kCooldownMs = 1200;

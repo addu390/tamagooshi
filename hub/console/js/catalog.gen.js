@@ -77,6 +77,10 @@ export default {
       "Flashlight"
     ],
     [
+      "level",
+      "Spirit level"
+    ],
+    [
       "about",
       "Device info"
     ]

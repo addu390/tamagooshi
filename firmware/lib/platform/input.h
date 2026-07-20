@@ -42,6 +42,10 @@ class ISensorSource {
   virtual void onMotion(MotionHandler handler) = 0;
   virtual float tiltX() { return 0.0f; }
   virtual float tiltY() { return 0.0f; }
+  virtual bool accel(float& ax, float& ay, float& az) {
+    ax = ay = az = 0.0f;
+    return false;
+  }
 };
 
 class IMicSource {

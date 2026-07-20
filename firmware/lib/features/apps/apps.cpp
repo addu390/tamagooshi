@@ -16,6 +16,9 @@ constexpr AppInfo kApps[] = {
 #if TAMA_APP_FLASHLIGHT
     {"flashlight", "TORCH", "app.flashlight", false, nullptr},
 #endif
+#if TAMA_APP_LEVEL
+    {"level", "LEVEL", "app.level", true, nullptr},
+#endif
 #if TAMA_APP_ABOUT
     {"about", "ABOUT", "app.about", false, nullptr},
 #endif
@@ -36,6 +39,9 @@ void registerAll(Navigator& nav) {
 #endif
 #if TAMA_APP_FLASHLIGHT
   nav.add(flashlight());
+#endif
+#if TAMA_APP_LEVEL
+  nav.add(level());
 #endif
 #if TAMA_APP_ABOUT
   nav.add(about());
