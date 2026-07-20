@@ -6,14 +6,6 @@ namespace tama::screens {
 
 namespace {
 
-bool locked(const GameInfo& gi, const DeviceCapabilities& caps) {
-  if (!gi.screen) return true;
-  if (gi.needsJoystick && !caps.joystick) return true;
-  if (gi.needsImu && !caps.imu) return true;
-  if (gi.needsMic && !caps.mic) return true;
-  return false;
-}
-
 class PlayScreen : public CatalogScreen {
  public:
   const char* id() const override { return "play"; }
@@ -24,7 +16,7 @@ class PlayScreen : public CatalogScreen {
 
   int entries(ShellContext& ctx, CatalogEntry* out, int max) const override {
     const int total = games::count();
-    const GameInfo* items = games::list();
+    const FeatureInfo* items = games::list();
     int n = 0;
     for (int i = 0; i < total && n < max; ++i) {
       if (!ctx.state.enabled.game(items[i].id)) continue;

@@ -21,7 +21,11 @@ def derive(colors):
 
 
 def _tuned(*roles):
-    return [_565(*_hex(c)) for c in roles]
+    return {"roles": [_565(*_hex(c)) for c in roles]}
+
+
+def _derived(colors):
+    return {"roles": derive(colors)}
 
 
 # Role order: bg, fg, hi, dim, dimmer, warn, crit, ink, blush
@@ -35,5 +39,5 @@ THEMES = {
                        "#F0A838", "#F05850", "#000000", "#F89480"),
     "timex":    _tuned("#E8E0C8", "#181810", "#181810", "#787060", "#C0BCA8",
                        "#C87818", "#B02820", "#181810", "#F89480"),
-    "terra":    derive({"surface": "#F0EEE6", "ink": "#191919", "accent": "#D97757"}),
+    "terra":    _derived({"surface": "#F0EEE6", "ink": "#191919", "accent": "#D97757"}),
 }

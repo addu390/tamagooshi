@@ -1,15 +1,11 @@
 import os
 
+from gen import registry
 from gen.emit.sprites import sprite_header
-from gen.features.apps import APPS
-from gen.features.games import GAMES
 from gen.features.mascots import MASCOTS
 from gen.images import logo_mask
 from gen.manifest import hostname
 from gen.platform.boards import BOARDS, SCREEN_H, SCREEN_W, macro as board_macro
-
-GAME_MACRO = {g: f"TAMA_GAME_{g.upper()}" for g in GAMES}
-APP_MACRO = {a: f"TAMA_APP_{a.upper()}" for a in APPS}
 
 PORTAL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                       "network", "portal.html")
@@ -29,6 +25,13 @@ def write(path, text):
         fh.write(text)
 
 
+def _register_fn(registry_type, param, factories):
+    if not factories:
+        return [f'inline void registerGenerated({registry_type}&) {{}}']
+    return [f'inline void registerGenerated({registry_type}& {param}) {{',
+            *[f'  {param}.add({f}());' for f in factories], '}']
+
+
 def emit_mascots(out_dir, ids, customs, base_dir):
     for mid in ids:
         write(os.path.join(out_dir, "mascots", f"{mid}.h"),
@@ -40,17 +43,48 @@ def emit_mascots(out_dir, ids, customs, base_dir):
     every = [*ids, *[m["id"] for m in customs]]
     lines = ['#pragma once', '', '#include "mascots/registry.h"', '']
     lines += [f'#include "mascots/{i}.h"' for i in every]
-    lines += ['', 'namespace tama::characters {', '',
-              'inline void registerGenerated(CharacterRegistry& registry) {']
-    lines += [f'  registry.add({i}());' for i in every]
-    lines += ['}', '', '}  // namespace tama::characters', '']
+    lines += ['', 'namespace tama::characters {', '']
+    lines += _register_fn("CharacterRegistry", "registry", every)
+    lines += ['', '}  // namespace tama::characters', '']
     write(os.path.join(out_dir, "mascots.gen.h"), "\n".join(lines))
+
+
+def emit_features(out_dir, category, enabled):
+    chosen = set(enabled)
+    ordered = [i for i in category.items if i in chosen]
+    active = [i for i in ordered if not category.items[i].get("soon")]
+
+    rows = []
+    for iid in ordered:
+        meta = category.items[iid]
+        screen = "nullptr" if meta.get("soon") else cstr(f"{category.noun}.{iid}")
+        needs = ", ".join("true" if meta.get(f) else "false"
+                          for f in ("joystick", "imu", "mic"))
+        note = cstr("soon") if meta.get("soon") else "nullptr"
+        rows.append(f'    {{{cstr(iid)}, {cstr(category.label(iid))}, {screen}, {needs}, '
+                    f'{note}}},')
+
+    lines = ['#pragma once', '', f'#include "{category.id}/{category.id}.h"', '',
+             f'namespace tama::{category.id} {{', '']
+    if active:
+        lines += [f'AppScreen& {i}();' for i in active]
+        lines.append('')
+    if rows:
+        lines += ['inline constexpr FeatureInfo kGenerated[] = {', *rows, '};',
+                  'inline constexpr int kGeneratedCount = '
+                  'sizeof(kGenerated) / sizeof(kGenerated[0]);', '']
+    else:
+        lines += ['inline constexpr const FeatureInfo* kGenerated = nullptr;',
+                  'inline constexpr int kGeneratedCount = 0;', '']
+    lines += _register_fn("Navigator", "nav", active)
+    lines += ['', f'}}  // namespace tama::{category.id}', '']
+    write(os.path.join(out_dir, f"{category.id}.gen.h"), "\n".join(lines))
 
 
 def emit_themes(out_dir, themes):
     rows = []
-    for name, roles in themes:
-        vals = ", ".join("0x%04X" % v for v in roles)
+    for name, spec in themes:
+        vals = ", ".join("0x%04X" % v for v in spec["roles"])
         rows.append(f'    {{{cstr(name)}, {vals}}},')
     text = "\n".join(['#pragma once', '', 'const Theme kThemes[] = {', *rows, '};', ''])
     write(os.path.join(out_dir, "themes.gen.h"), text)
@@ -184,8 +218,8 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
              f'#define TAMA_HUB_AGENTS {cstr(",".join(agents))}',
              f'#define TAMA_HUB_AGENT_DEFAULT {cstr(agent_default)}', '']
 
-    lines += [f'#define {GAME_MACRO[g]} 1' for g in games]
-    lines += [f'#define {APP_MACRO[a]} 1' for a in apps]
+    lines += [f'#define {registry.games.macro(g)} 1' for g in games]
+    lines += [f'#define {registry.apps.macro(a)} 1' for a in apps]
     if buddy:
         lines += ['#define TAMA_ENABLE_BUDDY 1']
 

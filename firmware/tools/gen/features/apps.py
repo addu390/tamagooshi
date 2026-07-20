@@ -1,8 +1,8 @@
 APPS = {
-    "clock": {"desc": "Clock"},
-    "stopwatch": {"desc": "Stopwatch"},
-    "flashlight": {"desc": "Flashlight"},
-    "level": {"desc": "Spirit level"},
-    "pomodoro": {"desc": "Pomodoro timer"},
-    "about": {"desc": "Device info"},
+    "clock": {"label": "CLOCK", "desc": "Clock"},
+    "stopwatch": {"label": "STOPWATCH", "desc": "Stopwatch"},
+    "flashlight": {"label": "TORCH", "desc": "Flashlight"},
+    "level": {"label": "LEVEL", "desc": "Spirit level", "imu": True},
+    "pomodoro": {"label": "POMODORO", "desc": "Pomodoro timer"},
+    "about": {"label": "ABOUT", "desc": "Device info"},
 }

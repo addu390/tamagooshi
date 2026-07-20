@@ -1,8 +1,8 @@
 GAMES = {
-    "runner": {"desc": "Endless dodge and jump"},
-    "flappy": {"desc": "Tap to flap through gaps"},
-    "delivery": {"desc": "Steer to drop-offs"},
-    "scream": {"desc": "Yell to fly (mic)"},
-    "galaxy": {"desc": "Tilt to dodge (IMU)"},
-    "tilt": {"desc": "Tilt maze", "soon": True},
+    "runner": {"label": "DASH", "desc": "Endless dodge and jump"},
+    "flappy": {"label": "FLAP", "desc": "Tap to flap through gaps"},
+    "delivery": {"label": "DELIVERY", "desc": "Steer to drop-offs"},
+    "scream": {"label": "SCREAM", "desc": "Yell to fly (mic)", "mic": True},
+    "galaxy": {"label": "GALAXY", "desc": "Tilt to dodge (IMU)", "imu": True},
+    "tilt": {"label": "TILT MAZE", "desc": "Tilt maze", "imu": True, "soon": True},
 }

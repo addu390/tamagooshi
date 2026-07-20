@@ -25,11 +25,26 @@ window.TAMA_CATALOG = {
     }
   ],
   "themes": [
-    "slate",
-    "espresso",
-    "midnight",
-    "timex",
-    "terra"
+    [
+      "slate",
+      "slate"
+    ],
+    [
+      "espresso",
+      "espresso"
+    ],
+    [
+      "midnight",
+      "midnight"
+    ],
+    [
+      "timex",
+      "timex"
+    ],
+    [
+      "terra",
+      "terra"
+    ]
   ],
   "typefaces": [
     [

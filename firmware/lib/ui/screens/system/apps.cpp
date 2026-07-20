@@ -6,12 +6,6 @@ namespace tama::screens {
 
 namespace {
 
-bool locked(const AppInfo& ai, const DeviceCapabilities& caps) {
-  if (!ai.screen) return true;
-  if (ai.needsImu && !caps.imu) return true;
-  return false;
-}
-
 class AppsScreen : public CatalogScreen {
  public:
   const char* id() const override { return "apps"; }
@@ -22,7 +16,7 @@ class AppsScreen : public CatalogScreen {
 
   int entries(ShellContext& ctx, CatalogEntry* out, int max) const override {
     const int total = apps::count();
-    const AppInfo* items = apps::list();
+    const FeatureInfo* items = apps::list();
     int n = 0;
     for (int i = 0; i < total && n < max; ++i) {
       if (!ctx.state.enabled.app(items[i].id)) continue;

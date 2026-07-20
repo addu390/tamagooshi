@@ -9,7 +9,7 @@
   document.addEventListener("click", (e) => { if (!e.target.closest(".ms")) closeMenus(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
 
-  const THEMES = CATALOG.themes;
+  const THEMES = CATALOG.themes.map((t) => t[0]);
   const TYPEFACES = CATALOG.typefaces;
   const GAMES = CATALOG.games;
   const APPS = CATALOG.apps;

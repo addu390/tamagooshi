@@ -1,11 +1,9 @@
 import os
 
-from gen.features.apps import APPS
-from gen.features.games import GAMES
+from gen import registry
 from gen.features.mascots import MASCOT_CATEGORIES, MASCOTS
 from gen.network.transports import DEFAULT_PROTOCOL, LINKS, PROTOCOLS
-from gen.ui.themes import THEMES, derive as derive_theme
-from gen.ui.typefaces import TYPEFACES
+from gen.ui.themes import derive as derive_theme
 
 
 def manifest_candidates(brands_dir, brand_id):
@@ -47,8 +45,40 @@ def is_all(value):
     return value == "all" or value == ["all"]
 
 
-def playable_games():
-    return [g for g, meta in GAMES.items() if not meta.get("soon")]
+def select_features(cfg, category):
+    inc = cfg.get("enabled") or []
+    if is_all(inc):
+        return category.selectable()
+    for item in inc:
+        if item not in category.items:
+            raise SystemExit(f"unknown {category.noun}: {item}")
+    return inc
+
+
+def select_options(cfg, category, custom=None):
+    custom = custom or {}
+    noun = category.noun
+    default = cfg.get("default")
+    enabled = cfg.get("enabled") or ([default] if default else [])
+    if is_all(enabled):
+        enabled = [*category.items, *custom]
+    if not enabled:
+        raise SystemExit(f"{noun}.enabled is empty and no {noun}.default set")
+
+    out = []
+    for name in enabled:
+        spec = custom.get(name) or category.items.get(name)
+        if spec is None:
+            raise SystemExit(f"unknown {noun}: {name}")
+        out.append((name, spec))
+    if default not in [n for n, _ in out]:
+        raise SystemExit(f"default {noun} '{default}' is not in {noun}.enabled")
+    return out, default
+
+
+def select_themes(cfg):
+    custom = {c["name"]: {"roles": derive_theme(c["colors"])} for c in cfg.get("custom") or []}
+    return select_options(cfg, registry.themes, custom)
 
 
 def select_mascots(cfg):
@@ -75,67 +105,6 @@ def select_mascots(cfg):
         customs.append({"id": c["id"], "label": c["label"], "cat": c.get("category", "custom"),
                         "src": c["source"]})
     return ordered, customs
-
-
-def select_themes(cfg):
-    custom = {c["name"]: derive_theme(c["colors"]) for c in cfg.get("custom") or []}
-    default = cfg.get("default")
-    enabled = cfg.get("enabled") or ([default] if default else [])
-    if is_all(enabled):
-        enabled = list(THEMES) + list(custom)
-    if not enabled:
-        raise SystemExit("theme.enabled is empty and no theme.default set")
-
-    out = []
-    for name in enabled:
-        if name in custom:
-            out.append((name, custom[name]))
-        elif name in THEMES:
-            out.append((name, THEMES[name]))
-        else:
-            raise SystemExit(f"unknown theme: {name}")
-    if default not in [n for n, _ in out]:
-        raise SystemExit(f"default theme '{default}' is not in theme.enabled")
-    return out, default
-
-
-def select_typefaces(cfg):
-    default = cfg.get("default")
-    enabled = cfg.get("enabled") or ([default] if default else [])
-    if is_all(enabled):
-        enabled = list(TYPEFACES)
-    if not enabled:
-        raise SystemExit("typeface.enabled is empty and no typeface.default set")
-
-    out = []
-    for name in enabled:
-        if name in TYPEFACES:
-            out.append((name, TYPEFACES[name]))
-        else:
-            raise SystemExit(f"unknown typeface: {name}")
-    if default not in [n for n, _ in out]:
-        raise SystemExit(f"default typeface '{default}' is not in typeface.enabled")
-    return out, default
-
-
-def select_games(cfg):
-    inc = cfg.get("enabled") or []
-    if is_all(inc):
-        return playable_games()
-    for g in inc:
-        if g not in GAMES:
-            raise SystemExit(f"unknown game: {g}")
-    return inc
-
-
-def select_apps(cfg):
-    inc = cfg.get("enabled") or []
-    if is_all(inc):
-        return list(APPS)
-    for a in inc:
-        if a not in APPS:
-            raise SystemExit(f"unknown app: {a}")
-    return inc
 
 
 def parse_transports(value):

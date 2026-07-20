@@ -1,30 +1,12 @@
 #pragma once
 
+#include "feature.h"
 #include "navigator.h"
 #include "screen.h"
 
-namespace tama {
-
-struct AppInfo {
-  const char* id;
-  const char* label;
-  const char* screen;
-  bool needsImu;
-  const char* note;
-};
-
-}  // namespace tama
-
 namespace tama::apps {
 
-AppScreen& clock();
-AppScreen& stopwatch();
-AppScreen& flashlight();
-AppScreen& level();
-AppScreen& pomodoro();
-AppScreen& about();
-
-const AppInfo* list();
+const FeatureInfo* list();
 int count();
 void registerAll(Navigator& nav);
 

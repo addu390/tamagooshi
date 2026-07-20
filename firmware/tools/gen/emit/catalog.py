@@ -2,14 +2,11 @@ import importlib.util
 import json
 import os
 
-from gen.features.apps import APPS
-from gen.features.games import GAMES
-from gen.features.mascots import MASCOT_CATEGORIES, MASCOTS
+from gen import registry
+from gen.features.mascots import MASCOT_CATEGORIES
 from gen.images import logo_mask, pack_mask
 from gen.network.transports import LINKS, PROTOCOLS
 from gen.platform.boards import RELEASE_BASE, flash_catalog
-from gen.ui.themes import THEMES
-from gen.ui.typefaces import TYPEFACES
 
 LINK_DESC = {"ble": "Bluetooth LE, always on", "wifi": "Wi-Fi"}
 PROTOCOL_DESC = {"gatt": "GATT (native)", "mqtt": "MQTT"}
@@ -49,12 +46,12 @@ def catalog():
     return {
         "release": RELEASE_BASE,
         "boards": flash_catalog(),
-        "themes": list(THEMES),
-        "typefaces": [[tid, spec.get("label", tid)] for tid, spec in TYPEFACES.items()],
-        "games": [[gid, meta.get("desc", gid)] for gid, meta in GAMES.items() if not meta.get("soon")],
-        "apps": [[aid, meta.get("desc", aid)] for aid, meta in APPS.items()],
+        "themes": registry.themes.rows(),
+        "typefaces": registry.typefaces.rows(),
+        "games": registry.games.rows(),
+        "apps": registry.apps.rows(),
         "agents": _agents(),
-        "packs": {name: [[mid, MASCOTS[mid]["label"]] for mid in ids]
+        "packs": {name: [[mid, registry.mascots.display(mid)] for mid in ids]
                   for name, ids in MASCOT_CATEGORIES.items()},
         "transports": {
             "links": [[link, LINK_DESC.get(link, link)] for link in LINKS],
