@@ -9,8 +9,8 @@
 @media (prefers-reduced-motion: reduce) { .rotor { transition: none; } }
 .hero p.lead { font-size: 18px; color: var(--text-soft); margin: 0 0 28px; max-width: 520px; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
-.flow-strip { border-top: 1px solid var(--border); background: var(--bg-soft); padding: 12px 22px; font-family: var(--mono); font-size: 13px; color: var(--muted); text-align: center; }
-.flow-strip b { color: var(--text); }
+.flow-strip { border-top: 1px solid var(--border); background: var(--bg-soft); padding: 12px 22px; font-family: var(--mono); font-size: 13px; color: var(--text-soft); text-align: center; }
+.flow-strip b { color: var(--muted); font-weight: 400; }
 
 @media (max-width: 900px) {
   .hero-inner { grid-template-columns: 1fr; gap: 20px; padding: 30px 22px; }

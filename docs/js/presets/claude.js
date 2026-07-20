@@ -12,7 +12,7 @@
 
   window.TAMA_PRESET = {
     chrome: {
-      href: "claude.html", logo: "C", accent: true, pre: "Claude &times; ",
+      href: "claude", logo: "C", accent: true, pre: "Claude &times; ",
       note: "An independent project, not affiliated with Anthropic PBC",
       footer: "An independent, fan-made project. Claude and Clawd belong to Anthropic PBC.",
     },

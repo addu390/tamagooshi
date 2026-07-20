@@ -14,7 +14,7 @@
 
 <script>
 window.TAMA_PAGE = {
-  nav: [["index.html", "Home"], ["builder.html", "Builder"], ["shop.html", "Shop"]],
+  nav: [["./", "Home"], ["builder", "Builder"], ["shop", "Shop"]],
 };
 </script>
 
@@ -33,7 +33,7 @@ window.TAMA_PAGE = {
   <main>
     <section class="doc" id="overview">
       <h2>Config reference</h2>
-      <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>. Anything you leave out is simply off. The <a href="builder.html">builder</a> writes this file for you, and this page explains every section it writes.</p>
+      <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>. Anything you leave out is simply off. The <a href="builder">builder</a> writes this file for you, and this page explains every section it writes.</p>
       <div class="confmap">
         <span class="confmap-name">brands/gooshi/config.yaml</span>
         <a class="confmap-row" href="#brand"><code>brand:</code><span>identity on the shell</span><em>&darr;</em></a>
@@ -51,7 +51,7 @@ window.TAMA_PAGE = {
       <div class="refmock">
         <span class="screenmock">
           <b class="sm-name">TAMAGOOSHI<sup>1</sup></b>
-          <span class="sm-face">^_^</span>
+          <span class="sm-face"></span>
           <b class="sm-mascot">GOOSHI<sup>2</sup></b>
           <em class="sm-tagline">keep it alive<sup>3</sup></em>
           <em class="sm-site">gooshi.me<sup>4</sup></em>
@@ -78,7 +78,7 @@ window.TAMA_PAGE = {
       <div class="refmock">
         <span class="screenmock" id="device-screen">
           <b class="sm-name">TAMAGOOSHI</b>
-          <span class="sm-face">^_^</span>
+          <span class="sm-face"></span>
           <b class="sm-mascot">GOOSHI</b>
           <em class="sm-tagline">keep it alive</em>
         </span>
@@ -172,19 +172,19 @@ window.TAMA_PAGE = {
       <div class="refmock">
         <span class="screenmock" id="mood-screen">
           <b class="sm-name">TAMAGOOSHI</b>
-          <span class="sm-face">x_x</span>
+          <span class="sm-face" data-mood="sick"></span>
           <b class="sm-mascot">GOOSHI</b>
           <em class="sm-tagline">signups: 42</em>
         </span>
         <div class="refmock-side">
           <p class="refmock-cap">When signups drop under 100, the mood turns</p>
           <div class="pickrow" id="mood-picks">
-            <button type="button" class="pickchip" data-mood="happy" data-face="^_^">happy</button>
-            <button type="button" class="pickchip" data-mood="neutral" data-face="-_-">neutral</button>
-            <button type="button" class="pickchip on" data-mood="sick" data-face="x_x">sick</button>
-            <button type="button" class="pickchip" data-mood="panic" data-face="O_O">panic</button>
-            <button type="button" class="pickchip" data-mood="celebrate" data-face="\o/">celebrate</button>
-            <button type="button" class="pickchip" data-mood="sleepy" data-face="z_z">sleepy</button>
+            <button type="button" class="pickchip" data-mood="happy">happy</button>
+            <button type="button" class="pickchip" data-mood="neutral">neutral</button>
+            <button type="button" class="pickchip on" data-mood="sick">sick</button>
+            <button type="button" class="pickchip" data-mood="panic">panic</button>
+            <button type="button" class="pickchip" data-mood="celebrate">celebrate</button>
+            <button type="button" class="pickchip" data-mood="sleepy">sleepy</button>
           </div>
           <pre data-lang="config.yaml"><span class="k">hub:</span>
   <span class="k">moods:</span>
@@ -195,7 +195,7 @@ window.TAMA_PAGE = {
       <pre data-lang="config.yaml"><span class="k">hub:</span>
   <span class="k">alerts:</span>
     <span class="p">-</span> <span class="p">{</span><span class="k">id:</span> <span class="s">cpu-high</span><span class="p">,</span> <span class="k">when:</span> <span class="p">{</span><span class="k">metric:</span> <span class="s">cpu</span><span class="p">,</span> <span class="k">op:</span> <span class="s">gt</span><span class="p">,</span> <span class="k">value:</span> <span class="n">90</span><span class="p">},</span> <span class="k">severity:</span> <span class="s">critical</span><span class="p">,</span> <span class="k">title:</span> <span class="s">"CPU is pegged"</span><span class="p">,</span> <span class="k">source:</span> <span class="s">hub</span><span class="p">}</span></pre>
-      <p>Severities are <code>info</code>, <code>warning</code>, and <code>critical</code>. Ready to write yours? The <a href="builder.html">builder</a> has a form for all of this.</p>
+      <p>Severities are <code>info</code>, <code>warning</code>, and <code>critical</code>. Ready to write yours? The <a href="builder">builder</a> has a form for all of this.</p>
     </section>
   </main>
 </div>

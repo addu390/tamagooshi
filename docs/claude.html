@@ -16,7 +16,7 @@
 <script>
 window.TAMA_PAGE = {
   brand: { href: "#top" },
-  nav: [["index.html", "Home"], ["#config", "Flash"], ["shop.html", "Shop"]],
+  nav: [["./", "Home"], ["#config", "Flash"], ["shop", "Shop"]],
 };
 </script>
 
@@ -39,7 +39,7 @@ window.TAMA_PAGE = {
           <p class="lead">The Claude edition of Tamagooshi puts Clawd, Claude's pixel mascot, on a palm-size handheld that pairs with Claude Code over BLE. It works while your agent works, celebrates when tasks land, and lets you approve actions or talk to Claude without touching the keyboard.</p>
           <div class="hero-cta">
             <a class="btn" href="#run" data-key-hint="S">Get started <kbd>S</kbd></a>
-            <a class="btn ghost" href="index.html">Standard edition &rarr;</a>
+            <a class="btn ghost" href="./">Standard edition &rarr;</a>
           </div>
         </div>
 
@@ -97,16 +97,16 @@ make hub                   <span class="c"># pairs over BLE</span></pre>
 
     <section class="doc" id="config">
       <h2>Configure &amp; flash</h2>
-      <p>The <a href="builder.html?brand=claude">config builder</a> opens pre-seeded with the Claude brand: the Clawd pack, the terracotta themes, the Claude agent, and BLE only. Adjust anything, flash it over USB right there, or download the <code>config.yaml</code> into <code>brands/claude/</code>.</p>
+      <p>The <a href="builder?brand=claude">config builder</a> opens pre-seeded with the Claude brand: the Clawd pack, the terracotta themes, the Claude agent, and BLE only. Adjust anything, flash it over USB right there, or download the <code>config.yaml</code> into <code>brands/claude/</code>.</p>
       <div class="appmock-wrap">
-        <a class="appmock" data-mock="builder" data-bar="builder?brand=claude" href="builder.html?brand=claude" aria-label="Open the config builder with the Claude brand"></a>
+        <a class="appmock" data-mock="builder" data-bar="builder?brand=claude" href="builder?brand=claude" aria-label="Open the config builder with the Claude brand"></a>
         <div class="appmock-copy">
           <ul>
-            <li><b>Same builder, Claude defaults.</b> Every field from the <a href="config.html">config reference</a> applies here too.</li>
-            <li><b>Three ways to run it.</b> Browser, macOS app, or Docker, covered in <a href="index.html#build">Build &amp; flash</a>.</li>
+            <li><b>Same builder, Claude defaults.</b> Every field from the <a href="config">config reference</a> applies here too.</li>
+            <li><b>Three ways to run it.</b> Browser, macOS app, or Docker, covered in <a href="./#build">Build &amp; flash</a>.</li>
             <li><b>Lean image.</b> Bake the brand in at compile time instead.</li>
           </ul>
-          <a class="btn" href="builder.html?brand=claude">Open the config builder</a>
+          <a class="btn" href="builder?brand=claude">Open the config builder</a>
         </div>
       </div>
       <pre data-lang="bash">make brand BRAND=claude                              <span class="c"># generate headers into firmware/.gen/current</span>

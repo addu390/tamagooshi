@@ -29,7 +29,8 @@
 .refmock-cap { margin: 0; font-size: 13.5px; color: var(--text-soft); }
 .screenmock { --sm-bg: var(--bg-soft); --sm-ink: var(--text); --sm-hi: var(--accent-strong); flex: none; width: 150px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--sm-bg); color: var(--sm-ink); font-family: var(--mono); transition: background .25s, color .25s; }
 .screenmock .sm-name { font-size: 13px; font-weight: 500; letter-spacing: .09em; color: var(--sm-ink); }
-.screenmock .sm-face { font-size: 28px; color: var(--sm-hi); transition: color .25s; }
+.screenmock .sm-face { color: var(--sm-ink); transition: color .25s; }
+.screenmock .sm-face svg { display: block; width: 58px; height: auto; }
 .screenmock .sm-mascot { font-size: 12px; font-weight: 500; letter-spacing: .07em; color: var(--sm-ink); }
 .screenmock .sm-tagline, .screenmock .sm-site { font-style: normal; font-size: 11px; opacity: .68; }
 .screenmock sup { font-size: 9px; color: var(--sm-hi); margin-left: 2px; }

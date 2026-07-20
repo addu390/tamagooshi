@@ -9,7 +9,7 @@ export function initChrome() {
       .map(([href, label]) => `<a href="${href}">${label}</a>`)
       .join("");
     navInner.innerHTML =
-      `<a class="brand" href="${brand.href || "index.html"}">` +
+      `<a class="brand" href="${brand.href || "./"}">` +
       `<span class="logo"${brand.accent ? ' style="background:var(--accent)"' : ""}>${brand.logo || "T"}</span> ` +
       `<span class="wordmark">${brand.pre || ""}Tamag<span class="o">o</span><span class="o o2">o</span>shi</span></a>` +
       (brand.note ? `<span class="nav-note">${brand.note}</span>` : "") +

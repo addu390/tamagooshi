@@ -5,6 +5,7 @@ import { initScrollSpy } from "../components/scrollspy.js";
 import { initSetupTabs } from "../components/tabs.js";
 import { initExpandables } from "../components/expandable.js";
 import { initPickRow } from "../components/chips.js";
+import { INVADER, INVADER_MOODS, spriteSvg } from "../components/sprite.js";
 
 initChrome();
 initKeyHints();
@@ -12,6 +13,10 @@ initAccentPicker();
 initScrollSpy();
 initSetupTabs();
 initExpandables();
+
+document.querySelectorAll(".sm-face").forEach((face) => {
+  face.innerHTML = spriteSvg(INVADER_MOODS[face.dataset.mood] || INVADER);
+});
 
 initPickRow("theme-picks", (d) => {
   const screen = document.getElementById("device-screen");
@@ -22,6 +27,6 @@ initPickRow("theme-picks", (d) => {
 });
 
 initPickRow("mood-picks", (d) => {
-  document.querySelector("#mood-screen .sm-face").textContent = d.face;
+  document.querySelector("#mood-screen .sm-face").innerHTML = spriteSvg(INVADER_MOODS[d.mood] || INVADER);
   document.getElementById("mood-word").textContent = d.mood;
 });

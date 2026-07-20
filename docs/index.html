@@ -15,7 +15,7 @@
 <script>
 window.TAMA_PAGE = {
   brand: { href: "#top" },
-  nav: [["#demo", "Demo"], ["#build", "Flash"], ["shop.html", "Shop"]],
+  nav: [["#demo", "Demo"], ["#build", "Flash"], ["shop", "Shop"]],
 };
 </script>
 
@@ -39,7 +39,7 @@ window.TAMA_PAGE = {
           <p class="lead">Tamagooshi is a compact gadget that stays in sync with your product: relaxed when things run smoothly, restless when they don't. Make it fully yours, from the brand on the shell to the games it plays, and pair it with Claude or Cursor to stay on top of your agents' work.</p>
           <div class="hero-cta">
             <a class="btn" href="#quickstart" data-key-hint="S">Get started <kbd>S</kbd></a>
-            <a class="btn ghost" href="claude.html">Claude edition &rarr;</a>
+            <a class="btn ghost" href="claude">Claude edition &rarr;</a>
           </div>
         </div>
 
@@ -104,8 +104,8 @@ make sim-live BRAND=demo</pre>
       <h2>Configuration</h2>
       <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>, in three groups: <code>brand</code> (identity), <code>device</code> (what ships in firmware), and <code>hub</code> (metrics and rules). Anything you leave out is simply off. A brand only bakes in the packs, games, and rules it lists, keeping the image small.</p>
       <div class="confmap">
-        <a class="confmap-row" href="builder.html"><code>config builder</code><span>writes the file for you, pick identity, packs and rules, then flash or download</span><em>&rarr;</em></a>
-        <a class="confmap-row" href="config.html"><code>config reference</code><span>every section explained in depth, with live examples to poke at</span><em>&rarr;</em></a>
+        <a class="confmap-row" href="builder"><code>config builder</code><span>writes the file for you, pick identity, packs and rules, then flash or download</span><em>&rarr;</em></a>
+        <a class="confmap-row" href="config"><code>config reference</code><span>every section explained in depth, with live examples to poke at</span><em>&rarr;</em></a>
       </div>
     </section>
 
@@ -119,16 +119,16 @@ make sim-live BRAND=demo</pre>
           <button class="tab" data-setup="docker" role="tab" aria-selected="false">Docker</button>
         </div>
         <div class="setup-pane" data-pane="browser">
-          <p>The <a href="builder.html">config builder</a> is one page with the whole flow. Build the config, plug the device in over USB, and flash it in one go. Nothing to install.</p>
+          <p>The <a href="builder">config builder</a> is one page with the whole flow. Build the config, plug the device in over USB, and flash it in one go. Nothing to install.</p>
           <div class="appmock-wrap">
-            <a class="appmock" data-mock="builder" data-bar="builder" href="builder.html" aria-label="Open the config builder"></a>
+            <a class="appmock" data-mock="builder" data-bar="builder" href="builder" aria-label="Open the config builder"></a>
             <div class="appmock-copy">
               <ul>
                 <li><b>Live yaml.</b> Every pick updates the <code>config.yaml</code> next to the form.</li>
                 <li><b>Flash over USB.</b> The <code>gooshi</code> image plus your selections as a config partition, custom theme palettes included. Chrome or Edge on desktop.</li>
                 <li><b>Or download.</b> Drop the file into <code>brands/&lt;id&gt;/</code> for the other paths.</li>
               </ul>
-              <a class="btn" href="builder.html">Open the config builder</a>
+              <a class="btn" href="builder">Open the config builder</a>
             </div>
           </div>
           <p>The flashed device still needs a hub feeding it metrics. Install it once on the machine that holds your API keys and it pairs over BLE. One pairing carries hub metrics and Claude together.</p>

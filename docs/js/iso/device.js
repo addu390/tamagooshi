@@ -1,5 +1,6 @@
 import { rad, project } from "./core.js";
 import { selectTab } from "../components/tabs.js";
+import { INVADER } from "../components/sprite.js";
 
 const PRESET = window.TAMA_PRESET || {};
 const T = (key, fallback) => (PRESET.text || {})[key] || fallback;
@@ -133,7 +134,6 @@ const BTN_W = (3.2 / 48) * W, BTN_H = (12.8 / 24) * D;
 const BTN = { x: 0.80 * W - BTN_W / 2, y: (D - BTN_H) / 2, w: BTN_W, h: BTN_H };
 
 const STRIPS = ["#e0655d", "#e39a45", "#e6cf55", "#57b268", "#4aa0cf", "#5566c8", "#a15fc4"];
-const INVADER = ["..#.....#..", "...#...#...", "..#######..", ".##.###.##.", "###########", "#.#######.#", "#.#.....#.#", "...##.##..."];
 
 function miniCells(art, ox, oy, ps, fill) {
   let cells = "";
