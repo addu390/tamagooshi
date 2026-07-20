@@ -12,16 +12,14 @@
 </head>
 <body>
 
-<header class="nav">
-  <div class="wrap nav-inner">
-    <a class="brand" href="#top"><span class="logo">T</span> <span class="wordmark">Tamag<span class="o">o</span><span class="o o2">o</span>shi</span>
-    <nav class="nav-links">
-      <a href="#config">Configure</a>
-      <a href="#build">Flash</a>
-      <a class="btn" href="https://github.com/addu390/tamagooshi" target="_blank" rel="noopener" data-key-hint="G">GitHub <kbd>G</kbd></a>
-    </nav>
-  </div>
-</header>
+<script>
+window.TAMA_PAGE = {
+  brand: { href: "#top" },
+  nav: [["#config", "Configure"], ["#build", "Flash"]],
+};
+</script>
+
+<header class="nav"><div class="wrap nav-inner"></div></header>
 
 <section class="hero" id="top">
   <div class="wrap">
@@ -65,10 +63,8 @@
     <h4>Make it yours</h4>
     <a href="#config">Configuration</a>
     <a href="#build">Build &amp; flash</a>
-    <h4>Operate</h4>
-    <a href="#sources">Metric sources</a>
-    <a href="#transports">Run the hub</a>
-    <a href="#environment">Environment</a>
+    <h4>Contribute</h4>
+    <a href="#development">Development</a>
   </aside>
 
   <main>
@@ -106,96 +102,164 @@ make sim-live BRAND=demo</pre>
 
     <section class="doc" id="config">
       <h2>Configuration</h2>
-      <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>, in three groups: <code>brand</code> (identity), <code>device</code> (what ships in firmware), and <code>hub</code> (metrics and rules). Build a brand's headers with <code>make brand BRAND=&lt;id&gt;</code>.</p>
-      <p>Build one below. Pick the identity, packs, and rules you want and the <code>config.yaml</code> updates live, ready to copy or download into <code>brands/&lt;id&gt;/</code>.</p>
-      <div id="cfg-root" class="cfg"></div>
-      <p>Anything you leave out is simply off. A brand only bakes in the packs, games, and rules it lists, keeping the image small.</p>
+      <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>, in three groups: <code>brand</code> (identity), <code>device</code> (what ships in firmware), and <code>hub</code> (metrics and rules). Anything you leave out is simply off. A brand only bakes in the packs, games, and rules it lists, keeping the image small.</p>
+      <p>The <a href="builder.html">config builder</a> writes the file for you. Pick the identity, packs, and rules on the left and the yaml updates live, ready to flash or download into <code>brands/&lt;id&gt;/</code>. The <a href="config.html">config reference</a> explains every section in depth.</p>
     </section>
 
     <section class="doc" id="build">
       <h2>Build &amp; flash</h2>
-      <p>Happy with the config above? Flash it straight from the browser over USB. This writes the <code>gooshi</code> image, which compiles in every game, app, pack, theme, and typeface, then writes your selections as a small config partition so the same firmware boots as your brand. Add <code>wifi</code> under Transports and the flasher switches to the BLE + Wi-Fi image. Otherwise it flashes the BLE base.</p>
-      <div id="flash-root" class="flash"></div>
-      <h3>Build a lean image locally</h3>
-      <p>The browser image carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand lists and skip the config partition entirely.</p>
-      <pre data-lang="bash">make brand BRAND=&lt;id&gt;                              <span class="c"># generate headers into firmware/.gen/current</span>
+      <p>The config gets onto a device three ways. Flash it in the browser, use the macOS app, or self-host the console with Docker. Same firmware, same result.</p>
+      <div class="setup">
+        <div class="tabbar" role="tablist" aria-label="Setup variants">
+          <button class="tab active" data-setup="browser" role="tab" aria-selected="true">Browser</button>
+          <button class="tab" data-setup="macos" role="tab" aria-selected="false">macOS</button>
+          <button class="tab" data-setup="docker" role="tab" aria-selected="false">Docker</button>
+        </div>
+        <div class="setup-pane" data-pane="browser">
+          <p>The <a href="builder.html">config builder</a> is one page with the whole flow. Build the config, plug the device in over USB, and flash it in one go. Nothing to install.</p>
+          <div class="appmock-wrap">
+            <a class="appmock" data-mock="builder" data-bar="builder" href="builder.html" aria-label="Open the config builder"></a>
+            <div class="appmock-copy">
+              <ul>
+                <li><b>Live yaml.</b> Every pick updates the <code>config.yaml</code> next to the form.</li>
+                <li><b>Flash over USB.</b> The <code>gooshi</code> image plus your selections as a config partition, custom theme palettes included. Chrome or Edge on desktop.</li>
+                <li><b>Or download.</b> Drop the file into <code>brands/&lt;id&gt;/</code> for the other paths.</li>
+              </ul>
+              <a class="btn" href="builder.html">Open the config builder</a>
+            </div>
+          </div>
+          <p>The flashed device still needs a hub feeding it metrics. Install it once on the machine that holds your API keys and it pairs over BLE. One pairing carries hub metrics and Claude together.</p>
+          <pre data-lang="bash">pip install -e hub/backend <span class="c"># once, Python 3.10+</span>
+make hub                   <span class="c"># pairs with your device over BLE</span></pre>
+          <p>Or skip the bare install. The <a href="#build" data-setup-link="docker">Docker tab</a> runs the same hub and serves the full console in the browser.</p>
+        </div>
+        <div class="setup-pane" data-pane="macos" hidden>
+          <p>One download bundles the hub and its console. It lives in the menu bar and pairs over BLE. Sources, secrets, brand edits, and flashing all happen in the app.</p>
+          <div class="appmock-wrap">
+            <a class="appmock" href="https://github.com/addu390/tamagooshi/releases/latest" aria-label="Download Tamagooshi for macOS">
+              <span class="appmock-chrome"><i></i><i></i><i></i><b>Tamagooshi</b></span>
+              <span class="appmock-body">
+                <span class="appmock-side">
+                  <b>Monitor</b>
+                  <span class="on">Overview</span>
+                  <span>Devices</span>
+                  <b>Configure</b>
+                  <span>Brand</span>
+                  <span>Sources</span>
+                  <span>Rules</span>
+                  <b>App</b>
+                  <span>Settings</span>
+                </span>
+                <span class="appmock-main">
+                  <span class="appmock-title">Overview <em>mood: happy</em></span>
+                  <span class="appmock-row"><i class="mock-dot ok"></i>Bluetooth <em>connected</em></span>
+                  <span class="appmock-row"><i class="mock-dot"></i>signups <em>1,204</em></span>
+                  <span class="appmock-row"><i class="mock-dot"></i>p95 latency <em>212 ms</em></span>
+                  <span class="appmock-cta">Flash firmware</span>
+                </span>
+              </span>
+            </a>
+            <div class="appmock-copy">
+              <ul>
+                <li><b>Menu bar, not dock.</b> The hub runs in the background and the console opens in its own window.</li>
+                <li><b>BLE pairing.</b> Scan, pick your stick, done. No broker, no always-on machine.</li>
+                <li><b>Flash from Devices.</b> Pick a board and a brand. The app writes the image and config over USB.</li>
+              </ul>
+              <a class="btn" href="https://github.com/addu390/tamagooshi/releases/latest">Download for macOS</a>
+            </div>
+          </div>
+        </div>
+        <div class="setup-pane" data-pane="docker" hidden>
+          <p>One command runs a broker plus the hub and serves the same console the macOS app wraps, on any OS. Open it in the browser and everything is there: sources, secrets, brand editing, and flashing over the hub's USB port.</p>
+          <div class="hostmock">
+            <span class="hostmock-term">
+              <span class="appmock-chrome dark"><i></i><i></i><i></i><b>terminal</b></span>
+              <span class="hostmock-lines"><em>$ make up</em>
+ &#10003; tamagooshi-broker  Started
+ &#10003; tamagooshi-hub     Started</span>
+            </span>
+            <span class="hostmock-arrow" aria-hidden="true">&rarr;</span>
+            <span class="hostmock-browser">
+              <span class="hostmock-bar"><i></i>localhost:8000</span>
+              <span class="appmock-body">
+                <span class="appmock-side">
+                  <b>Monitor</b>
+                  <span>Overview</span>
+                  <span class="on">Devices</span>
+                  <b>Configure</b>
+                  <span>Brand</span>
+                  <span>Sources</span>
+                </span>
+                <span class="appmock-main">
+                  <span class="appmock-title">Devices <em>usb: /dev/ttyUSB0</em></span>
+                  <span class="appmock-row"><i class="mock-dot ok"></i>hub <em>polling</em></span>
+                  <span class="appmock-row"><i class="mock-dot"></i>M5StickC Plus <em>on USB</em></span>
+                  <span class="appmock-cta">Flash firmware</span>
+                </span>
+              </span>
+            </span>
+          </div>
+          <pre data-lang="bash">make up                 <span class="c"># broker + hub, console on http://localhost:8000</span>
+TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc" id="development">
+      <h2>Development</h2>
+      <p>For working on the project itself. Nothing here is needed for the three setups above.</p>
+      <div class="setup">
+        <div class="tabbar" role="tablist" aria-label="Development areas">
+          <button class="tab active" data-setup="firmware" role="tab" aria-selected="true">Firmware</button>
+          <button class="tab" data-setup="hub" role="tab" aria-selected="false">Hub</button>
+        </div>
+        <div class="setup-pane" data-pane="firmware">
+          <p>The firmware is a PlatformIO project under <code>firmware/</code>. The desktop simulator draws the same screen as hardware, so most work needs no board at all.</p>
+          <pre data-lang="bash">make sim BRAND=demo      <span class="c"># simulator, offline</span>
+make sim-live BRAND=demo <span class="c"># simulator against the Docker stack's broker</span></pre>
+          <h3>Build a lean image</h3>
+          <p>The flashed image carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand lists and skip the config partition entirely.</p>
+          <pre data-lang="bash">make brand BRAND=&lt;id&gt;                              <span class="c"># generate headers into firmware/.gen/current</span>
 cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + flash only that brand (pick your board's env)</span></pre>
-      <p>A lean build compiles just its listed content, so nothing is filtered at runtime. Pass <code>DEV=&lt;id&gt;</code> to bake in a developer name.</p>
-    </section>
-
-    <section class="doc" id="sources">
-      <h2>Metric sources</h2>
-      <p>A source is anything the hub polls for numbers. Each brand lists its sources under <code>hub.sources</code> in <code>config.yaml</code>, and the hub turns every reading into a metric the rules can act on. Sources are pluggable behind one <code>Source</code> port, so adding a provider is a small adapter.</p>
-      <table>
-        <thead><tr><th>Type</th><th>What it reads</th></tr></thead>
-        <tbody>
-          <tr><td><code>demo</code></td><td>Synthetic values with drift and scripted incidents.</td></tr>
-          <tr><td><code>datadog</code></td><td>The latest point of a Datadog timeseries query.</td></tr>
-          <tr><td><code>posthog</code></td><td>A HogQL query or a saved insight, by short_id.</td></tr>
-          <tr class="ext"><td><code>+ yours</code></td><td>Drop a folder under <code>hub/backend/src/services/sources/</code></td></tr>
-        </tbody>
-      </table>
-      <p>Give each metric a raw provider query. For example, PostHog metrics take either a <code>query</code> (HogQL) or an <code>insight</code> short_id. Keys stay out of config: source names the environment variables it depends on, and the hub fails fast if one is missing.</p>
-      <pre data-lang="config.yaml"><span class="k">hub:</span>
-  <span class="k">sources:</span>
-    <span class="p">-</span> <span class="k">type:</span> <span class="s">datadog</span>
-      <span class="k">interval_secs:</span> <span class="n">30</span>
-      <span class="k">metrics:</span>
-        <span class="p">-</span> <span class="p">{</span><span class="k">key:</span> <span class="s">cpu</span><span class="p">,</span> <span class="k">label:</span> <span class="s">CPU</span><span class="p">,</span> <span class="k">query:</span> <span class="s">"avg:system.cpu.user{*}"</span><span class="p">,</span> <span class="k">fmt:</span> <span class="s">"{v}%"</span><span class="p">}</span>
-    <span class="p">-</span> <span class="k">type:</span> <span class="s">posthog</span>
-      <span class="k">project_id:</span> <span class="s">"12345"</span>
-      <span class="k">metrics:</span>
-        <span class="p">-</span> <span class="p">{</span><span class="k">key:</span> <span class="s">signups</span><span class="p">,</span> <span class="k">label:</span> <span class="s">SIGNUPS</span><span class="p">,</span> <span class="k">query:</span> <span class="s">"SELECT count() FROM events WHERE event = 'signup'"</span><span class="p">,</span> <span class="k">kind:</span> <span class="s">star</span><span class="p">}</span>
-        <span class="p">-</span> <span class="p">{</span><span class="k">key:</span> <span class="s">active</span><span class="p">,</span> <span class="k">label:</span> <span class="s">ACTIVE</span><span class="p">,</span> <span class="k">insight:</span> <span class="s">mmtixzFF</span><span class="p">}</span></pre>
-      <p>Set <code>DATADOG_API_KEY</code> and <code>DATADOG_APP_KEY</code> for Datadog, and <code>POSTHOG_API_KEY</code> for PostHog. Point a source at another region or self-hosted instance with its <code>site</code> or <code>host</code> field.</p>
-      <p>Each source is a folder under <code>hub/backend/src/services/sources/&lt;name&gt;/</code> with its own <code>config.py</code> and <code>source.py</code> that registers a <code>SourceProvider</code>. Adding a provider is a new folder, not a change to the core.</p>
-    </section>
-
-    <section class="doc" id="transports">
-      <h2>Run the hub</h2>
-      <p>The hub is the Python process that reads your sources and feeds the device. With a flashed device, this is the whole setup: one command on the machine that holds your API keys, and it pairs over BLE. One pairing carries hub metrics and Claude together.</p>
-      <pre data-lang="bash">pip install -e hub      <span class="c"># once, Python 3.10+</span>
-make hub                <span class="c"># pairs with your device over BLE</span></pre>
-      <h3>Development</h3>
-      <p>Use the MQTT stack to run the simulator against a live hub without a board. The wire format is defined once per side, in <code>hub/backend/src/wire</code> and <code>firmware/lib/wire</code>.</p>
-      <pre data-lang="bash">make up                 <span class="c"># dev stack: broker + hub via docker compose</span>
-make sim-live BRAND=demo <span class="c"># simulator against that broker</span>
-make logs               <span class="c"># tail hub logs</span>
-make hub-test           <span class="c"># hub unit tests</span></pre>
-    </section>
-
-    <section class="doc" id="environment">
-      <h2>Environment</h2>
-      <p>Behavior is driven by the brand config plus a few build-time environment variables.</p>
-      <table>
-        <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
-        <tbody>
-          <tr><td><code>TAMA_BRAND</code></td><td>Which brand config to build (default <code>gooshi</code>).</td></tr>
-          <tr><td><code>TAMA_DEV</code></td><td>Developer name/persona baked into the build.</td></tr>
-          <tr><td><code>TAMA_TRANSPORT</code></td><td>The single <code>link:protocol</code> channel the hub uses to reach the device, e.g. <code>ble:gatt</code> or <code>wifi:mqtt</code>.</td></tr>
-          <tr><td><code>TAMA_TRANSPORTS</code></td><td>The set of <code>link:protocol</code> channels compiled into the firmware, e.g. <code>ble:gatt</code> or <code>ble:gatt,wifi:mqtt</code>. Overrides the brand's <code>device.transports</code>.</td></tr>
-          <tr><td><code>TAMA_BROKER</code></td><td>MQTT broker address (default <code>localhost:1883</code>).</td></tr>
-          <tr><td><code>TAMA_DEVICE_ID</code></td><td>Device identity for MQTT routing.</td></tr>
-          <tr><td><code>DATADOG_API_KEY</code> / <code>DATADOG_APP_KEY</code></td><td>Credentials for a <code>datadog</code> source.</td></tr>
-          <tr><td><code>POSTHOG_API_KEY</code></td><td>Personal API key for a <code>posthog</code> source.</td></tr>
-        </tbody>
-      </table>
+          <p>A lean build compiles just its listed content, so nothing is filtered at runtime. Pass <code>DEV=&lt;id&gt;</code> to bake in a developer name.</p>
+          <h3>Build-time environment</h3>
+          <table>
+            <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>TAMA_BRAND</code></td><td>Which brand config to build (default <code>gooshi</code>).</td></tr>
+              <tr><td><code>TAMA_DEV</code></td><td>Developer name/persona baked into the build.</td></tr>
+              <tr><td><code>TAMA_TRANSPORTS</code></td><td>The set of <code>link:protocol</code> channels compiled into the firmware, e.g. <code>ble:gatt</code> or <code>ble:gatt,wifi:mqtt</code>. Overrides the brand's <code>device.transports</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="setup-pane" data-pane="hub" hidden>
+          <p>The hub is a Python package under <code>hub/backend</code>, with the console it serves in <code>hub/console</code>. The wire format is defined once per side, in <code>hub/backend/src/wire</code> and <code>firmware/lib/wire</code>.</p>
+          <pre data-lang="bash">pip install -e hub/backend <span class="c"># once, Python 3.10+</span>
+make hub                   <span class="c"># run it bare, pairs over BLE</span>
+make logs                  <span class="c"># tail the Docker stack's hub logs</span>
+make hub-test              <span class="c"># hub unit tests</span></pre>
+          <h3>Runtime environment</h3>
+          <table>
+            <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>TAMA_TRANSPORT</code></td><td>The single <code>link:protocol</code> channel the hub uses to reach the device, e.g. <code>ble:gatt</code> or <code>wifi:mqtt</code>.</td></tr>
+              <tr><td><code>TAMA_BROKER</code></td><td>MQTT broker address (default <code>localhost:1883</code>).</td></tr>
+              <tr><td><code>TAMA_DEVICE_ID</code></td><td>Device identity for MQTT routing.</td></tr>
+              <tr><td><code>DATADOG_API_KEY</code> / <code>DATADOG_APP_KEY</code></td><td>Credentials for a <code>datadog</code> source.</td></tr>
+              <tr><td><code>POSTHOG_API_KEY</code></td><td>Personal API key for a <code>posthog</code> source.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   </main>
 </div>
 
-<footer>
-  <div class="wrap">
-    <span>&copy; 2026 Tamagooshi.</span>
-    <span>Built with PlatformIO, LVGL &amp; a lot of pixels.</span>
-  </div>
-</footer>
+<footer><div class="wrap"></div></footer>
 
-<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<script src="js/page.js"></script>
 <script src="js/iso-core.js"></script>
 <script src="js/app.js"></script>
-<script src="js/catalog.js"></script>
-<script src="js/config-builder.js"></script>
 <script src="js/device.js"></script>
 <script src="js/demo.js"></script>
 </body>

@@ -13,18 +13,14 @@
 </head>
 <body>
 
-<header class="nav">
-  <div class="wrap nav-inner">
-    <a class="brand" href="#top"><span class="logo" style="background:var(--accent)">C</span> <span class="wordmark">Claude &times; Tamag<span class="o">o</span><span class="o o2">o</span>shi</span>
-    <span class="nav-note">An independent project, not affiliated with Anthropic PBC</span>
-    <nav class="nav-links">
-      <a href="#config">Configure</a>
-      <a href="#build">Flash</a>
-      <a href="index.html">Full docs</a>
-      <a class="btn" href="https://github.com/addu390/tamagooshi" target="_blank" rel="noopener" data-key-hint="G">GitHub <kbd>G</kbd></a>
-    </nav>
-  </div>
-</header>
+<script>
+window.TAMA_PAGE = {
+  brand: { href: "#top" },
+  nav: [["builder.html?brand=claude", "Configure"], ["index.html", "Full docs"]],
+};
+</script>
+
+<header class="nav"><div class="wrap nav-inner"></div></header>
 
 <section class="hero" id="top">
   <div class="wrap">
@@ -42,7 +38,7 @@
           <h1>Clawd on every desk.</h1>
           <p class="lead">The Claude edition of Tamagooshi puts Clawd, Claude's pixel mascot, on a palm-size handheld that pairs with Claude Code over BLE. It works while your agent works, celebrates when tasks land, and lets you approve actions or talk to Claude without touching the keyboard.</p>
           <div class="hero-cta">
-            <a class="btn" href="#config" data-key-hint="S">Get started <kbd>S</kbd></a>
+            <a class="btn" href="#run" data-key-hint="S">Get started <kbd>S</kbd></a>
             <a class="btn ghost" href="index.html">Standard edition &rarr;</a>
           </div>
         </div>
@@ -64,8 +60,7 @@
     <h4>Get it running</h4>
     <a href="#demo">Demo</a>
     <a href="#run">Quickstart</a>
-    <a href="#config">Configuration</a>
-    <a href="#build">Build &amp; flash</a>
+    <a href="#config">Configure &amp; flash</a>
   </aside>
 
   <main>
@@ -93,45 +88,39 @@
         <div class="fcard">
           <h3>Pair with Claude</h3>
           <p>One command on the machine that runs Claude Code.</p>
-          <pre data-lang="bash">pip install -e hub   <span class="c"># once, Python 3.10+</span>
-make hub             <span class="c"># pairs over BLE</span></pre>
+          <pre data-lang="bash">pip install -e hub/backend <span class="c"># once, Python 3.10+</span>
+make hub                   <span class="c"># pairs over BLE</span></pre>
         </div>
       </div>
       <p>Once paired, hold the side button to talk to Claude, watch Clawd react as it works, and approve or deny actions from the device.</p>
     </section>
 
     <section class="doc" id="config">
-      <h2>Configuration</h2>
-      <p>This builder is pre-seeded with the Claude brand. Adjust anything, then copy or download the <code>config.yaml</code> into <code>brands/claude/</code>.</p>
-      <div id="cfg-root" class="cfg"></div>
-      <p>The stock Claude config keeps it lean: the Clawd pack, the terracotta themes, the Claude agent, and BLE only. Anything you leave out stays out of the image.</p>
-    </section>
-
-    <section class="doc" id="build">
-      <h2>Build &amp; flash</h2>
-      <p>Flash straight from the browser over USB. Your config above rides along as a small partition, so the device boots as the Claude edition.</p>
-      <div id="flash-root" class="flash"></div>
-      <h3>Build a lean image locally</h3>
-      <p>For the smallest image, bake the brand in at compile time instead.</p>
+      <h2>Configure &amp; flash</h2>
+      <p>The <a href="builder.html?brand=claude">config builder</a> opens pre-seeded with the Claude brand: the Clawd pack, the terracotta themes, the Claude agent, and BLE only. Adjust anything, flash it over USB right there, or download the <code>config.yaml</code> into <code>brands/claude/</code>.</p>
+      <div class="appmock-wrap">
+        <a class="appmock" data-mock="builder" data-bar="builder?brand=claude" href="builder.html?brand=claude" aria-label="Open the config builder with the Claude brand"></a>
+        <div class="appmock-copy">
+          <ul>
+            <li><b>Same builder, Claude defaults.</b> Every field from the <a href="config.html">config reference</a> applies here too.</li>
+            <li><b>Three ways to run it.</b> Browser, macOS app, or Docker, covered in <a href="index.html#build">Build &amp; flash</a>.</li>
+            <li><b>Lean image.</b> Bake the brand in at compile time instead.</li>
+          </ul>
+          <a class="btn" href="builder.html?brand=claude">Open the config builder</a>
+        </div>
+      </div>
       <pre data-lang="bash">make brand BRAND=claude                              <span class="c"># generate headers into firmware/.gen/current</span>
 cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + flash (pick your board's env)</span></pre>
     </section>
   </main>
 </div>
 
-<footer>
-  <div class="wrap">
-    <span>&copy; 2026 Tamagooshi.</span>
-    <span>An independent, fan-made project. Claude and Clawd belong to Anthropic PBC.</span>
-  </div>
-</footer>
+<footer><div class="wrap"></div></footer>
 
 <script src="js/presets/claude.js"></script>
-<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<script src="js/page.js"></script>
 <script src="js/iso-core.js"></script>
 <script src="js/app.js"></script>
-<script src="js/catalog.js"></script>
-<script src="js/config-builder.js"></script>
 <script src="js/device.js"></script>
 <script src="js/demo.js"></script>
 </body>

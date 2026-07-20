@@ -10,6 +10,11 @@
     ".#.#...#.#.",
   ];
   window.TAMA_PRESET = {
+    chrome: {
+      href: "claude.html", logo: "C", accent: true, pre: "Claude &times; ",
+      note: "An independent project, not affiliated with Anthropic PBC",
+      footer: "An independent, fan-made project. Claude and Clawd belong to Anthropic PBC.",
+    },
     deviceName: "CLAWD",
     deviceColors: {
       sil: "#221d1a", det: "#c4bcae", grid: "#efece3",

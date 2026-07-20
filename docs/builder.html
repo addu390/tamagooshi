@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamagooshi config builder</title>
+<meta name="description" content="Build a Tamagooshi brand config and flash it over USB, all in the browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<script>
+window.TAMA_PAGE = {
+  nav: [["#config", "Configure"], ["#flash", "Flash"], ["config.html", "Reference"], ["index.html", "Docs"]],
+};
+</script>
+
+<header class="nav"><div class="wrap nav-inner"></div></header>
+
+<div class="wrap docs single">
+  <main>
+    <section class="doc" id="config">
+      <h2>Configuration</h2>
+      <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>, in three groups: <code>brand</code> (identity), <code>device</code> (what ships in firmware), and <code>hub</code> (metrics and rules). Pick the identity, packs, and rules you want and the file updates live, ready to copy or download.</p>
+      <div id="cfg-root" class="cfg"></div>
+      <p>Anything you leave out is simply off. A brand only bakes in the packs, games, and rules it lists, keeping the image small.</p>
+    </section>
+
+    <section class="doc" id="flash">
+      <h2>Flash</h2>
+      <p>Plug the device in over USB and flash the config above. The <code>gooshi</code> image compiles in every game, app, pack, theme, and typeface, and your selections land in a small config partition. Custom theme palettes ride along. Add <code>wifi</code> under Transports and the flasher switches to the BLE + Wi-Fi image.</p>
+      <div id="flash-root" class="flash"></div>
+      <p>The flashed device still needs a hub feeding it metrics. The <a href="index.html#build">docs</a> cover the three ways to run one. Every field the builder writes is explained in the <a href="config.html">config reference</a>.</p>
+    </section>
+  </main>
+</div>
+
+<footer><div class="wrap"></div></footer>
+
+<script src="js/preset-loader.js"></script>
+<script src="js/page.js"></script>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<script src="js/app.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/config-builder.js"></script>
+</body>
+</html>

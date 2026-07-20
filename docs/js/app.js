@@ -76,7 +76,7 @@ function initAccentPicker() {
   ];
 
   let current = 0;
-  const apply = (t) => {
+  const apply = (t, persist = true) => {
     current = themes.indexOf(t);
 
     const root = document.documentElement.style;
@@ -87,7 +87,7 @@ function initAccentPicker() {
     root.setProperty("--accent-bg", t.bg);
 
     host.querySelectorAll(".swatch").forEach((b) => b.classList.toggle("on", b.dataset.theme === t.id));
-    try { localStorage.setItem("tama-accent", t.id); } catch {}
+    if (persist) try { localStorage.setItem("tama-accent", t.id); } catch {}
   };
 
   themes.forEach((t) => {
@@ -105,7 +105,25 @@ function initAccentPicker() {
 
   let saved = null;
   try { saved = localStorage.getItem("tama-accent"); } catch {}
-  apply(themes.find((t) => t.id === saved) || themes[0]);
+  apply(themes.find((t) => t.id === saved) || themes.find((t) => t.id === "blue"), false);
+}
+
+function initSetupTabs() {
+  document.querySelectorAll(".setup").forEach((box) => {
+    const tabs = [...box.querySelectorAll(".tabbar .tab")];
+    const panes = [...box.querySelectorAll(".setup-pane")];
+    const select = (id) => {
+      tabs.forEach((b) => {
+        const on = b.dataset.setup === id;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-selected", String(on));
+      });
+      panes.forEach((p) => { p.hidden = p.dataset.pane !== id; });
+    };
+    tabs.forEach((tab) => tab.addEventListener("click", () => select(tab.dataset.setup)));
+    box.querySelectorAll("[data-setup-link]").forEach((link) =>
+      link.addEventListener("click", (e) => { e.preventDefault(); select(link.dataset.setupLink); }));
+  });
 }
 
 function initExpandables() {
@@ -132,4 +150,5 @@ window.addEventListener("keydown", (e) => {
 initScrollSpy();
 initHeroRotor();
 initAccentPicker();
+initSetupTabs();
 initExpandables();

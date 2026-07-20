@@ -634,7 +634,7 @@
       mount.appendChild(svg);
       const cap = document.querySelector(".device-cap");
       const dots = document.querySelector(".device-dots");
-      const tabs = [].slice.call(document.querySelectorAll(".tab"));
+      const tabs = [].slice.call(document.querySelectorAll(".hero-box .tab"));
       let dotEls = [];
       const buildDots = (n) => {
         if (!dots) return;
