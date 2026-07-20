@@ -36,11 +36,11 @@ class MascotsScreen : public AppScreen {
     if (ctx.character) {
       if (L.landscape) {
         ctx.character->draw(g, widgets::anchor(L, widgets::Side::Right), L.cy + 6, 52,
-                            MascotState{Expr::Happy}, now_);
+                            MascotState{Expr::Happy}, now());
       } else {
         const int size = 56;
         const int cy = (top + kRows * rowH + L.bottom) / 2 - 10;
-        ctx.character->draw(g, L.cx, cy, size, MascotState{Expr::Happy}, now_);
+        ctx.character->draw(g, L.cx, cy, size, MascotState{Expr::Happy}, now());
         widgets::mascotLabel(g, nameUp.c_str(), L.cx, cy, size);
       }
     }
@@ -64,10 +64,7 @@ class MascotsScreen : public AppScreen {
     return Transition::none();
   }
 
-  Transition tick(ShellContext&, uint32_t nowMs) override {
-    now_ = nowMs;
-    return anim_.due(nowMs, 60) ? Transition::redraw() : Transition::none();
-  }
+  uint32_t redrawPeriodMs() const override { return 60; }
 
  private:
   static const char* category(ShellContext& ctx) {
@@ -97,15 +94,10 @@ class MascotsScreen : public AppScreen {
   }
 
   int row_ = 0;
-  uint32_t now_ = 0;
-  AnimClock anim_;
 };
 
 }  // namespace
 
-AppScreen& mascots() {
-  static MascotsScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(mascots, MascotsScreen)
 
 }  // namespace tama::screens

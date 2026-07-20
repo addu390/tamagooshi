@@ -2,7 +2,7 @@ import os
 
 from gen import registry
 from gen.emit.headers import (emit_boards, emit_brand, emit_features, emit_logo, emit_mascots,
-                              emit_portal, emit_themes, emit_typefaces)
+                              emit_portal, emit_roles, emit_themes, emit_typefaces)
 from gen.manifest import (load, parse_transports, resolve_manifest, select_features,
                           select_mascots, select_options, select_themes, tz_minutes)
 from gen.network.transports import transport_macros
@@ -34,6 +34,7 @@ def generate(brand_id, brands_dir, out_dir, dev_name=""):
     default_mood = mascot.get("mood", "happy")
 
     emit_boards(out_dir)
+    emit_roles(out_dir)
     emit_mascots(out_dir, ids, customs, base_dir)
     emit_themes(out_dir, themes)
     emit_typefaces(out_dir, typefaces)

@@ -76,9 +76,6 @@ class MetricsScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& metrics() {
-  static MetricsScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(metrics, MetricsScreen)
 
 }  // namespace tama::screens

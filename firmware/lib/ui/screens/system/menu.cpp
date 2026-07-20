@@ -108,9 +108,6 @@ class MenuScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& menu() {
-  static MenuScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(menu, MenuScreen)
 
 }  // namespace tama::screens

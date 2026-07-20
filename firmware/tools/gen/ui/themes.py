@@ -1,3 +1,6 @@
+ROLES = ("bg", "fg", "hi", "dim", "dimmer", "warn", "crit", "ink", "blush")
+
+
 def _565(r, g, b):
     return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
 
@@ -21,6 +24,7 @@ def derive(colors):
 
 
 def _tuned(*roles):
+    assert len(roles) == len(ROLES)
     return {"roles": [_565(*_hex(c)) for c in roles]}
 
 
@@ -28,8 +32,8 @@ def _derived(colors):
     return {"roles": derive(colors)}
 
 
-# Role order: bg, fg, hi, dim, dimmer, warn, crit, ink, blush
-# Hand-tuned themes pick every role, derived themes come from surface/ink/accent.
+# Role order follows ROLES. Hand-tuned themes pick every role, derived themes
+# come from surface/ink/accent.
 THEMES = {
     "slate":    _tuned("#E0E8E0", "#202830", "#202830", "#787C88", "#B8C0C0",
                        "#D08828", "#C03828", "#202830", "#F89480"),

@@ -32,9 +32,9 @@ bool setTypefaceByName(const char* name) {
   return false;
 }
 
-const lgfx::IFont* micro() { return at(idx).micro; }
-const lgfx::IFont* body() { return at(idx).body; }
-const lgfx::IFont* title() { return at(idx).title; }
-const lgfx::IFont* display() { return at(idx).display; }
+#define TAMA_ROLE(role) \
+  const lgfx::IFont* role() { return at(idx).role; }
+TAMA_TYPEFACE_ROLES(TAMA_ROLE)
+#undef TAMA_ROLE
 
 }  // namespace tama::typeface

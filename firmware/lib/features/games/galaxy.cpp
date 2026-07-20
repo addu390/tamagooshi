@@ -1,13 +1,9 @@
 #include "brand.gen.h"
 #if TAMA_GAME_GALAXY
 
-#include <string>
-
 #include "arcade.h"
 #include "games.h"
 #include "input.h"
-#include "mascot.h"
-#include "widgets.h"
 
 namespace tama::games {
 
@@ -25,9 +21,13 @@ class GalaxyScreen : public ArcadeGameScreen {
 
   void onExit() override { sensor_ = nullptr; }
 
-  void render(Gfx& g, ShellContext& ctx) override {
-    w_ = g.w();
-    h_ = g.h();
+ protected:
+  const char* title() const override { return "GALAXY"; }
+  const char* readyHint() const override { return "TILT TO DODGE"; }
+  const char* runHint() const override { return "TILT!"; }
+  const char* deadTitle() const override { return "CRASHED"; }
+
+  void renderWorld(Gfx& g, ShellContext& ctx) override {
     auto& c = g.c();
 
     for (const auto& m : rocks_) {
@@ -38,32 +38,9 @@ class GalaxyScreen : public ArcadeGameScreen {
       c.drawCircle(x, y, kRockR, theme::kDim);
     }
 
-    if (ctx.character) {
-      const Expr e = st_ == St::Dead ? Expr::Alert : Expr::Neutral;
-      ctx.character->draw(g, static_cast<int>(playerX_), kPlayerY, kPlayerSz,
-                          MascotState{e, 0, true, 0, false}, now_);
-    }
-
-    g.str(std::to_string(score_).c_str(), w_ / 2, 6, theme::kHi, typeface::title(),
-          textdatum_t::top_center);
-
-    if (st_ == St::Ready) {
-      banner(g, "GALAXY", "TILT TO DODGE");
-    } else if (st_ == St::Dead) {
-      banner(g, "CRASHED", ("BEST " + std::to_string(best_)).c_str());
-    }
-    widgets::hints(g, st_ == St::Dead ? "RETRY" : "TILT!", nullptr);
+    player(g, ctx, static_cast<int>(playerX_), kPlayerY, kPlayerSz, Expr::Neutral, 0, false);
   }
 
-  Transition handleInput(Intent intent, ShellContext&) override {
-    if (intent == Intent::Select && st_ != St::Run) {
-      begin();
-      return Transition::redraw();
-    }
-    return Transition::none();
-  }
-
- protected:
   void onReset() override {
     playerX_ = w_ / 2.0f;
     for (auto& m : rocks_) m.active = false;
@@ -76,7 +53,7 @@ class GalaxyScreen : public ArcadeGameScreen {
     if (playerX_ < half) playerX_ = half;
     if (playerX_ > w_ - half) playerX_ = w_ - half;
 
-    const float d = diff();
+    const float d = kRamp.at(elapsedSec());
     if (rng_.unit() < kSpawnBase + d * kSpawnGain) spawn(d);
 
     for (auto& m : rocks_) {
@@ -96,12 +73,6 @@ class GalaxyScreen : public ArcadeGameScreen {
     float x = 0, y = 0, vy = 0;
     bool active = false;
   };
-
-  float diff() const {
-    const float e = effSec(kGrace);
-    const float d = e / kRampSec;
-    return d > 1.0f ? 1.0f : d;
-  }
 
   void spawn(float d) {
     for (auto& m : rocks_) {
@@ -134,8 +105,7 @@ class GalaxyScreen : public ArcadeGameScreen {
   static constexpr int kPlayerY = 118;
   static constexpr int kRockR = 6;
   static constexpr float kMoveGain = 9.0f;
-  static constexpr float kGrace = 2.0f;
-  static constexpr float kRampSec = 50.0f;
+  static constexpr DifficultyRamp kRamp{0.0f, 1.0f / 50.0f, 1.0f, 2.0f};
   static constexpr float kFallMin = 0.55f;
   static constexpr float kFallGain = 1.7f;
   static constexpr float kFallJitter = 0.6f;
@@ -151,10 +121,7 @@ class GalaxyScreen : public ArcadeGameScreen {
 
 }  // namespace
 
-AppScreen& galaxy() {
-  static GalaxyScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(galaxy, GalaxyScreen)
 
 }  // namespace tama::games
 

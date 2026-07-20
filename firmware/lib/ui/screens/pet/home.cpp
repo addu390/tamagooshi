@@ -36,7 +36,7 @@ class HomeScreen : public AppScreen {
       if (ctx.character) {
         MascotState m = ctx.mascot;
         m.wanderPx = 10;
-        ctx.character->draw(g, cx, mascotY, size, m, now_);
+        ctx.character->draw(g, cx, mascotY, size, m, now());
       }
       widgets::mascotLabel(g, s.branding.mascot_name.c_str(), cx, mascotY, size);
       const Metric* star = s.starMetric();
@@ -48,7 +48,7 @@ class HomeScreen : public AppScreen {
       widgets::hints(g, "MENU", "NOOK");
     } else {
       if (ctx.character) {
-        ctx.character->draw(g, cx, L.cy - 20, 56, MascotState{exprFromPet(ctx.pet), 12}, now_);
+        ctx.character->draw(g, cx, L.cy - 20, 56, MascotState{exprFromPet(ctx.pet), 12}, now());
       }
       widgets::statBar(g, L.bottom - 48, "NRG", ctx.pet.energy);
       widgets::statBar(g, L.bottom - 22, "CARE", ctx.pet.care);
@@ -67,7 +67,7 @@ class HomeScreen : public AppScreen {
       if (ctx.character) {
         MascotState m = ctx.mascot;
         m.wanderPx = 8;
-        ctx.character->draw(g, mascotX, mascotY, size, m, now_);
+        ctx.character->draw(g, mascotX, mascotY, size, m, now());
       }
       widgets::mascotLabel(g, s.branding.mascot_name.c_str(), mascotX, mascotY, size);
       const Metric* star = s.starMetric();
@@ -78,7 +78,7 @@ class HomeScreen : public AppScreen {
       widgets::hints(g, "MENU", "NOOK");
     } else {
       if (ctx.character) {
-        ctx.character->draw(g, mascotX, L.cy, 52, MascotState{exprFromPet(ctx.pet), 10}, now_);
+        ctx.character->draw(g, mascotX, L.cy, 52, MascotState{exprFromPet(ctx.pet), 10}, now());
       }
       const int bx = L.w / 2 + 4;
       const int bw = L.w - bx - 8;
@@ -102,22 +102,14 @@ class HomeScreen : public AppScreen {
     return Transition::none();
   }
 
-  Transition tick(ShellContext&, uint32_t nowMs) override {
-    now_ = nowMs;
-    return anim_.due(nowMs, 45) ? Transition::redraw() : Transition::none();
-  }
+  uint32_t redrawPeriodMs() const override { return 45; }
 
  private:
-  uint32_t now_ = 0;
-  AnimClock anim_;
   Care petSim_;
 };
 
 }  // namespace
 
-AppScreen& home() {
-  static HomeScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(home, HomeScreen)
 
 }  // namespace tama::screens

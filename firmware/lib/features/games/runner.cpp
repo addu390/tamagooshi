@@ -1,12 +1,8 @@
 #include "brand.gen.h"
 #if TAMA_GAME_RUNNER
 
-#include <string>
-
 #include "arcade.h"
 #include "games.h"
-#include "mascot.h"
-#include "widgets.h"
 
 namespace tama::games {
 
@@ -41,9 +37,12 @@ class RunnerScreen : public ArcadeGameScreen {
   RunnerScreen() : ArcadeGameScreen(OrientationPref::Landscape) { rng_.seed(0x2545f491u); }
   const char* id() const override { return "game.runner"; }
 
-  void render(Gfx& g, ShellContext& ctx) override {
-    w_ = g.w();
-    h_ = g.h();
+ protected:
+  const char* title() const override { return "DASH"; }
+  const char* readyHint() const override { return "A TO JUMP"; }
+  const char* runHint() const override { return "JUMP"; }
+
+  void renderWorld(Gfx& g, ShellContext& ctx) override {
     const int groundY = h_ - 26;
     auto& c = g.c();
 
@@ -54,36 +53,18 @@ class RunnerScreen : public ArcadeGameScreen {
       drawCactus(c, static_cast<int>(o.x), groundY, o.w, o.h, theme::kFg);
     }
 
-    const int cy = groundY - 16;
-    const Expr e = st_ == St::Dead ? Expr::Alert : (py_ > 0.5f ? Expr::Happy : Expr::Neutral);
-    if (ctx.character)
-      ctx.character->draw(g, kPlayerX, cy, 28, MascotState{e, 0, true, static_cast<int>(py_)}, now_);
-
-    g.str(std::to_string(score_).c_str(), w_ - 6, 4, theme::kHi, typeface::title(),
-          textdatum_t::top_right);
-
-    if (st_ == St::Ready) {
-      banner(g, "DASH", "A TO JUMP");
-    } else if (st_ == St::Dead) {
-      banner(g, "GAME OVER", ("BEST " + std::to_string(best_)).c_str());
-    }
-    widgets::hints(g, st_ == St::Dead ? "RETRY" : "JUMP", nullptr);
+    const Expr e = body_.p > 0.5f ? Expr::Happy : Expr::Neutral;
+    player(g, ctx, kPlayerX, groundY - 16, 28, e, static_cast<int>(body_.p));
   }
 
-  Transition handleInput(Intent intent, ShellContext&) override {
+  Transition onAction(Intent intent, ShellContext&) override {
     if (intent != Intent::Select) return Transition::none();
-    if (st_ != St::Run) {
-      begin();
-      return Transition::redraw();
-    }
-    if (py_ <= 0.5f) vy_ = kJumpV;
+    if (body_.p <= 0.5f) body_.v = kJumpV;
     return Transition::redraw();
   }
 
- protected:
   void onReset() override {
-    py_ = 0;
-    vy_ = 0;
+    body_ = {};
     speed_ = kSpeed0;
     scroll_ = 0;
     gap_ = 130;
@@ -91,12 +72,8 @@ class RunnerScreen : public ArcadeGameScreen {
   }
 
   void step(ShellContext&) override {
-    vy_ -= kGravity * kStepSec;
-    py_ += vy_ * kStepSec;
-    if (py_ <= 0) {
-      py_ = 0;
-      vy_ = 0;
-    }
+    body_.integrate(-kGravity, kStepSec);
+    if (body_.p <= 0) body_.rest(0);
 
     scroll_ = (scroll_ + static_cast<int>(speed_ * kStepSec)) % 16;
 
@@ -125,7 +102,7 @@ class RunnerScreen : public ArcadeGameScreen {
     for (auto& o : obs_.items) {
       const int ox0 = static_cast<int>(o.x);
       const int ox1 = ox0 + o.w;
-      if (kPlayerX + kPlayerHalf > ox0 && kPlayerX - kPlayerHalf < ox1 && py_ < o.h) {
+      if (kPlayerX + kPlayerHalf > ox0 && kPlayerX - kPlayerHalf < ox1 && body_.p < o.h) {
         return die();
       }
       if (!o.scored && ox1 < kPlayerX - kPlayerHalf) {
@@ -140,15 +117,13 @@ class RunnerScreen : public ArcadeGameScreen {
   static constexpr int kPlayerHalf = 10;
   static constexpr int kShortH = 16;
   static constexpr int kTallH = 26;
-  static constexpr float kStepSec = 0.016f;
   static constexpr float kJumpV = 340.0f;
   static constexpr float kGravity = 1100.0f;
   static constexpr float kSpeed0 = 150.0f;
   static constexpr float kSpeedStep = 25.0f;
   static constexpr float kSpeedMax = 380.0f;
 
-  float py_ = 0;
-  float vy_ = 0;
+  Body1D body_;
   float speed_ = kSpeed0;
   int scroll_ = 0;
   int gap_ = 130;
@@ -157,10 +132,7 @@ class RunnerScreen : public ArcadeGameScreen {
 
 }  // namespace
 
-AppScreen& runner() {
-  static RunnerScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(runner, RunnerScreen)
 
 }  // namespace tama::games
 

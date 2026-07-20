@@ -106,10 +106,7 @@ class StopwatchScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& stopwatch() {
-  static StopwatchScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(stopwatch, StopwatchScreen)
 
 }  // namespace tama::apps
 

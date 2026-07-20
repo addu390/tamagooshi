@@ -1,5 +1,6 @@
 #include <string>
 
+#include "list.h"
 #include "screens.h"
 #include "theme.h"
 #include "widgets.h"
@@ -119,75 +120,52 @@ constexpr SettingGroup kGroups[] = {
 };
 constexpr int kGroupCount = sizeof(kGroups) / sizeof(kGroups[0]);
 
-class SettingsGroupScreen : public AppScreen {
+class SettingsGroupScreen : public ListScreen {
  public:
   void bind(const SettingGroup* group) { group_ = group; }
   const char* id() const override { return group_->id; }
-  void onEnter(ShellContext&) override { row_ = 0; }
 
-  void render(Gfx& g, ShellContext& ctx) override {
-    const auto L = widgets::frame(g, ctx.state, group_->label);
+ protected:
+  const char* section() const override { return group_->label; }
+  const char* actionHint() const override { return "CHANGE"; }
 
-    std::string vals[kMaxItems];
-    widgets::ListItem rows[kMaxItems];
+  int rows(ShellContext& ctx, widgets::ListItem* out, int) override {
     for (int i = 0; i < group_->count; ++i) {
       const SettingItem& item = group_->items[i];
-      vals[i] = item.value(ctx);
-      rows[i] = {item.label, vals[i].c_str(), true, item.visual,
-                 item.level ? item.level(ctx) : 0};
+      vals_[i] = item.value(ctx);
+      out[i] = {item.label, vals_[i].c_str(), true, item.visual, item.level ? item.level(ctx) : 0};
     }
-    widgets::listView(g, L, rows, group_->count, row_);
-    widgets::hints(g, "CHANGE", "NEXT");
+    return group_->count;
   }
 
-  Transition handleInput(Intent intent, ShellContext& ctx) override {
-    if (intent == Intent::Next || intent == Intent::Prev) {
-      row_ = cycleIndex(intent, row_, group_->count);
-      return Transition::redraw();
-    }
-    if (intent == Intent::Select) return group_->items[row_].activate(ctx);
-    return Transition::none();
+  Transition activate(int row, ShellContext& ctx) override {
+    return group_->items[row].activate(ctx);
   }
 
  private:
-  static constexpr int kMaxItems = 6;
   const SettingGroup* group_ = nullptr;
-  int row_ = 0;
+  std::string vals_[kMaxRows];
 };
 
-class SettingsScreen : public AppScreen {
+class SettingsScreen : public ListScreen {
  public:
   const char* id() const override { return "settings"; }
-  void onEnter(ShellContext&) override { row_ = 0; }
 
-  void render(Gfx& g, ShellContext& ctx) override {
-    const auto L = widgets::frame(g, ctx.state, "SETTINGS");
+ protected:
+  const char* section() const override { return "SETTINGS"; }
+  const char* actionHint() const override { return "OPEN"; }
 
-    widgets::ListItem rows[kGroupCount];
-    for (int i = 0; i < kGroupCount; ++i) rows[i] = {kGroups[i].label, ">", true};
-    widgets::listView(g, L, rows, kGroupCount, row_);
-    widgets::hints(g, "OPEN", "NEXT");
+  int rows(ShellContext&, widgets::ListItem* out, int) override {
+    for (int i = 0; i < kGroupCount; ++i) out[i] = {kGroups[i].label, ">", true};
+    return kGroupCount;
   }
 
-  Transition handleInput(Intent intent, ShellContext&) override {
-    if (intent == Intent::Next || intent == Intent::Prev) {
-      row_ = cycleIndex(intent, row_, kGroupCount);
-      return Transition::redraw();
-    }
-    if (intent == Intent::Select) return Transition::push(kGroups[row_].id);
-    return Transition::none();
-  }
-
- private:
-  int row_ = 0;
+  Transition activate(int row, ShellContext&) override { return Transition::push(kGroups[row].id); }
 };
 
 }  // namespace
 
-AppScreen& settings() {
-  static SettingsScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(settings, SettingsScreen)
 
 void addSettingsScreens(Navigator& nav) {
   nav.add(settings());

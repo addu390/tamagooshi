@@ -28,9 +28,6 @@ class AppsScreen : public CatalogScreen {
 
 }  // namespace
 
-AppScreen& apps() {
-  static AppsScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(apps, AppsScreen)
 
 }  // namespace tama::screens

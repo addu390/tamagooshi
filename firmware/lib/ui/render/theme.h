@@ -2,30 +2,20 @@
 
 #include <cstdint>
 
+#include "theme_roles.gen.h"
+
 namespace tama::theme {
 
 struct Theme {
   const char* name;
-  uint16_t bg;
-  uint16_t fg;
-  uint16_t hi;
-  uint16_t dim;
-  uint16_t dimmer;
-  uint16_t warn;
-  uint16_t crit;
-  uint16_t ink;
-  uint16_t blush;
+#define TAMA_ROLE(role, global) uint16_t role;
+  TAMA_THEME_ROLES(TAMA_ROLE)
+#undef TAMA_ROLE
 };
 
-extern uint16_t kBg;
-extern uint16_t kFg;
-extern uint16_t kHi;
-extern uint16_t kDim;
-extern uint16_t kDimmer;
-extern uint16_t kWarn;
-extern uint16_t kCrit;
-extern uint16_t kInk;
-extern uint16_t kBlush;
+#define TAMA_ROLE(role, global) extern uint16_t global;
+TAMA_THEME_ROLES(TAMA_ROLE)
+#undef TAMA_ROLE
 
 int count();
 int current();
@@ -35,7 +25,7 @@ void setTheme(int i);
 bool setThemeByName(const char* name);
 
 // Registers a palette from the runtime config blob. Role order matches
-// tools/gen/ui/themes.py: bg, fg, hi, dim, dimmer, warn, crit, ink, blush.
-bool addRuntime(const char* name, const uint16_t colors[9]);
+// tools/gen/ui/themes.py ROLES.
+bool addRuntime(const char* name, const uint16_t colors[TAMA_THEME_ROLE_COUNT]);
 
 }  // namespace tama::theme

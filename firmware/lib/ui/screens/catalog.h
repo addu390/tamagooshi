@@ -1,6 +1,6 @@
 #pragma once
 
-#include "screen.h"
+#include "list.h"
 
 namespace tama::screens {
 
@@ -11,21 +11,15 @@ struct CatalogEntry {
   bool locked;
 };
 
-class CatalogScreen : public AppScreen {
- public:
-  static constexpr int kMaxItems = 8;
-
-  void onEnter(ShellContext&) override { sel_ = 0; }
-  void render(Gfx& g, ShellContext& ctx) override;
-  Transition handleInput(Intent intent, ShellContext& ctx) override;
-
+// List of navigable features; locked entries show their note and stay put.
+class CatalogScreen : public ListScreen {
  protected:
-  virtual const char* section() const = 0;
   virtual const char* action() const = 0;
   virtual int entries(ShellContext& ctx, CatalogEntry* out, int max) const = 0;
 
- private:
-  int sel_ = 0;
+  const char* actionHint() const override { return action(); }
+  int rows(ShellContext& ctx, widgets::ListItem* out, int max) override;
+  Transition activate(int row, ShellContext& ctx) override;
 };
 
 }  // namespace tama::screens

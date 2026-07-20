@@ -1,3 +1,5 @@
+ROLES = ("micro", "body", "title", "display")
+
 TYPEFACES = {
     "dejavu": {
         "label": "Smooth DejaVu",

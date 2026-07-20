@@ -51,12 +51,12 @@ class BuddyScreen : public AppScreen {
     if (ctx.character) {
       MascotState m{exprForPhase(b.phase)};
       m.wanderPx = b.phase == BuddyPhase::Working ? 8 : 0;
-      ctx.character->draw(g, mascotX, mascotY, size, m, now_);
+      ctx.character->draw(g, mascotX, mascotY, size, m, now());
     }
 
     if (b.phase == BuddyPhase::Done) {
-      if (prevPhase_ != BuddyPhase::Done) burstMs_ = now_;
-      drawConfetti(g, mascotX, mascotY, size, now_ - burstMs_);
+      if (prevPhase_ != BuddyPhase::Done) burstMs_ = now();
+      drawConfetti(g, mascotX, mascotY, size, now() - burstMs_);
     }
     prevPhase_ = b.phase;
 
@@ -91,10 +91,7 @@ class BuddyScreen : public AppScreen {
     return Transition::none();
   }
 
-  Transition tick(ShellContext&, uint32_t nowMs) override {
-    now_ = nowMs;
-    return anim_.due(nowMs, 60) ? Transition::redraw() : Transition::none();
-  }
+  uint32_t redrawPeriodMs() const override { return 60; }
 
  private:
   void renderQuiet(Gfx& g, const BuddyState& b, int cx, int colW, int y) {
@@ -150,18 +147,13 @@ class BuddyScreen : public AppScreen {
     return x;
   }
 
-  uint32_t now_ = 0;
   BuddyPhase prevPhase_ = BuddyPhase::Idle;
   uint32_t burstMs_ = 0;
-  AnimClock anim_;
 };
 
 }  // namespace
 
-AppScreen& buddy() {
-  static BuddyScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(buddy, BuddyScreen)
 
 }  // namespace tama::screens
 

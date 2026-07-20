@@ -93,10 +93,7 @@ class AboutScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& about() {
-  static AboutScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(about, AboutScreen)
 
 }  // namespace tama::apps
 

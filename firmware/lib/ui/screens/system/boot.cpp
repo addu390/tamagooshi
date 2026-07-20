@@ -50,9 +50,6 @@ class BootScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& boot() {
-  static BootScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(boot, BootScreen)
 
 }  // namespace tama::screens

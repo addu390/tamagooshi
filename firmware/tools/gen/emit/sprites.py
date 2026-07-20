@@ -10,6 +10,9 @@ def rgb565(rgb):
 def resolve(m, base_dir):
     if "src" in m:
         pal, frames = import_sprite(m["src"], base_dir)
+        if len(frames) not in (1, len(FRAMES)):
+            raise SystemExit(f"mascot {m['id']}: expected 1 or {len(FRAMES)} frames, "
+                             f"got {len(frames)}")
         return pal, frames, len(pal)
     pal = m["pal"]
     frames = [m["build"](f, m.get("opts", {})) for f in FRAMES]
@@ -36,8 +39,8 @@ def sprite_header(m, base_dir):
 
     wheeled = "true" if m.get("wheeled") else "false"
     outline = 0 if "src" in m else 1
-    idx = ("0, 0, 0, 0, 0, 0, false" if single else "0, 1, 2, 3, 4, 5, true")
-    idx += f", {wheeled}, {outline}"
+    idx = ", ".join("0" if single else str(i) for i in range(len(FRAMES)))
+    idx += f', {"false" if single else "true"}, {wheeled}, {outline}'
     lines.append(
         f'inline constexpr SpriteDef kDef{{ "{m["id"]}", "{m["label"]}", "{m["cat"]}", kW, kH, '
         f"kPalette, kFrames, {idx} }};")

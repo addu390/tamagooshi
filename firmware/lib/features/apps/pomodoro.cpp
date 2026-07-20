@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include "apps.h"
+#include "motion.h"
 #include "theme.h"
 #include "widgets.h"
 
@@ -31,7 +32,7 @@ constexpr int kCells = kCols * kRows;
 constexpr float kFallPxPerSec = 180.0f;
 
 enum class Session : uint8_t { Work, Break };
-enum class Posture : uint8_t { None, Upright, Flipped, Flat, TiltLeft, TiltRight };
+using motion::Posture;
 
 const char* label(Session s) { return s == Session::Work ? "WORK" : "BREAK"; }
 
@@ -53,8 +54,8 @@ class PomodoroScreen : public AppScreen {
     breakMin_ = 5;
     toSetup();
     posture_ = Posture::None;
-    candidate_ = Posture::None;
-    haveSample_ = false;
+    tracker_.reset();
+    filter_.reset();
     lastTick_ = 0;
   }
 
@@ -156,43 +157,11 @@ class PomodoroScreen : public AppScreen {
   }
 
   void trackPosture(uint32_t nowMs) {
-    float ax = 0.0f, ay = 0.0f, az = 0.0f;
-    if (!sensor_ || !sensor_->accel(ax, ay, az)) return;
-    const float mag = std::sqrt(ax * ax + ay * ay + az * az);
-    if (mag < 0.5f) return;
-    ax /= mag;
-    ay /= mag;
-    az /= mag;
-    if (!haveSample_) {
-      fx_ = ax;
-      fy_ = ay;
-      fz_ = az;
-      haveSample_ = true;
-    } else {
-      fx_ += (ax - fx_) * kSmoothing;
-      fy_ += (ay - fy_) * kSmoothing;
-      fz_ += (az - fz_) * kSmoothing;
-    }
-
+    if (!filter_.sample(sensor_)) return;
     Posture p = Posture::None;
-    if (std::fabs(fz_) > 0.75f) {
-      p = Posture::Flat;
-    } else if (std::fabs(fy_) > 0.6f) {
-      p = fy_ > 0 ? Posture::Upright : Posture::Flipped;
-    } else if (std::fabs(fx_) > 0.6f) {
-      p = fx_ > 0 ? Posture::TiltRight : Posture::TiltLeft;
-    }
+    if (!tracker_.settle(filter_, nowMs, p)) return;
 
-    if (p != candidate_) {
-      candidate_ = p;
-      candidateSince_ = nowMs;
-      return;
-    }
-    const uint32_t dwell = p == Posture::Flipped ? kFlipDwellMs : kDwellMs;
-    if (nowMs - candidateSince_ < dwell) return;
-
-    const bool tilt = p == Posture::TiltLeft || p == Posture::TiltRight;
-    if (tilt && setup_) {
+    if (motion::isTilt(p) && setup_) {
       if (sel_ != 2 && nowMs - lastTiltStep_ >= kTiltRepeatMs) {
         lastTiltStep_ = nowMs;
         bump(sel_ == 0 ? Session::Work : Session::Break,
@@ -300,21 +269,14 @@ class PomodoroScreen : public AppScreen {
   int sel_ = 0;
   uint32_t lastTick_ = 0;
   Posture posture_ = Posture::None;
-  Posture candidate_ = Posture::None;
-  uint32_t candidateSince_ = 0;
+  motion::TiltFilter filter_{kSmoothing};
+  motion::PostureTracker tracker_{kDwellMs, kFlipDwellMs};
   uint32_t lastTiltStep_ = 0;
-  bool haveSample_ = false;
-  float fx_ = 0.0f;
-  float fy_ = 0.0f;
-  float fz_ = 1.0f;
 };
 
 }  // namespace
 
-AppScreen& pomodoro() {
-  static PomodoroScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(pomodoro, PomodoroScreen)
 
 }  // namespace tama::apps
 

@@ -48,10 +48,13 @@ void applyThemes(JsonVariantConst themes) {
   for (JsonVariantConst t : themes.as<JsonArrayConst>()) {
     const char* name = t["name"].as<const char*>();
     JsonVariantConst colors = t["colors"];
-    if (!name || !colors.is<JsonArrayConst>() || colors.as<JsonArrayConst>().size() != 9) continue;
+    if (!name || !colors.is<JsonArrayConst>() ||
+        colors.as<JsonArrayConst>().size() != TAMA_THEME_ROLE_COUNT) {
+      continue;
+    }
 
-    uint16_t roles[9];
-    for (size_t i = 0; i < 9; ++i) roles[i] = colors[i].as<uint16_t>();
+    uint16_t roles[TAMA_THEME_ROLE_COUNT];
+    for (size_t i = 0; i < TAMA_THEME_ROLE_COUNT; ++i) roles[i] = colors[i].as<uint16_t>();
     theme::addRuntime(name, roles);
   }
 }

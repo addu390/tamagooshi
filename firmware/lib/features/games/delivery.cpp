@@ -1,13 +1,10 @@
 #include "brand.gen.h"
 #if TAMA_GAME_DELIVERY
 
-#include <string>
 #include <vector>
 
 #include "arcade.h"
 #include "games.h"
-#include "mascot.h"
-#include "widgets.h"
 
 namespace tama::games {
 
@@ -24,9 +21,15 @@ class DeliveryScreen : public ArcadeGameScreen {
   DeliveryScreen() : ArcadeGameScreen(OrientationPref::Portrait) { rng_.seed(0x51ed2701u); }
   const char* id() const override { return "game.delivery"; }
 
-  void render(Gfx& g, ShellContext& ctx) override {
-    w_ = g.w();
-    h_ = g.h();
+ protected:
+  const char* title() const override { return "DELIVERY"; }
+  const char* readyHint() const override { return "B SHIFTS LANE"; }
+  const char* runHint() const override { return nullptr; }
+  const char* deadTitle() const override { return "CRASHED"; }
+  const char* hintA() const override { return st_ == St::Run ? nullptr : "GO"; }
+  const char* hintB() const override { return "SHIFT"; }
+
+  void renderWorld(Gfx& g, ShellContext& ctx) override {
     auto& c = g.c();
 
     for (int i = 1; i < kLanes; ++i) {
@@ -50,42 +53,20 @@ class DeliveryScreen : public ArcadeGameScreen {
       }
     }
 
-    const int py = h_ - 40;
-    const Expr e = st_ == St::Dead ? Expr::Alert : Expr::Neutral;
-    if (ctx.character) {
-      ctx.character->draw(g, laneCenter(lane_), py, 30, MascotState{e, 0, true}, now_);
-    }
-
-    g.str(std::to_string(score_).c_str(), w_ - 6, 4, theme::kHi, typeface::title(),
-          textdatum_t::top_right);
-
-    if (st_ == St::Ready) {
-      banner(g, "DELIVERY", "B SHIFTS LANE");
-    } else if (st_ == St::Dead) {
-      banner(g, "CRASHED", ("BEST " + std::to_string(best_)).c_str());
-    }
-    widgets::hints(g, st_ == St::Ready || st_ == St::Dead ? "GO" : nullptr, "SHIFT");
+    player(g, ctx, laneCenter(lane_), h_ - 40, 30, Expr::Neutral);
   }
 
-  Transition handleInput(Intent intent, ShellContext&) override {
-    if (st_ == St::Run) {
-      if (intent == Intent::Next || intent == Intent::Prev) {
-        lane_ = cycleIndex(intent, lane_, kLanes);
-        return Transition::redraw();
-      }
-      return Transition::none();
-    }
-    if (intent == Intent::Select) {
-      begin();
+  Transition onAction(Intent intent, ShellContext&) override {
+    if (intent == Intent::Next || intent == Intent::Prev) {
+      lane_ = cycleIndex(intent, lane_, kLanes);
       return Transition::redraw();
     }
     return Transition::none();
   }
 
- protected:
   void onReset() override {
     lane_ = 1;
-    speed_ = kSpeed0;
+    speed_ = kSpeedRamp.base;
     scroll_ = 0;
     spawnAcc_ = 0;
     lastFree_ = 1;
@@ -93,35 +74,32 @@ class DeliveryScreen : public ArcadeGameScreen {
   }
 
   void step(ShellContext&) override {
-    updateWorld(effSec(kGrace));
+    updateWorld(elapsedSec());
     updateEntities();
   }
 
  private:
-  void updateWorld(float eff) {
-    speed_ = kSpeed0 + eff * 0.03f;
-    if (speed_ > 3.4f) speed_ = 3.4f;
+  void updateWorld(float sec) {
+    speed_ = kSpeedRamp.at(sec);
     scroll_ = (scroll_ + static_cast<int>(speed_ + 1)) % 18;
 
-    float rowGap = 82.0f - eff * 0.5f;
-    if (rowGap < 56.0f) rowGap = 56.0f;
     spawnAcc_ += speed_;
-    if (spawnAcc_ >= rowGap) {
+    if (spawnAcc_ >= kRowGapRamp.at(sec)) {
       spawnAcc_ = 0;
-      spawnWave(eff);
+      spawnWave(sec);
     }
   }
 
   // Guarantees a reachable open lane each wave: early game blocks one lane (two open),
   // later blocks all but the lane adjacent to the previous gap, so it is never a wall.
-  void spawnWave(float eff) {
+  void spawnWave(float sec) {
     const int delta = static_cast<int>(rng_.next() % 3u) - 1;
     int free = lastFree_ + delta;
     if (free < 0) free = 0;
     if (free > kLanes - 1) free = kLanes - 1;
     lastFree_ = free;
 
-    const bool blockBoth = eff > 16.0f;
+    const bool blockBoth = sec - kGrace > 16.0f;
     int chosen = -1;
     if (!blockBoth) {
       int others[kLanes];
@@ -163,11 +141,12 @@ class DeliveryScreen : public ArcadeGameScreen {
   int laneEdge(int i) const { return (w_ * i) / kLanes; }
 
   static constexpr int kLanes = 3;
-  static constexpr float kSpeed0 = 1.0f;
   static constexpr float kGrace = 6.0f;
+  static constexpr DifficultyRamp kSpeedRamp{1.0f, 0.03f, 3.4f, kGrace};
+  static constexpr DifficultyRamp kRowGapRamp{82.0f, -0.5f, 56.0f, kGrace};
 
   int lane_ = 1;
-  float speed_ = kSpeed0;
+  float speed_ = kSpeedRamp.base;
   float spawnAcc_ = 0;
   int lastFree_ = 1;
   int scroll_ = 0;
@@ -176,10 +155,7 @@ class DeliveryScreen : public ArcadeGameScreen {
 
 }  // namespace
 
-AppScreen& delivery() {
-  static DeliveryScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(delivery, DeliveryScreen)
 
 }  // namespace tama::games
 

@@ -1,26 +1,4 @@
-from gen.features.mascots.drawing import INK, auto_outline, blank, kawaii_pal, px, rect
-
-WHT = 10
-
-
-def _eye(g, x, y, expr):
-    if expr == "blink":
-        rect(g, x, y + 1, x + 1, y + 1, INK)
-    elif expr == "sleepy":
-        rect(g, x, y + 1, x + 1, y + 1, INK)
-        rect(g, x - 1, y - 1, x + 2, y - 1, INK)
-    elif expr == "happy":
-        px(g, x, y + 1, INK)
-        px(g, x + 1, y, INK)
-        px(g, x + 2, y + 1, INK)
-    elif expr == "worried":
-        rect(g, x, y, x + 1, y + 1, INK)
-        px(g, x if x < 16 else x + 2, y - 2, INK)
-    elif expr == "alert":
-        rect(g, x - 1, y - 1, x + 2, y + 2, INK)
-        px(g, x, y, WHT)
-    else:
-        rect(g, x, y, x + 1, y + 1, INK)
+from gen.features.mascots.drawing import auto_outline, blank, boxeye, kawaii_pal, rect
 
 
 def build_clawd(expr, o):
@@ -37,8 +15,8 @@ def build_clawd(expr, o):
     for lx in (10, 13, 19, 22):
         rect(g, lx, 24, lx + 1, 25, SHADE)
     auto_outline(g, OUT)
-    _eye(g, 12, 11, expr)
-    _eye(g, 19, 11, expr)
+    boxeye(g, 12, 11, expr)
+    boxeye(g, 19, 11, expr)
     return g
 
 

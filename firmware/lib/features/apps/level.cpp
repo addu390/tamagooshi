@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include "apps.h"
+#include "motion.h"
 #include "theme.h"
 #include "widgets.h"
 
@@ -39,7 +40,7 @@ class LevelScreen : public AppScreen {
 
   void onEnter(ShellContext& ctx) override {
     sensor_ = &ctx.sensor;
-    haveSample_ = false;
+    filter_.reset();
     zeroed_ = false;
     pitch0_ = roll0_ = edge0_ = 0.0f;
     sample(true);
@@ -50,10 +51,10 @@ class LevelScreen : public AppScreen {
   void render(Gfx& g, ShellContext& ctx) override {
     const auto L = widgets::frame(g, ctx.state, "LEVEL");
 
-    float sx = fx_, sy = fy_;
+    float sx = filter_.x(), sy = filter_.y();
     if (g.rotation() == 1) {
-      sx = fy_;
-      sy = -fx_;
+      sx = filter_.y();
+      sy = -filter_.x();
     }
 
     if (flat_) {
@@ -73,9 +74,9 @@ class LevelScreen : public AppScreen {
       pitch0_ = roll0_ = edge0_ = 0.0f;
     } else {
       zeroed_ = true;
-      pitch0_ = axisDeg(fy_);
-      roll0_ = axisDeg(fx_);
-      edge0_ = edgeDeviation(fx_, fy_, nullptr);
+      pitch0_ = axisDeg(filter_.y());
+      roll0_ = axisDeg(filter_.x());
+      edge0_ = edgeDeviation(filter_.x(), filter_.y(), nullptr);
     }
     return Transition::redraw();
   }
@@ -88,24 +89,8 @@ class LevelScreen : public AppScreen {
 
  private:
   void sample(bool reset) {
-    float ax = 0.0f, ay = 0.0f, az = 0.0f;
-    if (!sensor_ || !sensor_->accel(ax, ay, az)) return;
-    const float mag = std::sqrt(ax * ax + ay * ay + az * az);
-    if (mag < 0.5f) return;
-    ax /= mag;
-    ay /= mag;
-    az /= mag;
-    if (reset || !haveSample_) {
-      fx_ = ax;
-      fy_ = ay;
-      fz_ = az;
-      haveSample_ = true;
-    } else {
-      fx_ += (ax - fx_) * kSmoothing;
-      fy_ += (ay - fy_) * kSmoothing;
-      fz_ += (az - fz_) * kSmoothing;
-    }
-    flat_ = std::fabs(fz_) >= kFlatZ;
+    if (!filter_.sample(sensor_, reset)) return;
+    flat_ = std::fabs(filter_.z()) >= kFlatZ;
   }
 
   // Angle of gravity in the screen plane, folded to the nearest rest
@@ -205,12 +190,9 @@ class LevelScreen : public AppScreen {
 
   AnimClock anim_;
   ISensorSource* sensor_ = nullptr;
-  bool haveSample_ = false;
+  motion::TiltFilter filter_{kSmoothing};
   bool flat_ = true;
   bool zeroed_ = false;
-  float fx_ = 0.0f;
-  float fy_ = 0.0f;
-  float fz_ = 1.0f;
   float pitch0_ = 0.0f;
   float roll0_ = 0.0f;
   float edge0_ = 0.0f;
@@ -218,10 +200,7 @@ class LevelScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& level() {
-  static LevelScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(level, LevelScreen)
 
 }  // namespace tama::apps
 

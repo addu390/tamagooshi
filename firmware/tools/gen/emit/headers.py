@@ -6,6 +6,8 @@ from gen.features.mascots import MASCOTS
 from gen.images import logo_mask
 from gen.manifest import hostname
 from gen.platform.boards import BOARDS, SCREEN_H, SCREEN_W, macro as board_macro
+from gen.ui.themes import ROLES as THEME_ROLES
+from gen.ui.typefaces import ROLES as TYPEFACE_ROLES
 
 PORTAL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                       "network", "portal.html")
@@ -81,9 +83,28 @@ def emit_features(out_dir, category, enabled):
     write(os.path.join(out_dir, f"{category.id}.gen.h"), "\n".join(lines))
 
 
+def _role_list(macro, entries):
+    lines = [f'#define {macro.replace("ROLES", "ROLE_COUNT")} {len(entries)}',
+             f'#define {macro}(X) \\']
+    lines += [f'  X({e}) \\' for e in entries[:-1]]
+    lines.append(f'  X({entries[-1]})')
+    return lines
+
+
+def emit_roles(out_dir):
+    theme_entries = [f'{r}, k{r.capitalize()}' for r in THEME_ROLES]
+    write(os.path.join(out_dir, "theme_roles.gen.h"),
+          "\n".join(['#pragma once', '',
+                     *_role_list("TAMA_THEME_ROLES", theme_entries), '']))
+    write(os.path.join(out_dir, "typeface_roles.gen.h"),
+          "\n".join(['#pragma once', '',
+                     *_role_list("TAMA_TYPEFACE_ROLES", list(TYPEFACE_ROLES)), '']))
+
+
 def emit_themes(out_dir, themes):
     rows = []
     for name, spec in themes:
+        assert len(spec["roles"]) == len(THEME_ROLES)
         vals = ", ".join("0x%04X" % v for v in spec["roles"])
         rows.append(f'    {{{cstr(name)}, {vals}}},')
     text = "\n".join(['#pragma once', '', 'const Theme kThemes[] = {', *rows, '};', ''])
@@ -98,8 +119,9 @@ def emit_typefaces(out_dir, typefaces):
             includes.append(inc)
     rows = []
     for name, spec in typefaces:
-        micro, body, title, display = spec["roles"]
-        rows.append(f'    {{{cstr(name)}, {micro}, {body}, {title}, {display}}},')
+        assert len(spec["roles"]) == len(TYPEFACE_ROLES)
+        vals = ", ".join(spec["roles"])
+        rows.append(f'    {{{cstr(name)}, {vals}}},')
     lines = ['#pragma once', '']
     lines += [f'#include {inc}' for inc in includes]
     if includes:

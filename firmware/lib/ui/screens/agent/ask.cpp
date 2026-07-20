@@ -332,10 +332,7 @@ class AskScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& ask() {
-  static AskScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(ask, AskScreen)
 
 }  // namespace tama::screens
 

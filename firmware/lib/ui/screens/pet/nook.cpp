@@ -168,9 +168,6 @@ class NookScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& nook() {
-  static NookScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(nook, NookScreen)
 
 }  // namespace tama::screens

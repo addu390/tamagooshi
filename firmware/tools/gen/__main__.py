@@ -67,6 +67,12 @@ def _flash(args):
     print(json.dumps(flash_catalog(), indent=2))
 
 
+def _new(args):
+    from gen.scaffold import new
+
+    new(args)
+
+
 def _blob(args):
     from gen.emit.blob import encode, from_brand
     from gen.manifest import load
@@ -81,7 +87,7 @@ def _blob(args):
 
 
 COMMANDS = {"brand": _brand, "catalog": _catalog, "matrix": _matrix, "flash": _flash,
-            "blob": _blob, "sync": _sync}
+            "blob": _blob, "sync": _sync, "new": _new}
 
 
 def main(argv):

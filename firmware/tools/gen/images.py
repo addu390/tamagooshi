@@ -1,7 +1,7 @@
 import os
 import urllib.request
 
-from gen.features.mascots.drawing import H, W, blank
+from gen.features.mascots.drawing import FRAMES, H, W, blank
 
 CACHE = "/tmp/tama_refs"
 
@@ -25,44 +25,66 @@ def _nearest(palcolors, r, g, b):
     return best
 
 
+def _fetch(src, base_dir):
+    if "://" not in src:
+        return src if os.path.isabs(src) else os.path.join(base_dir, src)
+    os.makedirs(CACHE, exist_ok=True)
+    local = os.path.join(CACHE, os.path.basename(src))
+    if not os.path.exists(local):
+        urllib.request.urlretrieve(src, local)
+    return local
+
+
+def _tiles(im):
+    n = len(FRAMES)
+    if im.width == im.height * n:
+        tw = im.width // n
+        return [im.crop((i * tw, 0, (i + 1) * tw, im.height)) for i in range(n)]
+    return [im]
+
+
+# Accepts a single image or a horizontal strip of one tile per frame in FRAMES
+# order. Tiles share one crop box and palette so features stay aligned.
 def import_sprite(src, base_dir, target_h=30, colors=15):
     from PIL import Image
 
-    if "://" not in src:
-        local = src if os.path.isabs(src) else os.path.join(base_dir, src)
-    else:
-        os.makedirs(CACHE, exist_ok=True)
-        local = os.path.join(CACHE, os.path.basename(src))
-        if not os.path.exists(local):
-            urllib.request.urlretrieve(src, local)
+    im = Image.open(_fetch(src, base_dir)).convert("RGBA")
+    tiles = _tiles(im)
 
-    im = Image.open(local).convert("RGBA")
-    bbox = im.getbbox()
-    if bbox:
-        im = im.crop(bbox)
-    s = min((W - 2) / im.width, target_h / im.height)
-    nw = max(1, round(im.width * s))
-    nh = max(1, round(im.height * s))
-    im = im.resize((nw, nh), Image.LANCZOS)
+    boxes = [b for b in (t.getbbox() for t in tiles) if b]
+    if not boxes:
+        raise SystemExit(f"sprite {src} is fully transparent")
+    bbox = (min(b[0] for b in boxes), min(b[1] for b in boxes),
+            max(b[2] for b in boxes), max(b[3] for b in boxes))
+    tiles = [t.crop(bbox) for t in tiles]
 
-    canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    canvas.paste(im, ((W - nw) // 2, (H - 1) - nh))
-    data = list(canvas.getdata())
+    s = min((W - 2) / tiles[0].width, target_h / tiles[0].height)
+    nw = max(1, round(tiles[0].width * s))
+    nh = max(1, round(tiles[0].height * s))
 
-    opaque = [(r, g, b) for (r, g, b, a) in data if a >= 128]
+    datas = []
+    for t in tiles:
+        canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        canvas.paste(t.resize((nw, nh), Image.LANCZOS), ((W - nw) // 2, (H - 1) - nh))
+        datas.append(list(canvas.getdata()))
+
+    opaque = [(r, g, b) for data in datas for (r, g, b, a) in data if a >= 128]
     palcolors = _quantize(opaque, colors)
 
-    grid = blank()
-    for y in range(H):
-        for x in range(W):
-            r, g, b, a = data[y * W + x]
-            if a >= 128:
-                grid[y][x] = _nearest(palcolors, r, g, b) + 1
+    grids = []
+    for data in datas:
+        grid = blank()
+        for y in range(H):
+            for x in range(W):
+                r, g, b, a = data[y * W + x]
+                if a >= 128:
+                    grid[y][x] = _nearest(palcolors, r, g, b) + 1
+        grids.append(grid)
 
     pal = {0: None}
     for i, c in enumerate(palcolors):
         pal[i + 1] = c
-    return pal, [grid]
+    return pal, grids
 
 
 def logo_mask(source, base_dir, target=24):

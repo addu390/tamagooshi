@@ -106,6 +106,26 @@ def keye(g, x, y, expr, out=INK, wht=10):
         px(g, x + 2, y + 1, out)
 
 
+def boxeye(g, x, y, expr, out=INK, wht=10):
+    if expr == "blink":
+        rect(g, x, y + 1, x + 1, y + 1, out)
+    elif expr == "sleepy":
+        rect(g, x, y + 1, x + 1, y + 1, out)
+        rect(g, x - 1, y - 1, x + 2, y - 1, out)
+    elif expr == "happy":
+        px(g, x, y + 1, out)
+        px(g, x + 1, y, out)
+        px(g, x + 2, y + 1, out)
+    elif expr == "worried":
+        rect(g, x, y, x + 1, y + 1, out)
+        px(g, x if x < W // 2 else x + 2, y - 2, out)
+    elif expr == "alert":
+        rect(g, x - 1, y - 1, x + 2, y + 2, out)
+        px(g, x, y, wht)
+    else:
+        rect(g, x, y, x + 1, y + 1, out)
+
+
 def kblush(g, x, y, c=6):
     px(g, x, y, c)
     px(g, x + 1, y, c)

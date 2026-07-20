@@ -30,28 +30,16 @@ const Theme& themeAt(int i) {
 }
 
 void apply(const Theme& t) {
-  kBg = t.bg;
-  kFg = t.fg;
-  kHi = t.hi;
-  kDim = t.dim;
-  kDimmer = t.dimmer;
-  kWarn = t.warn;
-  kCrit = t.crit;
-  kInk = t.ink;
-  kBlush = t.blush;
+#define TAMA_ROLE(role, global) global = t.role;
+  TAMA_THEME_ROLES(TAMA_ROLE)
+#undef TAMA_ROLE
 }
 
 }  // namespace
 
-uint16_t kBg = 0xE75C;
-uint16_t kFg = 0x2146;
-uint16_t kHi = 0x2146;
-uint16_t kDim = 0x7BF1;
-uint16_t kDimmer = 0xBE18;
-uint16_t kWarn = 0xD445;
-uint16_t kCrit = 0xC1C5;
-uint16_t kInk = 0x2146;
-uint16_t kBlush = 0xFCB0;
+#define TAMA_ROLE(role, global) uint16_t global = kThemes[0].role;
+TAMA_THEME_ROLES(TAMA_ROLE)
+#undef TAMA_ROLE
 
 int count() { return total(); }
 int current() { return idx; }
@@ -75,7 +63,7 @@ bool setThemeByName(const char* name) {
   return false;
 }
 
-bool addRuntime(const char* name, const uint16_t colors[9]) {
+bool addRuntime(const char* name, const uint16_t colors[TAMA_THEME_ROLE_COUNT]) {
   if (!name || !*name || !colors) return false;
   for (int i = 0; i < kBuiltinCount; ++i) {
     if (std::strcmp(kThemes[i].name, name) == 0) return false;
@@ -95,8 +83,11 @@ bool addRuntime(const char* name, const uint16_t colors[9]) {
 
   std::strncpy(slot->name, name, sizeof(slot->name) - 1);
   slot->name[sizeof(slot->name) - 1] = '\0';
-  slot->theme = {slot->name, colors[0], colors[1], colors[2], colors[3], colors[4],
-                 colors[5], colors[6], colors[7], colors[8]};
+  slot->theme.name = slot->name;
+  int i = 0;
+#define TAMA_ROLE(role, global) slot->theme.role = colors[i++];
+  TAMA_THEME_ROLES(TAMA_ROLE)
+#undef TAMA_ROLE
   return true;
 }
 

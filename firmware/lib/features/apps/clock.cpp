@@ -92,10 +92,7 @@ class ClockScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& clock() {
-  static ClockScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(clock, ClockScreen)
 
 }  // namespace tama::apps
 

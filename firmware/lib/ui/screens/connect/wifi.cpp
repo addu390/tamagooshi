@@ -1,5 +1,6 @@
 #include <string>
 
+#include "list.h"
 #include "screens.h"
 #include "theme.h"
 #include "wifi/credentials.h"
@@ -11,36 +12,24 @@ namespace {
 
 enum class WifiAct { Toggle, Select, Forget, Provision };
 
-class WifiScreen : public AppScreen {
+class WifiScreen : public ListScreen {
  public:
   const char* id() const override { return "wifi"; }
-  void onEnter(ShellContext&) override {
-    row_ = 0;
-    confirm_ = false;
+  uint32_t redrawPeriodMs() const override { return 500; }
+
+ protected:
+  const char* section() const override { return "WIFI"; }
+  const char* actionHint() const override { return "SELECT"; }
+  bool available(ShellContext& ctx) const override { return ctx.wifi && ctx.wifi->available(); }
+
+  int rows(ShellContext& ctx, widgets::ListItem* out, int) override {
+    const int n = build(*ctx.wifi);
+    for (int i = 0; i < n; ++i) out[i] = {labels_[i].c_str(), values_[i].c_str(), true};
+    return n;
   }
 
-  void render(Gfx& g, ShellContext& ctx) override {
-    const auto L = widgets::frame(g, ctx.state, "WIFI");
-
-    if (!ctx.wifi || !ctx.wifi->available()) {
-      g.str("unavailable", L.cx, L.cy, theme::kDim, typeface::body(), textdatum_t::middle_center);
-      widgets::hints(g, "", "BACK");
-      return;
-    }
+  void renderBelow(Gfx& g, const widgets::Layout& L, ShellContext& ctx, int count) override {
     IWifiControl& wifi = *ctx.wifi;
-
-    if (confirm_) {
-      widgets::confirmPrompt(g, L, "FORGET NETWORK?", forget_.c_str());
-      widgets::hints(g, "CONFIRM", "CANCEL");
-      return;
-    }
-
-    const int count = build(wifi);
-    widgets::ListItem rows[kMax];
-    for (int i = 0; i < count; ++i) rows[i] = {labels_[i].c_str(), values_[i].c_str(), true};
-    if (row_ >= count) row_ = count - 1;
-    widgets::listView(g, L, rows, count, row_);
-
     const int rowH = L.landscape ? 18 : 22;
     const int heroTop = L.top + 26 + count * rowH + 12;
     const int heroBot = L.bottom - 16;
@@ -68,43 +57,20 @@ class WifiScreen : public AppScreen {
       g.str("join from your phone", L.cx, L.bottom - 8, theme::kDim, typeface::micro(),
             textdatum_t::bottom_center);
     }
-    widgets::hints(g, "SELECT", "NEXT");
   }
 
-  Transition handleInput(Intent intent, ShellContext& ctx) override {
-    if (!ctx.wifi) return Transition::none();
+  Transition activate(int row, ShellContext& ctx) override {
     IWifiControl& wifi = *ctx.wifi;
-
-    if (confirm_) {
-      if (intent == Intent::Select) {
-        wifi.forget(forget_);
-        confirm_ = false;
-        return Transition::redraw();
-      }
-      if (intent == Intent::Next || intent == Intent::Prev) {
-        confirm_ = false;
-        return Transition::redraw();
-      }
-      return Transition::none();
-    }
-
-    const int count = build(wifi);
-    if (intent == Intent::Next || intent == Intent::Prev) {
-      row_ = cycleIndex(intent, row_, count);
-      return Transition::redraw();
-    }
-    if (intent != Intent::Select) return Transition::none();
-
-    switch (acts_[row_]) {
+    switch (acts_[row]) {
       case WifiAct::Toggle:
         wifi.setEnabled(!wifi.enabled());
         break;
       case WifiAct::Select:
-        wifi.select(ssids_[row_]);
+        wifi.select(ssids_[row]);
         break;
       case WifiAct::Forget:
-        forget_ = ssids_[row_];
-        confirm_ = true;
+        forget_ = ssids_[row];
+        confirm_.arm("FORGET NETWORK?", forget_);
         break;
       case WifiAct::Provision:
         wifi.provision();
@@ -113,8 +79,9 @@ class WifiScreen : public AppScreen {
     return Transition::redraw();
   }
 
-  Transition tick(ShellContext&, uint32_t nowMs) override {
-    return anim_.due(nowMs, 500) ? Transition::redraw() : Transition::none();
+  Transition onConfirm(ShellContext& ctx) override {
+    ctx.wifi->forget(forget_);
+    return Transition::redraw();
   }
 
  private:
@@ -160,17 +127,11 @@ class WifiScreen : public AppScreen {
   std::string values_[kMax];
   std::string ssids_[kMax];
   WifiAct acts_[kMax] = {};
-  int row_ = 0;
-  bool confirm_ = false;
   std::string forget_;
-  AnimClock anim_;
 };
 
 }  // namespace
 
-AppScreen& wifi() {
-  static WifiScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(wifi, WifiScreen)
 
 }  // namespace tama::screens

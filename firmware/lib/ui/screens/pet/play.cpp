@@ -28,9 +28,6 @@ class PlayScreen : public CatalogScreen {
 
 }  // namespace
 
-AppScreen& play() {
-  static PlayScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(play, PlayScreen)
 
 }  // namespace tama::screens

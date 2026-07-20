@@ -43,10 +43,7 @@ class FlashlightScreen : public AppScreen {
 
 }  // namespace
 
-AppScreen& flashlight() {
-  static FlashlightScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(flashlight, FlashlightScreen)
 
 }  // namespace tama::apps
 

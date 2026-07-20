@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <string>
 
+#include "list.h"
 #include "screens.h"
 #include "theme.h"
 #include "widgets.h"
@@ -19,36 +20,24 @@ std::string passkeyText(uint32_t code) {
 
 enum class BtAction { Toggle, Forget };
 
-class BluetoothScreen : public AppScreen {
+class BluetoothScreen : public ListScreen {
  public:
   const char* id() const override { return "bluetooth"; }
-  void onEnter(ShellContext&) override {
-    row_ = 0;
-    confirm_ = false;
+  uint32_t redrawPeriodMs() const override { return 500; }
+
+ protected:
+  const char* section() const override { return "BLUETOOTH"; }
+  const char* actionHint() const override { return "SELECT"; }
+  bool available(ShellContext& ctx) const override { return ctx.link.available(); }
+
+  int rows(ShellContext& ctx, widgets::ListItem* out, int) override {
+    const int n = build(ctx);
+    for (int i = 0; i < n; ++i) out[i] = {labels_[i], values_[i].c_str(), true};
+    return n;
   }
 
-  void render(Gfx& g, ShellContext& ctx) override {
+  void renderBelow(Gfx& g, const widgets::Layout& L, ShellContext& ctx, int count) override {
     ILink& link = ctx.link;
-    const auto L = widgets::frame(g, ctx.state, "BLUETOOTH");
-
-    if (!link.available()) {
-      g.str("unavailable", L.cx, L.cy, theme::kDim, typeface::body(), textdatum_t::middle_center);
-      widgets::hints(g, "", "BACK");
-      return;
-    }
-
-    if (confirm_) {
-      widgets::confirmPrompt(g, L, "FORGET DEVICE?", "erases pairing");
-      widgets::hints(g, "CONFIRM", "CANCEL");
-      return;
-    }
-
-    const int count = build(ctx);
-    widgets::ListItem rows[kMax];
-    for (int i = 0; i < count; ++i) rows[i] = {labels_[i], values_[i].c_str(), true};
-    if (row_ >= count) row_ = count - 1;
-    widgets::listView(g, L, rows, count, row_);
-
     const bool on = link.enabled();
     const bool paired = on && link.paired();
     const int rowH = L.landscape ? 18 : 22;
@@ -65,8 +54,8 @@ class BluetoothScreen : public AppScreen {
       g.str("turn on to pair", L.cx, y, theme::kDim, typeface::micro(), textdatum_t::top_center);
     } else if (paired) {
       const std::string p = link.peer();
-      const int blockH =
-          iconH + widgets::kGapIcon + widgets::kBodyH + (p.empty() ? 0 : widgets::kGapLine + widgets::kLineH);
+      const int blockH = iconH + widgets::kGapIcon + widgets::kBodyH +
+                         (p.empty() ? 0 : widgets::kGapLine + widgets::kLineH);
       int y = (heroTop + heroBot - blockH) / 2;
       widgets::bluetoothIcon(g, iconX, y, iconH, glyphCol);
       y += iconH + widgets::kGapIcon;
@@ -98,43 +87,23 @@ class BluetoothScreen : public AppScreen {
       g.str(name.c_str(), L.cx, L.bottom - 8, theme::kDim, typeface::micro(),
             textdatum_t::bottom_center);
     }
-    widgets::hints(g, "SELECT", "NEXT");
   }
 
-  Transition handleInput(Intent intent, ShellContext& ctx) override {
-    if (confirm_) {
-      if (intent == Intent::Select) {
-        ctx.link.unpair();
-        confirm_ = false;
+  Transition activate(int row, ShellContext& ctx) override {
+    switch (acts_[row]) {
+      case BtAction::Toggle:
+        ctx.link.setEnabled(!ctx.link.enabled());
         return Transition::redraw();
-      }
-      if (intent == Intent::Next || intent == Intent::Prev) {
-        confirm_ = false;
+      case BtAction::Forget:
+        confirm_.arm("FORGET DEVICE?", "erases pairing");
         return Transition::redraw();
-      }
-      return Transition::none();
-    }
-
-    const int count = build(ctx);
-    if (intent == Intent::Next || intent == Intent::Prev) {
-      row_ = cycleIndex(intent, row_, count);
-      return Transition::redraw();
-    }
-    if (intent == Intent::Select) {
-      switch (acts_[row_]) {
-        case BtAction::Toggle:
-          ctx.link.setEnabled(!ctx.link.enabled());
-          return Transition::redraw();
-        case BtAction::Forget:
-          confirm_ = true;
-          return Transition::redraw();
-      }
     }
     return Transition::none();
   }
 
-  Transition tick(ShellContext&, uint32_t nowMs) override {
-    return anim_.due(nowMs, 500) ? Transition::redraw() : Transition::none();
+  Transition onConfirm(ShellContext& ctx) override {
+    ctx.link.unpair();
+    return Transition::redraw();
   }
 
  private:
@@ -160,16 +129,10 @@ class BluetoothScreen : public AppScreen {
   const char* labels_[kMax] = {};
   std::string values_[kMax];
   BtAction acts_[kMax] = {};
-  int row_ = 0;
-  bool confirm_ = false;
-  AnimClock anim_;
 };
 
 }  // namespace
 
-AppScreen& bluetooth() {
-  static BluetoothScreen instance;
-  return instance;
-}
+TAMA_SCREEN_FACTORY(bluetooth, BluetoothScreen)
 
 }  // namespace tama::screens
