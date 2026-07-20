@@ -6,6 +6,7 @@
 #include "mascots/character.h"
 #include "expression.h"
 #include "input.h"
+#include "ir.h"
 #include "mascots/registry.h"
 #include "mascot.h"
 #include "model.h"
@@ -31,6 +32,8 @@ struct ShellContext {
   ISensorSource& sensor;
   IVoiceUplink* voice;
   IExpressionSink* expression;
+  IIrTransceiver* ir;
+  IIrStore* irStore;
 };
 
 }  // namespace tama

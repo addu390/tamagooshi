@@ -31,6 +31,11 @@ void Navigator::setVoice(IVoiceUplink* voice) { voice_ = voice; }
 
 void Navigator::setExpression(IExpressionSink& expression) { expression_ = &expression; }
 
+void Navigator::setIr(IIrTransceiver* ir, IIrStore* store) {
+  ir_ = ir;
+  irStore_ = store;
+}
+
 void Navigator::setResolver(PromptResolver resolver) { resolver_ = std::move(resolver); }
 
 AppScreen* Navigator::find(const char* id) const {
@@ -56,7 +61,9 @@ ShellContext Navigator::ctx() {
                       *mic_,
                       *sensor_,
                       voice_,
-                      expression_};
+                      expression_,
+                      ir_,
+                      irStore_};
 }
 
 void Navigator::start(const char* firstId) {

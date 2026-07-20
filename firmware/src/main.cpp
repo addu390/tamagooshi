@@ -18,6 +18,9 @@
 #include "hal/m5_config.h"
 #include "hal/m5_expression.h"
 #include "hal/m5_imu.h"
+#if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
+#include "hal/m5_ir.h"
+#endif
 #include "hal/m5_mic.h"
 #include "hal/m5_system.h"
 #include "hal/m5_telemetry.h"
@@ -67,6 +70,10 @@ static NullInputSource g_input;
 static M5Imu g_sensor;
 static M5Mic g_mic;
 static M5Config g_config;
+#if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
+static M5IrTransceiver g_ir(board::kIrTxPin, board::kIrRxPin);
+static NvsIrStore g_irStore;
+#endif
 static StaticBoardProfile g_board(board::capabilities());
 
 static Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_system, g_buttons, g_input,
@@ -188,6 +195,11 @@ void setup() {
 #endif
 
   g_runtime.begin();
+
+#if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
+  g_ir.begin();
+  g_runtime.nav().setIr(&g_ir, &g_irStore);
+#endif
 }
 
 void loop() {

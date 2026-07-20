@@ -8,6 +8,8 @@ BOARDS = {
         "name": "M5StickC Plus",
         "m5_board": "board_M5StickCPlus",
         "led_pin": 10,
+        "ir_tx_pin": 9,
+        "ir_rx_pin": -1,
         "chip_family": "ESP32",
         "chip": "esp32",
         "flash_size": "4MB",
@@ -15,12 +17,14 @@ BOARDS = {
         "config_offset": 0x310000,
         "caps": {"buttons": 2, "led": "single", "buzzer": True, "speaker": False,
                  "mic": True, "imu": True, "joystick": False, "haptics": False,
-                 "ir": True, "wearable": True, "psram": False},
+                 "wearable": True, "psram": False},
     },
     "m5stickc-plus-se": {
         "name": "M5StickC Plus SE",
         "m5_board": "board_M5StickCPlus",
         "led_pin": 10,
+        "ir_tx_pin": 9,
+        "ir_rx_pin": -1,
         "chip_family": "ESP32",
         "chip": "esp32",
         "flash_size": "4MB",
@@ -28,12 +32,14 @@ BOARDS = {
         "config_offset": 0x310000,
         "caps": {"buttons": 2, "led": "single", "buzzer": True, "speaker": False,
                  "mic": True, "imu": False, "joystick": False, "haptics": False,
-                 "ir": True, "wearable": True, "psram": False},
+                 "wearable": True, "psram": False},
     },
     "m5sticks3": {
         "name": "M5StickS3",
         "m5_board": "board_M5StickS3",
         "led_pin": -1,
+        "ir_tx_pin": 46,
+        "ir_rx_pin": 42,
         "chip_family": "ESP32-S3",
         "chip": "esp32s3",
         "flash_size": "8MB",
@@ -41,9 +47,13 @@ BOARDS = {
         "config_offset": 0x650000,
         "caps": {"buttons": 2, "led": "single", "buzzer": False, "speaker": True,
                  "mic": True, "imu": True, "joystick": False, "haptics": False,
-                 "ir": True, "wearable": True, "psram": True},
+                 "wearable": True, "psram": True},
     },
 }
+
+
+def has_ir(board):
+    return board["ir_tx_pin"] >= 0 and board["ir_rx_pin"] >= 0
 
 VARIANTS = [
     {"variant": "gooshi", "transports": "ble:gatt"},

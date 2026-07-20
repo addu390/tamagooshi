@@ -5,7 +5,7 @@ from gen.emit.sprites import sprite_header
 from gen.features.mascots import MASCOTS
 from gen.images import logo_mask
 from gen.manifest import hostname
-from gen.platform.boards import BOARDS, SCREEN_H, SCREEN_W, macro as board_macro
+from gen.platform.boards import BOARDS, SCREEN_H, SCREEN_W, has_ir, macro as board_macro
 from gen.ui.themes import ROLES as THEME_ROLES
 from gen.ui.typefaces import ROLES as TYPEFACE_ROLES
 
@@ -61,7 +61,7 @@ def emit_features(out_dir, category, enabled):
         meta = category.items[iid]
         screen = "nullptr" if meta.get("soon") else cstr(f"{category.noun}.{iid}")
         needs = ", ".join("true" if meta.get(f) else "false"
-                          for f in ("joystick", "imu", "mic"))
+                          for f in ("joystick", "imu", "mic", "ir"))
         note = cstr("soon") if meta.get("soon") else "nullptr"
         rows.append(f'    {{{cstr(iid)}, {cstr(category.label(iid))}, {screen}, {needs}, '
                     f'{note}}},')
@@ -171,8 +171,7 @@ def _minify(text):
 
 
 def emit_boards(out_dir):
-    flags = ("buzzer", "speaker", "mic", "imu", "joystick", "haptics", "ir", "wearable",
-             "psram")
+    flags = ("buzzer", "speaker", "mic", "imu", "joystick", "haptics", "wearable", "psram")
     lines = ['#pragma once', '', '#include "model.h"', '', 'namespace tama::board {', '']
 
     for i, (bid, b) in enumerate(BOARDS.items()):
@@ -181,7 +180,10 @@ def emit_boards(out_dir):
         lines += [
             f'{guard} defined({board_macro(bid)})',
             f'#define TAMA_M5_FALLBACK_BOARD {b["m5_board"]}',
+            f'#define TAMA_BOARD_HAS_IR {1 if has_ir(b) else 0}',
             f'inline constexpr int kRedLedPin = {b["led_pin"]};',
+            f'inline constexpr int kIrTxPin = {b["ir_tx_pin"]};',
+            f'inline constexpr int kIrRxPin = {b["ir_rx_pin"]};',
             'inline DeviceCapabilities capabilities() {',
             '  DeviceCapabilities caps;',
             f'  caps.model = {cstr(bid)};',
@@ -189,6 +191,7 @@ def emit_boards(out_dir):
             f'  caps.screenH = {SCREEN_H};',
             f'  caps.buttons = {c["buttons"]};',
             f'  caps.led = {cstr(c["led"])};',
+            f'  caps.ir = {"true" if has_ir(b) else "false"};',
         ]
         lines += [f'  caps.{f} = {"true" if c[f] else "false"};' for f in flags]
         lines += ['  return caps;', '}']

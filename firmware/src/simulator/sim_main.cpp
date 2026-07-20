@@ -214,6 +214,53 @@ class SimMic : public IMicSource {
   uint64_t produced_ = 0;
 };
 
+class SimIr : public IIrTransceiver {
+ public:
+  void begin() override {}
+  void send(const IrFrame&) override {}
+  void startLearn() override { learnedAt_ = m5gfx::millis() + 2000; }
+  void stopLearn() override { learnedAt_ = 0; }
+
+  bool fetchLearned(IrFrame& out) override {
+    if (learnedAt_ == 0 || m5gfx::millis() < learnedAt_) return false;
+    learnedAt_ = 0;
+    out = necLikeFrame();
+    return true;
+  }
+
+  static IrFrame necLikeFrame() {
+    IrFrame f;
+    f.pulses[f.count++] = 9000;
+    f.pulses[f.count++] = 4500;
+    for (int i = 0; i < 16; ++i) {
+      f.pulses[f.count++] = 560;
+      f.pulses[f.count++] = i % 2 ? 1690 : 560;
+    }
+    return f;
+  }
+
+ private:
+  uint32_t learnedAt_ = 0;
+};
+
+class SimIrStore : public IIrStore {
+ public:
+  SimIrStore() : buttons_{{"BTN 1", SimIr::necLikeFrame()}, {"BTN 2", SimIr::necLikeFrame()}} {}
+
+  int load(IrButton* out, int max) override {
+    const int n = std::min<int>(static_cast<int>(buttons_.size()), max);
+    for (int i = 0; i < n; ++i) out[i] = buttons_[i];
+    return n;
+  }
+
+  void save(const IrButton* buttons, int count) override {
+    buttons_.assign(buttons, buttons + count);
+  }
+
+ private:
+  std::vector<IrButton> buttons_;
+};
+
 #if defined(TAMA_ENABLE_BUDDY)
 class SimVoiceHost : public ILineSink {
  public:
@@ -298,6 +345,8 @@ M5Buttons g_buttons;
 NullInputSource g_input;
 SimSensor g_sensor;
 SimMic g_mic;
+SimIr g_ir;
+SimIrStore g_irStore;
 SimConfig g_config;
 StaticBoardProfile g_board(board::capabilities());
 IdFn g_idGen =
@@ -429,6 +478,7 @@ void setup() {
 
   g_runtime.begin();
   g_runtime.nav().add(screens::wifi());
+  g_runtime.nav().setIr(&g_ir, &g_irStore);
 
 #if defined(TAMA_ENABLE_BUDDY)
   if (const char* scenario = std::getenv("TAMA_BUDDY_STATE")) {

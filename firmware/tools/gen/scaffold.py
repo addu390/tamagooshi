@@ -1,7 +1,7 @@
 import os
 import re
 
-FLAGS = ("imu", "mic", "joystick")
+FLAGS = ("imu", "mic", "joystick", "ir")
 
 APP_TEMPLATE = """#include "brand.gen.h"
 #if TAMA_APP_{macro}
@@ -133,7 +133,7 @@ def new(args):
     kinds = ("app", "game", "theme")
     if len(args) < 2 or args[0] not in kinds:
         raise SystemExit(
-            "usage: python3 -m gen new app|game <id> <description> [imu] [mic] [joystick]\n"
+            "usage: python3 -m gen new app|game <id> <description> [imu] [mic] [joystick] [ir]\n"
             "       python3 -m gen new theme <id> <surface-hex> <ink-hex> [accent-hex]")
     kind, iid = args[0], args[1]
     _check_id(iid)
@@ -146,7 +146,7 @@ def new(args):
     else:
         if len(args) < 3:
             raise SystemExit(f"usage: python3 -m gen new {kind} <id> <description> "
-                             "[imu] [mic] [joystick]")
+                             "[imu] [mic] [joystick] [ir]")
         touched = _feature(kind, iid, args[2], set(args[3:]))
 
     for path in touched:

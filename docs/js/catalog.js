@@ -100,6 +100,10 @@ window.TAMA_CATALOG = {
       "Pomodoro timer"
     ],
     [
+      "remote",
+      "Learn & replay IR remotes"
+    ],
+    [
       "about",
       "Device info"
     ]
