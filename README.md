@@ -26,7 +26,7 @@
 <p align="left">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/quickstart-dark.svg">
-    <img src="docs/assets/images/header/quickstart-light.svg" alt="Quick start" height="31">
+    <img src="docs/assets/images/header/quickstart-light.svg" alt="Quick start" height="28">
   </picture>
 </p>
 
@@ -47,7 +47,7 @@ make sim        # desktop simulator, no board needed
 <p align="left">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/hardware-dark.svg">
-    <img src="docs/assets/images/header/hardware-light.svg" alt="Hardware" height="31">
+    <img src="docs/assets/images/header/hardware-light.svg" alt="Hardware" height="28">
   </picture>
 </p>
 
@@ -68,7 +68,7 @@ pio run -e m5stickc-plus -t upload   # or m5stickc-plus-se, m5sticks3
 <p align="left">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/license-dark.svg">
-    <img src="docs/assets/images/header/license-light.svg" alt="License" height="31">
+    <img src="docs/assets/images/header/license-light.svg" alt="License" height="28">
   </picture>
 </p>
 
