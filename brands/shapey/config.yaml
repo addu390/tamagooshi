@@ -1,0 +1,41 @@
+brand:
+  id: shapey
+  name: SHAPEY
+  mascot: Shapey
+  tagline: mixed in the browser
+  website: gooshi.me
+
+device:
+  theme:
+    default: midnight
+    enabled: [midnight]
+  typeface:
+    default: dejavu
+    enabled: [dejavu]
+  mascot:
+    default: avatar
+    mood: happy
+    enabled: [pals, custom]
+    custom:
+      - id: avatar
+        label: Avatar
+        category: custom
+        source: avatar.png
+      - id: shapey
+        label: Shapey
+        category: custom
+        source: shapey.png
+
+hub:
+  sources:
+    - type: demo
+      interval_secs: 1.0
+      metrics:
+        - key: mrr
+          label: MRR
+          value_start: 48000
+          fmt: "${v}"
+          kind: star
+          timeline:
+            - {at: 0, value: 48000}
+            - {at: 20, value: 52000}

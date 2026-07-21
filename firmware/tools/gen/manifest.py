@@ -82,29 +82,29 @@ def select_themes(cfg):
 
 
 def select_mascots(cfg):
+    declared = [{"id": c["id"], "label": c["label"], "cat": c.get("category", "custom"),
+                 "src": c["source"]} for c in cfg.get("custom") or []]
+    custom_ids = {m["id"] for m in declared}
+    custom_cats = {m["cat"] for m in declared}
+
     enabled = cfg.get("enabled") or []
     if is_all(enabled):
-        enabled = list(MASCOT_CATEGORIES)
-    ids = []
+        enabled = [*MASCOT_CATEGORIES, *dict.fromkeys(m["cat"] for m in declared)]
+
+    ids, customs = [], []
     for entry in enabled:
         if entry in MASCOT_CATEGORIES:
             ids += MASCOT_CATEGORIES[entry]
         elif entry in MASCOTS:
             ids.append(entry)
+        elif entry in custom_cats:
+            customs += [m for m in declared if m["cat"] == entry]
+        elif entry in custom_ids:
+            customs += [m for m in declared if m["id"] == entry]
         else:
             raise SystemExit(f"unknown mascot or category: {entry}")
 
-    seen, ordered = set(), []
-    for mid in ids:
-        if mid not in seen:
-            seen.add(mid)
-            ordered.append(mid)
-
-    customs = []
-    for c in cfg.get("custom") or []:
-        customs.append({"id": c["id"], "label": c["label"], "cat": c.get("category", "custom"),
-                        "src": c["source"]})
-    return ordered, customs
+    return list(dict.fromkeys(ids)), list({m["id"]: m for m in customs}.values())
 
 
 def parse_transports(value):

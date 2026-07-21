@@ -1,0 +1,61 @@
+{
+  "id": "shapey",
+  "name": "Shapey",
+  "assets": "../shape/",
+  "credit": "Parts: Shape Characters by Kenney (kenney.nl), CC0",
+  "canvas": { "w": 160, "h": 160 },
+  "outline": { "color": "#3d465d", "width": 2 },
+  "frames": ["open", "blink", "happy", "sleepy", "worried", "alert"],
+  "palettes": [
+    { "id": "body", "name": "Body", "ref": "#78a0ea",
+      "colors": ["#78a0ea", "#6dca8a", "#ff90d9", "#a06ce7", "#de5971", "#fdc64f", "#4ec7c2", "#f4845f", "#8d99ae"] },
+    { "id": "hands", "name": "Hands", "ref": "#78a0ea",
+      "colors": ["#78a0ea", "#6dca8a", "#ff90d9", "#a06ce7", "#de5971", "#fdc64f", "#4ec7c2", "#f4845f", "#8d99ae"] }
+  ],
+  "partSets": {
+    "hands": [
+      { "id": "open", "src": "hand/open.png" },
+      { "id": "closed", "src": "hand/closed.png" },
+      { "id": "peace", "src": "hand/peace.png" },
+      { "id": "point", "src": "hand/point.png" },
+      { "id": "rock", "src": "hand/rock.png" },
+      { "id": "thumb", "src": "hand/thumb.png" }
+    ]
+  },
+  "slots": [
+    { "id": "shadow", "name": "Shadow", "at": [80, 132], "backdrop": true, "optional": true, "default": "none",
+      "parts": [{ "id": "soft", "src": "shadow.png" }] },
+    { "id": "left-hand", "name": "Left hand", "at": [24, 106], "flip": true, "palette": "hands", "optional": true, "default": "none",
+      "parts": "hands" },
+    { "id": "right-hand", "name": "Right hand", "at": [136, 106], "palette": "hands", "optional": true, "default": "none",
+      "parts": "hands" },
+    { "id": "body", "name": "Body", "at": [80, 88], "palette": "body",
+      "parts": [
+        { "id": "squircle", "src": "body/squircle.png" },
+        { "id": "circle", "src": "body/circle.png" },
+        { "id": "square", "src": "body/square.png" },
+        { "id": "rhombus", "src": "body/rhombus.png" }
+      ] },
+    { "id": "eyes", "name": "Eyes", "at": [66, 76], "mirror": 80,
+      "parts": [
+        { "id": "moody", "src": {
+            "open": "eye/open.png", "blink": "eye/closed-down.png",
+            "happy": "eye/closed-up.png", "sleepy": "eye/half-bottom.png",
+            "worried": "eye/half-top.png", "alert": "eye/open.png" } }
+      ] },
+    { "id": "brows", "name": "Brows", "at": [66, 63], "mirror": 80, "optional": true, "default": "none",
+      "parts": [
+        { "id": "flat", "src": "brow/a.png" },
+        { "id": "slant", "src": "brow/b.png" },
+        { "id": "short", "src": "brow/c.png" },
+        { "id": "thick", "src": "brow/d.png" }
+      ] },
+    { "id": "mouth", "name": "Mouth", "at": [80, 97],
+      "parts": [
+        { "id": "moody", "src": {
+            "open": "mouth/happy.png", "blink": "mouth/happy.png",
+            "happy": "mouth/happy.png", "sleepy": "mouth/smirk.png",
+            "worried": "mouth/sad.png", "alert": "mouth/sad.png" } }
+      ] }
+  ]
+}

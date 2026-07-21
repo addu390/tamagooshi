@@ -43,12 +43,29 @@ def _tiles(im):
     return [im]
 
 
+def _native_scale(im):
+    from PIL import Image
+
+    for k in (8, 6, 4, 3, 2):
+        if im.width % k or im.height % k:
+            continue
+        small = im.resize((im.width // k, im.height // k), Image.NEAREST)
+        if small.resize(im.size, Image.NEAREST).tobytes() == im.tobytes():
+            return small
+    return im
+
+
+def _is_palette_art(tiles):
+    colors = {(r, g, b) for t in tiles for (r, g, b, a) in t.getdata() if a >= 128}
+    return len(colors) <= 64
+
+
 # Accepts a single image or a horizontal strip of one tile per frame in FRAMES
 # order. Tiles share one crop box and palette so features stay aligned.
 def import_sprite(src, base_dir, target_h=30, colors=15):
     from PIL import Image
 
-    im = Image.open(_fetch(src, base_dir)).convert("RGBA")
+    im = _native_scale(Image.open(_fetch(src, base_dir)).convert("RGBA"))
     tiles = _tiles(im)
 
     boxes = [b for b in (t.getbbox() for t in tiles) if b]
@@ -58,14 +75,21 @@ def import_sprite(src, base_dir, target_h=30, colors=15):
             max(b[2] for b in boxes), max(b[3] for b in boxes))
     tiles = [t.crop(bbox) for t in tiles]
 
-    s = min((W - 2) / tiles[0].width, target_h / tiles[0].height)
-    nw = max(1, round(tiles[0].width * s))
-    nh = max(1, round(tiles[0].height * s))
+    tw, th = tiles[0].size
+    pixel = _is_palette_art(tiles)
+    if pixel and tw <= W and th <= H:
+        nw, nh = tw, th
+    else:
+        s = min((W - 2) / tw, target_h / th)
+        nw = max(1, round(tw * s))
+        nh = max(1, round(th * s))
+        resample = Image.NEAREST if pixel else Image.LANCZOS
+        tiles = [t.resize((nw, nh), resample) for t in tiles]
 
     datas = []
     for t in tiles:
         canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        canvas.paste(t.resize((nw, nh), Image.LANCZOS), ((W - nw) // 2, (H - 1) - nh))
+        canvas.paste(t, ((W - nw) // 2, max(0, (H - 1) - nh)))
         datas.append(list(canvas.getdata()))
 
     opaque = [(r, g, b) for data in datas for (r, g, b, a) in data if a >= 128]

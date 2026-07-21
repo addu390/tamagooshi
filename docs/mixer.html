@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamagooshi mixer</title>
+<meta name="description" content="Mix a character from parts, recolor it, and download it for a brand config.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<script>
+window.TAMA_PAGE = {
+  nav: [["./", "Home"], ["builder", "Builder"], ["shop", "Shop"]],
+};
+</script>
+
+<header class="nav"><div class="wrap nav-inner"></div></header>
+
+<div class="wrap docs single">
+  <main>
+    <section class="doc" id="mixer">
+      <h2>Mixer</h2>
+      <p>Mix a character from parts, recolor it, and download it. Every character carries the six device expressions (<code>open</code>, <code>blink</code>, <code>happy</code>, <code>sleepy</code>, <code>worried</code>, <code>alert</code>). <b>Download 6-frame</b> saves all expressions as one strip, ready to use as a <a href="config">custom mascot</a>. <b>PNG</b> saves the current frame.</p>
+
+      <div class="setup mx-setup" id="mixer-root">
+        <div class="tabbar"></div>
+      </div>
+
+      <p>To ship a mascot, save the strip next to your brand's <code>config.yaml</code> and add the snippet above to it. The <code>category</code> is the pack it appears under on the device and must be listed in <code>mascot.enabled</code>, otherwise it is left out of the build. The firmware build crops, scales, and quantizes the image to the device palette. A single image also works but stays static on the device. Only a 6-frame strip animates.</p>
+    </section>
+  </main>
+</div>
+
+<footer><div class="wrap"></div></footer>
+
+<script src="js/loader.js"></script>
+<script type="module" src="js/pages/mixer.js"></script>
+</body>
+</html>

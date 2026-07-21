@@ -674,6 +674,16 @@ const sourcesRep = repeater("sources", sourceCard, () => ({
 moodsRep = repeater("moods", moodRow, () => ({ metric: "", op: "lt", value: "0", mood: "sick", priority: "0" }), "mood rule");
 alertsRep = repeater("alerts", alertRow, () => ({ id: "alert-id", metric: "", op: "lt", value: "0", severity: "warning", title: "Title", body: "", source: "hub" }), "alert rule");
 
+function customMascotField() {
+  return el("div", { class: "cfg-field" }, [
+    fieldLabel("Custom mascot"),
+    el("a", { class: "btn ghost", href: "mixer", target: "_blank", rel: "noopener",
+              text: "Open the mixer \u2197" }),
+    el("small", { class: "cfg-hint",
+                  text: "Save the downloaded image next to your config and list it under mascot.custom." }),
+  ]);
+}
+
 const form = el("div", { class: "cfg-form" }, [
   group("Brand identity", [
     textField("ID", "id", "gooshi", true),
@@ -699,6 +709,7 @@ const form = el("div", { class: "cfg-form" }, [
     el("div", { class: "cfg-field" }, [fieldLabel("Packs", true), multiselect(Object.keys(PACKS), "packs", reconcile)]),
     mascotDefault,
     moodField,
+    customMascotField(),
   ], true),
 
   group("Games", [el("div", { class: "cfg-field" }, [el("label", { text: "Enabled" }), multiselect(GAMES, "games")])]),

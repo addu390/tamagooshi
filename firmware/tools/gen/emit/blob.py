@@ -1,8 +1,9 @@
 import json
 import struct
 
+from gen.features.mascots import MASCOTS
 from gen.images import logo_mask, pack_mask
-from gen.manifest import tz_minutes
+from gen.manifest import is_all, select_mascots, tz_minutes
 from gen.ui.themes import derive
 
 MAGIC = b"TMG1"
@@ -13,6 +14,13 @@ def _enabled(value):
     if value == "all" or value == ["all"]:
         return []
     return value or []
+
+
+def _packs(mascot):
+    if is_all(mascot.get("enabled") or []):
+        return []
+    ids, customs = select_mascots(mascot)
+    return list(dict.fromkeys([MASCOTS[i]["cat"] for i in ids] + [m["cat"] for m in customs]))
 
 
 def _custom_themes(theme):
@@ -52,7 +60,7 @@ def from_brand(data, base_dir=None):
         "enabled": {
             "games": _enabled((device.get("games") or {}).get("enabled")),
             "apps": _enabled((device.get("apps") or {}).get("enabled")),
-            "packs": _enabled(mascot.get("enabled")),
+            "packs": _packs(mascot),
             "themes": _enabled(theme.get("enabled")),
             "typefaces": _enabled(typeface.get("enabled")),
         },

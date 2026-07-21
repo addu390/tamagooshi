@@ -5,7 +5,7 @@ import { initScrollSpy } from "../components/scrollspy.js";
 import { initSetupTabs } from "../components/tabs.js";
 import { initExpandables } from "../components/expandable.js";
 import { initPickRow } from "../components/chips.js";
-import { INVADER, INVADER_MOODS, spriteSvg } from "../components/sprite.js";
+import { INVADER, INVADER_MOODS, SQUIRCLE, spriteSvg } from "../components/sprite.js";
 
 initChrome();
 initKeyHints();
@@ -24,6 +24,13 @@ initPickRow("theme-picks", (d) => {
   screen.style.setProperty("--sm-ink", d.ink);
   screen.style.setProperty("--sm-hi", d.hi);
   document.getElementById("device-theme-name").textContent = d.theme;
+});
+
+const MASCOT_SPRITES = { gooshi: INVADER, shapey: SQUIRCLE };
+
+initPickRow("mascot-picks", (d) => {
+  document.querySelector("#device-screen .sm-face").innerHTML = spriteSvg(MASCOT_SPRITES[d.mascot] || INVADER);
+  document.querySelector("#device-screen .sm-mascot").textContent = d.mascot.toUpperCase();
 });
 
 initPickRow("mood-picks", (d) => {

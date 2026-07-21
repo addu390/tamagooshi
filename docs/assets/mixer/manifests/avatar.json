@@ -1,0 +1,802 @@
+{
+  "id": "avatar",
+  "name": "Avatar",
+  "assets": "../avatar/",
+  "credit": "Parts: Avatar Mixer by Kenney (kenney.itch.io/avatar-mixer), licensed",
+  "canvas": {
+    "w": 36,
+    "h": 36
+  },
+  "pixel": true,
+  "outline": {
+    "color": "#3d465d",
+    "width": 1
+  },
+  "frames": [
+    "open",
+    "blink",
+    "happy",
+    "sleepy",
+    "worried",
+    "alert"
+  ],
+  "palettes": [
+    {
+      "id": "skin",
+      "name": "Skin",
+      "ref": "#f8b275",
+      "colors": [
+        "#f8b275",
+        "#ffcf9e",
+        "#d99e6a",
+        "#a5673f",
+        "#8d5524",
+        "#f4c2a8"
+      ]
+    },
+    {
+      "id": "hair",
+      "name": "Hair color",
+      "ref": "#495462",
+      "colors": [
+        "#495462",
+        "#2e353e",
+        "#8a5a2b",
+        "#c9942f",
+        "#b3432e",
+        "#9e9e9e",
+        "#a06ce7"
+      ]
+    },
+    {
+      "id": "clothing",
+      "name": "Clothing color",
+      "ref": "#239575",
+      "colors": [
+        "#239575",
+        "#3f6fc4",
+        "#de5971",
+        "#fdc64f",
+        "#8d99ae",
+        "#7a4ecf"
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "id": "base",
+      "name": "Base",
+      "at": [
+        18,
+        18
+      ],
+      "palette": "skin",
+      "parts": [
+        {
+          "id": "base01",
+          "src": "base/base01.png"
+        },
+        {
+          "id": "base02",
+          "src": "base/base02.png"
+        },
+        {
+          "id": "base03",
+          "src": "base/base03.png"
+        },
+        {
+          "id": "base04",
+          "src": "base/base04.png"
+        }
+      ]
+    },
+    {
+      "id": "clothing",
+      "name": "Clothing",
+      "at": [
+        18,
+        18
+      ],
+      "palette": "clothing",
+      "optional": true,
+      "parts": [
+        {
+          "id": "clothing01",
+          "src": "clothing/clothing01.png"
+        },
+        {
+          "id": "clothing02",
+          "src": "clothing/clothing02.png"
+        },
+        {
+          "id": "clothing03",
+          "src": "clothing/clothing03.png"
+        },
+        {
+          "id": "clothing04",
+          "src": "clothing/clothing04.png"
+        },
+        {
+          "id": "clothing05",
+          "src": "clothing/clothing05.png"
+        },
+        {
+          "id": "clothing06",
+          "src": "clothing/clothing06.png"
+        },
+        {
+          "id": "clothing07",
+          "src": "clothing/clothing07.png"
+        },
+        {
+          "id": "clothing08",
+          "src": "clothing/clothing08.png"
+        },
+        {
+          "id": "clothing09",
+          "src": "clothing/clothing09.png"
+        },
+        {
+          "id": "clothing10",
+          "src": "clothing/clothing10.png"
+        },
+        {
+          "id": "clothing11",
+          "src": "clothing/clothing11.png"
+        },
+        {
+          "id": "clothing12",
+          "src": "clothing/clothing12.png"
+        },
+        {
+          "id": "clothing13",
+          "src": "clothing/clothing13.png"
+        },
+        {
+          "id": "clothing14",
+          "src": "clothing/clothing14.png"
+        }
+      ]
+    },
+    {
+      "id": "eyes",
+      "name": "Eyes",
+      "at": [
+        18,
+        18
+      ],
+      "parts": [
+        {
+          "id": "moody",
+          "src": {
+            "open": "eyes/eyes11.png",
+            "blink": "eyes/state-blink.png",
+            "happy": "eyes/state-happy.png",
+            "sleepy": "eyes/state-sleepy.png",
+            "worried": "eyes/eyes02.png",
+            "alert": "eyes/eyes05.png"
+          }
+        }
+      ],
+      "palette": "skin",
+      "tintOnly": [
+        "#fdd08f",
+        "#df8567"
+      ]
+    },
+    {
+      "id": "eyebrows",
+      "name": "Eyebrows",
+      "at": [
+        18,
+        18
+      ],
+      "palette": "hair",
+      "optional": true,
+      "default": "eyebrows07",
+      "parts": [
+        {
+          "id": "eyebrows01",
+          "src": "eyebrows/eyebrows01.png"
+        },
+        {
+          "id": "eyebrows02",
+          "src": "eyebrows/eyebrows02.png"
+        },
+        {
+          "id": "eyebrows03",
+          "src": "eyebrows/eyebrows03.png"
+        },
+        {
+          "id": "eyebrows04",
+          "src": "eyebrows/eyebrows04.png"
+        },
+        {
+          "id": "eyebrows05",
+          "src": "eyebrows/eyebrows05.png"
+        },
+        {
+          "id": "eyebrows06",
+          "src": "eyebrows/eyebrows06.png"
+        },
+        {
+          "id": "eyebrows07",
+          "src": "eyebrows/eyebrows07.png"
+        },
+        {
+          "id": "eyebrows08",
+          "src": "eyebrows/eyebrows08.png"
+        },
+        {
+          "id": "eyebrows09",
+          "src": "eyebrows/eyebrows09.png"
+        }
+      ]
+    },
+    {
+      "id": "nose",
+      "name": "Nose",
+      "at": [
+        18,
+        18
+      ],
+      "palette": "skin",
+      "optional": true,
+      "parts": [
+        {
+          "id": "nose01",
+          "src": "nose/nose01.png"
+        },
+        {
+          "id": "nose02",
+          "src": "nose/nose02.png"
+        },
+        {
+          "id": "nose03",
+          "src": "nose/nose03.png"
+        },
+        {
+          "id": "nose04",
+          "src": "nose/nose04.png"
+        },
+        {
+          "id": "nose05",
+          "src": "nose/nose05.png"
+        },
+        {
+          "id": "nose06",
+          "src": "nose/nose06.png"
+        }
+      ],
+      "default": "nose03"
+    },
+    {
+      "id": "mouth",
+      "name": "Mouth",
+      "at": [
+        18,
+        18
+      ],
+      "parts": [
+        {
+          "id": "moody",
+          "src": {
+            "open": "mouth/mouth07.png",
+            "blink": "mouth/mouth07.png",
+            "happy": "mouth/mouth04.png",
+            "sleepy": "mouth/mouth05.png",
+            "worried": "mouth/mouth10.png",
+            "alert": "mouth/mouth02.png"
+          }
+        }
+      ],
+      "palette": "skin",
+      "tintOnly": [
+        "#fdd08f",
+        "#df8567"
+      ]
+    },
+    {
+      "id": "facial",
+      "name": "Facial hair",
+      "at": [
+        18,
+        18
+      ],
+      "palette": "hair",
+      "optional": true,
+      "default": "none",
+      "parts": [
+        {
+          "id": "facial02",
+          "src": "facial/facial02.png"
+        },
+        {
+          "id": "facial03",
+          "src": "facial/facial03.png"
+        },
+        {
+          "id": "facial04",
+          "src": "facial/facial04.png"
+        },
+        {
+          "id": "facial05",
+          "src": "facial/facial05.png"
+        },
+        {
+          "id": "facial06",
+          "src": "facial/facial06.png"
+        },
+        {
+          "id": "facial07",
+          "src": "facial/facial07.png"
+        },
+        {
+          "id": "facial08",
+          "src": "facial/facial08.png"
+        },
+        {
+          "id": "facial09",
+          "src": "facial/facial09.png"
+        },
+        {
+          "id": "facial10",
+          "src": "facial/facial10.png"
+        },
+        {
+          "id": "facial11",
+          "src": "facial/facial11.png"
+        },
+        {
+          "id": "facial12",
+          "src": "facial/facial12.png"
+        },
+        {
+          "id": "facial13",
+          "src": "facial/facial13.png"
+        },
+        {
+          "id": "facial14",
+          "src": "facial/facial14.png"
+        },
+        {
+          "id": "facial15",
+          "src": "facial/facial15.png"
+        },
+        {
+          "id": "facial16",
+          "src": "facial/facial16.png"
+        },
+        {
+          "id": "facial17",
+          "src": "facial/facial17.png"
+        },
+        {
+          "id": "facial18",
+          "src": "facial/facial18.png"
+        }
+      ]
+    },
+    {
+      "id": "hair",
+      "name": "Hair",
+      "at": [
+        18,
+        18
+      ],
+      "palette": "hair",
+      "optional": true,
+      "parts": [
+        {
+          "id": "hair01",
+          "src": "hair/hair01.png"
+        },
+        {
+          "id": "hair02",
+          "src": "hair/hair02.png"
+        },
+        {
+          "id": "hair03",
+          "src": "hair/hair03.png"
+        },
+        {
+          "id": "hair04",
+          "src": "hair/hair04.png"
+        },
+        {
+          "id": "hair05",
+          "src": "hair/hair05.png"
+        },
+        {
+          "id": "hair06",
+          "src": "hair/hair06.png"
+        },
+        {
+          "id": "hair07",
+          "src": "hair/hair07.png"
+        },
+        {
+          "id": "hair08",
+          "src": "hair/hair08.png"
+        },
+        {
+          "id": "hair09",
+          "src": "hair/hair09.png"
+        },
+        {
+          "id": "hair10",
+          "src": "hair/hair10.png"
+        },
+        {
+          "id": "hair11",
+          "src": "hair/hair11.png"
+        },
+        {
+          "id": "hair12",
+          "src": "hair/hair12.png"
+        },
+        {
+          "id": "hair13",
+          "src": "hair/hair13.png"
+        },
+        {
+          "id": "hair14",
+          "src": "hair/hair14.png"
+        },
+        {
+          "id": "hair15",
+          "src": "hair/hair15.png"
+        },
+        {
+          "id": "hair16",
+          "src": "hair/hair16.png"
+        },
+        {
+          "id": "hair17",
+          "src": "hair/hair17.png"
+        },
+        {
+          "id": "hair18",
+          "src": "hair/hair18.png"
+        },
+        {
+          "id": "hair19",
+          "src": "hair/hair19.png"
+        },
+        {
+          "id": "hair20",
+          "src": "hair/hair20.png"
+        },
+        {
+          "id": "hair21",
+          "src": "hair/hair21.png"
+        },
+        {
+          "id": "hair22",
+          "src": "hair/hair22.png"
+        },
+        {
+          "id": "hair23",
+          "src": "hair/hair23.png"
+        },
+        {
+          "id": "hair24",
+          "src": "hair/hair24.png"
+        },
+        {
+          "id": "hair25",
+          "src": "hair/hair25.png"
+        },
+        {
+          "id": "hair26",
+          "src": "hair/hair26.png"
+        },
+        {
+          "id": "hair27",
+          "src": "hair/hair27.png"
+        },
+        {
+          "id": "hair28",
+          "src": "hair/hair28.png"
+        },
+        {
+          "id": "hair29",
+          "src": "hair/hair29.png"
+        },
+        {
+          "id": "hair30",
+          "src": "hair/hair30.png"
+        },
+        {
+          "id": "hair31",
+          "src": "hair/hair31.png"
+        },
+        {
+          "id": "hair32",
+          "src": "hair/hair32.png"
+        },
+        {
+          "id": "hair33",
+          "src": "hair/hair33.png"
+        },
+        {
+          "id": "hair34",
+          "src": "hair/hair34.png"
+        },
+        {
+          "id": "hair35",
+          "src": "hair/hair35.png"
+        },
+        {
+          "id": "hair36",
+          "src": "hair/hair36.png"
+        },
+        {
+          "id": "hair37",
+          "src": "hair/hair37.png"
+        },
+        {
+          "id": "hair38",
+          "src": "hair/hair38.png"
+        }
+      ],
+      "default": "hair12"
+    },
+    {
+      "id": "glasses",
+      "name": "Glasses",
+      "at": [
+        18,
+        18
+      ],
+      "optional": true,
+      "default": "none",
+      "parts": [
+        {
+          "id": "glasses02",
+          "src": "glasses/glasses02.png"
+        },
+        {
+          "id": "glasses03",
+          "src": "glasses/glasses03.png"
+        },
+        {
+          "id": "glasses04",
+          "src": "glasses/glasses04.png"
+        },
+        {
+          "id": "glasses05",
+          "src": "glasses/glasses05.png"
+        },
+        {
+          "id": "glasses06",
+          "src": "glasses/glasses06.png"
+        },
+        {
+          "id": "glasses07",
+          "src": "glasses/glasses07.png"
+        },
+        {
+          "id": "glasses08",
+          "src": "glasses/glasses08.png"
+        },
+        {
+          "id": "glasses09",
+          "src": "glasses/glasses09.png"
+        },
+        {
+          "id": "glasses10",
+          "src": "glasses/glasses10.png"
+        },
+        {
+          "id": "glasses11",
+          "src": "glasses/glasses11.png"
+        },
+        {
+          "id": "glasses12",
+          "src": "glasses/glasses12.png"
+        },
+        {
+          "id": "glasses13",
+          "src": "glasses/glasses13.png"
+        }
+      ]
+    },
+    {
+      "id": "hat",
+      "name": "Hat",
+      "at": [
+        18,
+        18
+      ],
+      "optional": true,
+      "default": "none",
+      "parts": [
+        {
+          "id": "hat02",
+          "src": "hat/hat02.png"
+        },
+        {
+          "id": "hat03",
+          "src": "hat/hat03.png"
+        },
+        {
+          "id": "hat04",
+          "src": "hat/hat04.png"
+        },
+        {
+          "id": "hat05",
+          "src": "hat/hat05.png"
+        },
+        {
+          "id": "hat06",
+          "src": "hat/hat06.png"
+        },
+        {
+          "id": "hat07",
+          "src": "hat/hat07.png"
+        },
+        {
+          "id": "hat08",
+          "src": "hat/hat08.png"
+        },
+        {
+          "id": "hat09",
+          "src": "hat/hat09.png"
+        },
+        {
+          "id": "hat10",
+          "src": "hat/hat10.png"
+        },
+        {
+          "id": "hat11",
+          "src": "hat/hat11.png"
+        },
+        {
+          "id": "hat12",
+          "src": "hat/hat12.png"
+        },
+        {
+          "id": "hat13",
+          "src": "hat/hat13.png"
+        },
+        {
+          "id": "hat14",
+          "src": "hat/hat14.png"
+        },
+        {
+          "id": "hat15",
+          "src": "hat/hat15.png"
+        },
+        {
+          "id": "hat16",
+          "src": "hat/hat16.png"
+        },
+        {
+          "id": "hat17",
+          "src": "hat/hat17.png"
+        },
+        {
+          "id": "hat18",
+          "src": "hat/hat18.png"
+        },
+        {
+          "id": "hat19",
+          "src": "hat/hat19.png"
+        },
+        {
+          "id": "hat20",
+          "src": "hat/hat20.png"
+        },
+        {
+          "id": "hat21",
+          "src": "hat/hat21.png"
+        },
+        {
+          "id": "hat22",
+          "src": "hat/hat22.png"
+        }
+      ]
+    },
+    {
+      "id": "accessory",
+      "name": "Accessory",
+      "at": [
+        18,
+        18
+      ],
+      "optional": true,
+      "default": "none",
+      "parts": [
+        {
+          "id": "accessory02",
+          "src": "accessory/accessory02.png"
+        },
+        {
+          "id": "accessory03",
+          "src": "accessory/accessory03.png"
+        },
+        {
+          "id": "accessory04",
+          "src": "accessory/accessory04.png"
+        },
+        {
+          "id": "accessory05",
+          "src": "accessory/accessory05.png"
+        },
+        {
+          "id": "accessory06",
+          "src": "accessory/accessory06.png"
+        },
+        {
+          "id": "accessory07",
+          "src": "accessory/accessory07.png"
+        },
+        {
+          "id": "accessory08",
+          "src": "accessory/accessory08.png"
+        },
+        {
+          "id": "accessory09",
+          "src": "accessory/accessory09.png"
+        },
+        {
+          "id": "accessory10",
+          "src": "accessory/accessory10.png"
+        },
+        {
+          "id": "accessory11",
+          "src": "accessory/accessory11.png"
+        },
+        {
+          "id": "accessory12",
+          "src": "accessory/accessory12.png"
+        },
+        {
+          "id": "accessory13",
+          "src": "accessory/accessory13.png"
+        },
+        {
+          "id": "accessory14",
+          "src": "accessory/accessory14.png"
+        },
+        {
+          "id": "accessory15",
+          "src": "accessory/accessory15.png"
+        },
+        {
+          "id": "accessory16",
+          "src": "accessory/accessory16.png"
+        },
+        {
+          "id": "accessory17",
+          "src": "accessory/accessory17.png"
+        },
+        {
+          "id": "accessory18",
+          "src": "accessory/accessory18.png"
+        },
+        {
+          "id": "accessory19",
+          "src": "accessory/accessory19.png"
+        },
+        {
+          "id": "accessory20",
+          "src": "accessory/accessory20.png"
+        },
+        {
+          "id": "accessory21",
+          "src": "accessory/accessory21.png"
+        },
+        {
+          "id": "accessory22",
+          "src": "accessory/accessory22.png"
+        },
+        {
+          "id": "accessory23",
+          "src": "accessory/accessory23.png"
+        }
+      ]
+    }
+  ]
+}

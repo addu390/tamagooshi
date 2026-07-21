@@ -14,6 +14,7 @@
 .cfg-next { padding: 7px 18px; font-size: 12px; }
 .cfg-duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 .cfg-field { display: flex; flex-direction: column; gap: 5px; }
+.cfg-field > .btn { align-self: flex-start; padding: 6px 12px; font-size: 12px; }
 .cfg-field > label { font-size: 12px; font-weight: 600; color: var(--text-soft); }
 .cfg-field input { font-family: var(--font); font-size: 13px; padding: 7px 9px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text); width: 100%; min-width: 0; }
 .cfg-field input:focus, .cfg-cell input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }

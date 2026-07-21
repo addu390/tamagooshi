@@ -1,7 +1,7 @@
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/wordmark-dark.svg">
-    <img src="docs/assets/images/wordmark-light.svg" alt="Tamagooshi" height="34">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/dark.svg">
+    <img src="docs/assets/images/light.svg" alt="Tamagooshi" height="34">
   </picture>
 </p>
 

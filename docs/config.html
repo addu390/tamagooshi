@@ -14,7 +14,7 @@
 
 <script>
 window.TAMA_PAGE = {
-  nav: [["./", "Home"], ["builder", "Builder"], ["shop", "Shop"]],
+  nav: [["./", "Home"], ["builder", "Builder"], ["mixer", "Mixer"], ["shop", "Shop"]],
 };
 </script>
 
@@ -90,6 +90,11 @@ window.TAMA_PAGE = {
             <button type="button" class="pickchip" data-theme="lava (custom)" data-bg="#4a2a24" data-ink="#f5c0b2" data-hi="#f2704d"><i style="background:#4a2a24"></i>lava</button>
           </div>
           <p class="refmock-cap">The same shape covers <code>typeface</code>, <code>mascot</code> packs, <code>games</code>, and <code>apps</code>. <code>buddy</code> turns on the on-device agent view, <code>timezone</code> sets the clock.</p>
+          <p class="refmock-cap refmock-split">Mascots can be custom too. <code>mascot.custom</code> takes any transparent PNG next to the config, and the <a href="mixer">mixer</a> builds one from parts. Try it.</p>
+          <div class="pickrow" id="mascot-picks">
+            <button type="button" class="pickchip on" data-mascot="gooshi">gooshi</button>
+            <button type="button" class="pickchip" data-mascot="shapey">shapey (custom)</button>
+          </div>
         </div>
       </div>
       <div class="expandable" data-collapsed>
@@ -108,7 +113,9 @@ window.TAMA_PAGE = {
   <span class="k">mascot:</span>
     <span class="k">default:</span> <span class="s">cat</span>
     <span class="k">mood:</span> <span class="s">happy</span>
-    <span class="k">enabled:</span> <span class="p">[</span><span class="s">pals, trucks</span><span class="p">]</span>
+    <span class="k">enabled:</span> <span class="p">[</span><span class="s">pals, custom</span><span class="p">]</span>
+    <span class="k">custom:</span>
+      <span class="p">-</span> <span class="p">{</span><span class="k">id:</span> <span class="s">shapey</span><span class="p">,</span> <span class="k">label:</span> <span class="s">Shapey</span><span class="p">,</span> <span class="k">category:</span> <span class="s">custom</span><span class="p">,</span> <span class="k">source:</span> <span class="s">shapey.png</span><span class="p">}</span>
   <span class="k">games:</span>
     <span class="k">enabled:</span> <span class="p">[</span><span class="s">runner, flappy</span><span class="p">]</span>
   <span class="k">apps:</span>

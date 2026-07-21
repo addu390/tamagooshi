@@ -63,6 +63,17 @@ export const INVADER_MOODS = {
   ],
 };
 
+export const SQUIRCLE = [
+  ".#########.",
+  "###########",
+  "##..###..##",
+  "###########",
+  "####...####",
+  "###########",
+  "###########",
+  ".#########.",
+];
+
 export function spriteSvg(art) {
   const rows = art.length, cols = art[0].length;
   let cells = "";
