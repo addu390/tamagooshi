@@ -16,7 +16,12 @@
   </picture>
 </p>
 
----
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/rule-dark.svg">
+    <img src="docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+  </picture>
+</p>
 
 <p align="left">
   <picture>
@@ -32,7 +37,12 @@ make sim        # desktop simulator, no board needed
 
 `make` lists every target.
 
----
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/rule-dark.svg">
+    <img src="docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+  </picture>
+</p>
 
 <p align="left">
   <picture>
@@ -48,7 +58,12 @@ cd firmware
 pio run -e m5stickc-plus -t upload   # or m5stickc-plus-se, m5sticks3
 ```
 
----
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/rule-dark.svg">
+    <img src="docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+  </picture>
+</p>
 
 <p align="left">
   <picture>
