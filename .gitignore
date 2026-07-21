@@ -32,6 +32,9 @@ compile_commands.json
 
 **/.preview/
 
+node_modules/
+docs/_site/
+
 notes/
 
 brands/terminal/

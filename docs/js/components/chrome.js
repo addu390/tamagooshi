@@ -1,12 +1,14 @@
 import { INVADER } from "./sprite.js";
 
+const REPO_URL = "https://github.com/addu390/tamagooshi";
+
 function greet() {
   const art = INVADER
     .map((row) => [...row].map((ch) => (ch === "#" ? "\u2588\u2588" : "  ")).join(""))
     .join("\n");
   console.log(
-    `%c\n${art}\n\n%c TAMAGOOSHI %c https://github.com/addu390/tamagooshi\n`,
-    "color:#0e9f6e; line-height:1.1",
+    `%c\n${art}\n\n%c TAMAGOOSHI %c ${REPO_URL}\n`,
+    "line-height:1.1",
     "background:#18181b; color:#fff; font-weight:700; padding:2px 6px; border-radius:3px",
     "color:#8b8b93",
   );
@@ -29,7 +31,7 @@ export function initChrome() {
       `<span class="wordmark">${brand.pre || ""}Tamag<span class="o">o</span><span class="o o2">o</span>shi</span></a>` +
       (brand.note ? `<span class="nav-note">${brand.note}</span>` : "") +
       `<nav class="nav-links">${links}` +
-      `<a class="btn" href="https://github.com/addu390/tamagooshi" target="_blank" rel="noopener" data-key-hint="G">GitHub <kbd>G</kbd></a></nav>`;
+      `<a class="btn" href="${REPO_URL}" target="_blank" rel="noopener" data-key-hint="G">GitHub <kbd>G</kbd></a></nav>`;
   }
 
   const footWrap = document.querySelector("footer .wrap");
