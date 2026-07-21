@@ -1,4 +1,19 @@
+import { INVADER } from "./sprite.js";
+
+function greet() {
+  const art = INVADER
+    .map((row) => [...row].map((ch) => (ch === "#" ? "\u2588\u2588" : "  ")).join(""))
+    .join("\n");
+  console.log(
+    `%c\n${art}\n\n%c TAMAGOOSHI %c https://github.com/addu390/tamagooshi\n`,
+    "color:#0e9f6e; line-height:1.1",
+    "background:#18181b; color:#fff; font-weight:700; padding:2px 6px; border-radius:3px",
+    "color:#8b8b93",
+  );
+}
+
 export function initChrome() {
+  greet();
   const cfg = window.TAMA_PAGE || {};
   const chrome = (window.TAMA_PRESET || {}).chrome || {};
 

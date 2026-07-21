@@ -147,7 +147,6 @@ export function initDemo() {
     <rect x="${SCR.x - 2}" y="${SCR.y - 2}" width="${SCR.w + 4}" height="${SCR.h + 4}" rx="9" fill="${SHELL.bezel}"/>
     <rect x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" rx="6" fill="#0e0f12"/>
     <g clip-path="url(#demoScr)">${mascot}</g>
-    <foreignObject id="demoFO" x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" clip-path="url(#demoScr)"></foreignObject>
     <rect x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" rx="6" fill="none" stroke="${SIL}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
     ${btnBody}
     <path d="${outlineD}" fill="none" stroke="${SIL}" stroke-width="1.6" stroke-linejoin="round"/>
@@ -163,6 +162,9 @@ export function initDemo() {
 
   const landTx = (vbx + vbw / 2) - (minx + maxx) / 2;
   mount.style.setProperty("--land-tx", `${landTx.toFixed(1)}px`);
+  mount.style.setProperty("--land-tx-pct", `${(landTx / vbw * 100).toFixed(3)}%`);
+  mount.style.setProperty("--dev-ox", `${(((minx + maxx) / 2 - vbx) / vbw * 100).toFixed(3)}%`);
+  mount.style.setProperty("--dev-oy", `${(((miny + maxy) / 2 - vby) / vbh * 100).toFixed(3)}%`);
 
   const pressPlay = (apply) => {
     const t0 = performance.now(), dur = 280;
@@ -182,9 +184,18 @@ export function initDemo() {
   svg.querySelector("#demoSideBtn").addEventListener("pointerdown", () =>
     pressPlay((v) => sideCap.setAttribute("transform", `translate(${(-2.2 * v).toFixed(2)},0)`)));
 
+  const pc = (v, total) => `${(v / total * 100).toFixed(3)}%`;
   const screen = document.createElement("div");
   screen.className = "demo-screen";
-  svg.querySelector("#demoFO").appendChild(screen);
+  screen.style.left = pc(SCR.x - vbx, vbw);
+  screen.style.top = pc(SCR.y - vby, vbh);
+  screen.style.width = pc(SCR.w, vbw);
+  screen.style.height = pc(SCR.h, vbh);
+  screen.style.borderRadius = `${(6 / SCR.w * 100).toFixed(2)}% / ${(6 / SCR.h * 100).toFixed(2)}%`;
+  const fit = document.createElement("div");
+  fit.className = "demo-fit";
+  fit.appendChild(screen);
+  mount.appendChild(fit);
 
   const DEMO = PRESET.demo || {};
   const SCENARIOS = DEMO.scenarios || [
