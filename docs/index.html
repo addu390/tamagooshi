@@ -38,7 +38,7 @@ window.TAMA_PAGE = {
           <h1><span class="rotor" id="hero-rotor">Your mascot</span> on every desk.</h1>
           <p class="lead">Tamagooshi is a compact gadget that stays in sync with your product: relaxed when things run smoothly, restless when they don't. Make it fully yours, from the brand on the shell to the games it plays, and pair it with Claude or Cursor to stay on top of your agents' work.</p>
           <div class="hero-cta">
-            <a class="btn" href="#quickstart" data-key-hint="S">Get started <kbd>S</kbd></a>
+            <a class="btn" href="#config" data-key-hint="S">Get started <kbd>S</kbd></a>
             <a class="btn ghost" href="claude">Claude edition &rarr;</a>
           </div>
         </div>
@@ -59,7 +59,6 @@ window.TAMA_PAGE = {
   <aside class="side">
     <h4>Getting started</h4>
     <a href="#demo">Demo</a>
-    <a href="#quickstart">Quickstart</a>
     <h4>Make it yours</h4>
     <a href="#config">Configuration</a>
     <a href="#build">Build &amp; flash</a>
@@ -78,26 +77,6 @@ window.TAMA_PAGE = {
         </div>
         <div class="demo-content"><ol class="demo-walk" aria-label="Walkthrough scenarios"></ol></div>
       </div>
-    </section>
-
-    <section class="doc" id="quickstart">
-      <h2>Quickstart</h2>
-      <p>Everything runs in the desktop simulator first, so you don't need a board to try it. You'll need <a href="https://platformio.org">PlatformIO</a> and a C toolchain (the simulator builds with SDL + LVGL).</p>
-      <div class="fgrid cols-2">
-        <div class="fcard">
-          <h3>Run the simulator offline</h3>
-          <p>Product defaults, no board or live data required.</p>
-          <pre data-lang="bash">make sim                <span class="c"># product defaults</span>
-make sim BRAND=demo     <span class="c"># pick a brand</span></pre>
-        </div>
-        <div class="fcard">
-          <h3>Run against live data</h3>
-          <p>Start the dev stack, then point the simulator at its broker.</p>
-          <pre data-lang="bash">make up                 <span class="c"># dev stack: broker + hub</span>
-make sim-live BRAND=demo</pre>
-        </div>
-      </div>
-      <div class="note"><b>Tip:</b> add <code>DEV=marc</code> to bake a developer name into the build's branding.</div>
     </section>
 
     <section class="doc" id="config">

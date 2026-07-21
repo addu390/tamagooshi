@@ -1,13 +1,20 @@
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/dark.svg">
-    <img src="docs/assets/images/light.svg" alt="Tamagooshi" height="34">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/logo/dark.svg">
+    <img src="docs/assets/images/logo/light.svg" alt="Tamagooshi" height="34">
   </picture>
 </p>
 
 <p align="left"><a href="https://addu390.github.io/tamagooshi/">Docs</a> · <a href="https://addu390.github.io/tamagooshi/#config">Configure</a> · <a href="https://addu390.github.io/tamagooshi/#build">Flash from the browser</a></p>
 
 <p align="left">Pixel-art pet for M5Stack StickC Plus and StickS3 that turns live metrics into its mood. Local hub feeds readings from metric sources such as Datadog and PostHog over BLE/MQTT. <code>config.yaml</code> selects the mascot, themes, games, and more that ship in the firmware. Follows sessions from coding agents such as Claude and Cursor, down to approving or denying their requests from the device.</p>
+
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/overview/dark.svg">
+    <img src="docs/assets/images/overview/light.svg" alt="Tamagooshi overview" width="920">
+  </picture>
+</p>
 
 ## Quick start
 

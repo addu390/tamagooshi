@@ -38,7 +38,7 @@ window.TAMA_PAGE = {
           <h1>Clawd on every desk.</h1>
           <p class="lead">The Claude edition of Tamagooshi puts Clawd, Claude's pixel mascot, on a palm-size handheld that pairs with Claude Code over BLE. It works while your agent works, celebrates when tasks land, and lets you approve actions or talk to Claude without touching the keyboard.</p>
           <div class="hero-cta">
-            <a class="btn" href="#run" data-key-hint="S">Get started <kbd>S</kbd></a>
+            <a class="btn" href="#config" data-key-hint="S">Get started <kbd>S</kbd></a>
             <a class="btn ghost" href="./">Standard edition &rarr;</a>
           </div>
         </div>
@@ -59,7 +59,6 @@ window.TAMA_PAGE = {
   <aside class="side">
     <h4>Get it running</h4>
     <a href="#demo">Demo</a>
-    <a href="#run">Quickstart</a>
     <a href="#config">Configure &amp; flash</a>
   </aside>
 
@@ -74,25 +73,6 @@ window.TAMA_PAGE = {
         </div>
         <div class="demo-content"><ol class="demo-walk" aria-label="Walkthrough scenarios"></ol></div>
       </div>
-    </section>
-
-    <section class="doc" id="run">
-      <h2>Quickstart</h2>
-      <p>The Claude brand ships in the repo as <code>brands/claude/</code>: Clawd as the mascot pack, the built-in <code>terra</code> terracotta theme plus a custom <code>clay</code> dark variant, the Claude agent enabled, and BLE as the only transport. Try it in the simulator first, no board needed.</p>
-      <div class="fgrid cols-2">
-        <div class="fcard">
-          <h3>Simulator</h3>
-          <p>The same firmware, drawn in a desktop window.</p>
-          <pre data-lang="bash">make sim BRAND=claude</pre>
-        </div>
-        <div class="fcard">
-          <h3>Pair with Claude</h3>
-          <p>One command on the machine that runs Claude Code.</p>
-          <pre data-lang="bash">pip install -e hub/backend <span class="c"># once, Python 3.10+</span>
-make hub                   <span class="c"># pairs over BLE</span></pre>
-        </div>
-      </div>
-      <p>Once paired, hold the side button to talk to Claude, watch Clawd react as it works, and approve or deny actions from the device.</p>
     </section>
 
     <section class="doc" id="config">
