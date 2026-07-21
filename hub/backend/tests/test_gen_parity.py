@@ -76,7 +76,7 @@ def test_blob_byte_parity():
                 "enabled": ["midnight", "lava"],
             },
             "typeface": {"default": "mono", "enabled": "all"},
-            "mascot": {"default": "blob", "mood": "happy", "enabled": ["classic"]},
+            "mascot": {"default": "cat", "mood": "happy", "enabled": ["pals"]},
             "games": {"enabled": ["pong"]},
             "apps": {"enabled": "all"},
         },
