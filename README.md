@@ -16,7 +16,12 @@
   </picture>
 </p>
 
-## Quick start
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/quickstart-dark.svg">
+    <img src="docs/assets/images/header/quickstart-light.svg" alt="Quick start" height="24">
+  </picture>
+</p>
 
 ```bash
 make hub        # run the hub, pairs with your device over BLE
@@ -25,7 +30,12 @@ make sim        # desktop simulator, no board needed
 
 `make` lists every target.
 
-## Hardware
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/hardware-dark.svg">
+    <img src="docs/assets/images/header/hardware-light.svg" alt="Hardware" height="24">
+  </picture>
+</p>
 
 M5Stack StickC Plus, StickC Plus SE, and StickS3. Flash from the browser via the [docs](https://addu390.github.io/tamagooshi/#build), or locally:
 
@@ -34,6 +44,11 @@ cd firmware
 pio run -e m5stickc-plus -t upload   # or m5stickc-plus-se, m5sticks3
 ```
 
-## License
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/license-dark.svg">
+    <img src="docs/assets/images/header/license-light.svg" alt="License" height="24">
+  </picture>
+</p>
 
 MIT. See [LICENSE](LICENSE).
