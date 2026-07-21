@@ -9,6 +9,7 @@ class M5Buttons : public IButtonSource {
   void begin() override;
   void poll() override;
   void onEvent(Handler handler) override;
+  bool held(int index) const override;
 
  private:
   Handler handler_;

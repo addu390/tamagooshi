@@ -50,6 +50,7 @@ void BleBearer::begin() {
   NimBLEAdvertising* adv = NimBLEDevice::getAdvertising();
   for (IBleService* service : services_) {
     if (service->advertiseUuid()) adv->addServiceUUID(service->serviceUuid());
+    if (const uint16_t look = service->appearance()) adv->setAppearance(look);
   }
   adv->setName(name_);
   adv->setScanResponse(true);

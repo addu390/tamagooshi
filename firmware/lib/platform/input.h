@@ -18,6 +18,10 @@ class IButtonSource {
   virtual void begin() = 0;
   virtual void poll() = 0;
   virtual void onEvent(Handler handler) = 0;
+  virtual bool held(int index) const {
+    (void)index;
+    return false;
+  }
 };
 
 class IInputSource {

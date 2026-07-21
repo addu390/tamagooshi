@@ -20,6 +20,7 @@ class IBleService {
   virtual void setup(BleBearer& bearer, NimBLEServer* nim) = 0;
   virtual const char* serviceUuid() const = 0;
   virtual bool advertiseUuid() const { return false; }
+  virtual uint16_t appearance() const { return 0; }
   virtual void onLink(bool connected) = 0;
 };
 

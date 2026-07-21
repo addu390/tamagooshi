@@ -21,7 +21,7 @@ device:
   games:
     enabled: [runner, flappy]
   apps:
-    enabled: [clock, stopwatch, flashlight, level, pomodoro, remote, about]
+    enabled: [clock, stopwatch, flashlight, level, pomodoro, remote, controller, about]
   buddy:
     enabled: true
 

@@ -40,6 +40,7 @@ Runtime::Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressio
       handlers_(state_, codec, expression, system),
       expression_(expression),
       system_(system),
+      buttons_(buttons),
       gestures_(input),
       sensor_(sensor),
       telemetry_(telemetry),
@@ -60,6 +61,7 @@ void Runtime::begin() {
   screens::install(nav_, characters_, prompt_);
   nav_.setMic(mic_);
   nav_.setSensor(sensor_);
+  nav_.setButtons(buttons_);
   nav_.setExpression(expression_);
   handlers_.bind(router_);
 

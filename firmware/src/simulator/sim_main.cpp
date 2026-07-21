@@ -24,6 +24,7 @@
 #include "buddy/voice/uplink.h"
 #endif
 #include "capture.h"
+#include "gamepad.h"
 #include "hal/m5_buttons.h"
 #include "hal/profile.h"
 #include "hub/pipeline.h"
@@ -243,6 +244,18 @@ class SimIr : public IIrTransceiver {
   uint32_t learnedAt_ = 0;
 };
 
+class SimGamepad : public IGamepadLink {
+ public:
+  void activate() override { active_ = true; }
+  void deactivate() override { active_ = false; }
+  bool ready() const override { return active_; }
+  void send(const GamepadFrame& frame) override { last_ = frame; }
+
+ private:
+  bool active_ = false;
+  GamepadFrame last_;
+};
+
 class SimIrStore : public IIrStore {
  public:
   SimIrStore() : buttons_{{"BTN 1", SimIr::necLikeFrame()}, {"BTN 2", SimIr::necLikeFrame()}} {}
@@ -347,6 +360,7 @@ SimSensor g_sensor;
 SimMic g_mic;
 SimIr g_ir;
 SimIrStore g_irStore;
+SimGamepad g_gamepad;
 SimConfig g_config;
 StaticBoardProfile g_board(board::capabilities());
 IdFn g_idGen =
@@ -479,6 +493,7 @@ void setup() {
   g_runtime.begin();
   g_runtime.nav().add(screens::wifi());
   g_runtime.nav().setIr(&g_ir, &g_irStore);
+  g_runtime.nav().setGamepad(&g_gamepad);
 
 #if defined(TAMA_ENABLE_BUDDY)
   if (const char* scenario = std::getenv("TAMA_BUDDY_STATE")) {

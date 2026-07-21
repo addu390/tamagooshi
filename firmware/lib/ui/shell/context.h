@@ -5,6 +5,7 @@
 
 #include "mascots/character.h"
 #include "expression.h"
+#include "gamepad.h"
 #include "input.h"
 #include "ir.h"
 #include "mascots/registry.h"
@@ -30,10 +31,12 @@ struct ShellContext {
   IWifiControl* wifi;
   IMicSource& mic;
   ISensorSource& sensor;
+  IButtonSource& buttons;
   IVoiceUplink* voice;
   IExpressionSink* expression;
   IIrTransceiver* ir;
   IIrStore* irStore;
+  IGamepadLink* gamepad;
 };
 
 }  // namespace tama

@@ -26,9 +26,11 @@ class Navigator {
   void setWifi(IWifiControl* wifi);
   void setMic(IMicSource& mic);
   void setSensor(ISensorSource& sensor);
+  void setButtons(IButtonSource& buttons);
   void setVoice(IVoiceUplink* voice);
   void setExpression(IExpressionSink& expression);
   void setIr(IIrTransceiver* ir, IIrStore* store);
+  void setGamepad(IGamepadLink* gamepad);
   void setResolver(PromptResolver resolver);
 
   void start(const char* firstId);
@@ -62,10 +64,12 @@ class Navigator {
   IWifiControl* wifi_ = nullptr;
   IMicSource* mic_ = nullptr;
   ISensorSource* sensor_ = nullptr;
+  IButtonSource* buttons_ = nullptr;
   IVoiceUplink* voice_ = nullptr;
   IExpressionSink* expression_ = nullptr;
   IIrTransceiver* ir_ = nullptr;
   IIrStore* irStore_ = nullptr;
+  IGamepadLink* gamepad_ = nullptr;
   std::vector<AppScreen*> screens_;
   std::vector<AppScreen*> stack_;
   PromptOverlay* prompt_ = nullptr;

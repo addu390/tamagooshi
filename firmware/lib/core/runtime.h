@@ -56,6 +56,7 @@ class Runtime {
   Channels channels_;
   IExpressionSink& expression_;
   ISystemControl& system_;
+  IButtonSource& buttons_;
   IInputSource& gestures_;
   ISensorSource& sensor_;
   ITelemetry& telemetry_;

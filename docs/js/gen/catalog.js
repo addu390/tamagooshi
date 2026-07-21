@@ -104,6 +104,10 @@ export default {
       "Learn & replay IR remotes"
     ],
     [
+      "controller",
+      "BLE gamepad for browser games"
+    ],
+    [
       "about",
       "Device info"
     ]

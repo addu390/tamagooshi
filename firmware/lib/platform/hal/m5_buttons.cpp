@@ -8,6 +8,10 @@ void M5Buttons::begin() {}
 
 void M5Buttons::onEvent(Handler handler) { handler_ = std::move(handler); }
 
+bool M5Buttons::held(int index) const {
+  return index == 0 ? M5.BtnA.isPressed() : M5.BtnB.isPressed();
+}
+
 void M5Buttons::poll() {
   if (!handler_) return;
 

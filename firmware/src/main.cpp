@@ -36,6 +36,9 @@
 #if defined(TAMA_ENABLE_BLE)
 #include "ble/ble.h"
 #endif
+#if defined(TAMA_ENABLE_BLE) && TAMA_APP_CONTROLLER
+#include "ble/hid.h"
+#endif
 #if defined(TAMA_ENABLE_BUDDY)
 #include "transport/nus.h"
 #endif
@@ -102,6 +105,10 @@ static AgentSession g_agentSession(g_nus, g_buddyController, g_agentCommands, g_
 static HubEndpoint g_hub(g_ble, TAMA_BRAND_ID, TAMA_FW_VERSION);
 #endif
 
+#if defined(TAMA_ENABLE_BLE) && TAMA_APP_CONTROLLER
+static GamepadEndpoint g_gamepad(TAMA_BRAND_ID);
+#endif
+
 #if defined(TAMA_ENABLE_WIFI)
 static NvsCredentialStore g_wifiCreds;
 static SoftApProvisioner g_wifiProvisioner(TAMA_BRAND_ID "-setup");
@@ -136,6 +143,9 @@ static void configureChannels() {
 #if defined(TAMA_ENABLE_BLE)
 #if defined(TAMA_PROTO_GATT)
   g_ble.add(g_hub);
+#endif
+#if TAMA_APP_CONTROLLER
+  g_ble.add(g_gamepad);
 #endif
   binding.link = &g_ble;
 #else
@@ -199,6 +209,9 @@ void setup() {
 #if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
   g_ir.begin();
   g_runtime.nav().setIr(&g_ir, &g_irStore);
+#endif
+#if defined(TAMA_ENABLE_BLE) && TAMA_APP_CONTROLLER
+  g_runtime.nav().setGamepad(&g_gamepad);
 #endif
 }
 

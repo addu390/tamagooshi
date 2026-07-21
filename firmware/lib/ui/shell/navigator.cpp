@@ -27,6 +27,8 @@ void Navigator::setMic(IMicSource& mic) { mic_ = &mic; }
 
 void Navigator::setSensor(ISensorSource& sensor) { sensor_ = &sensor; }
 
+void Navigator::setButtons(IButtonSource& buttons) { buttons_ = &buttons; }
+
 void Navigator::setVoice(IVoiceUplink* voice) { voice_ = voice; }
 
 void Navigator::setExpression(IExpressionSink& expression) { expression_ = &expression; }
@@ -35,6 +37,8 @@ void Navigator::setIr(IIrTransceiver* ir, IIrStore* store) {
   ir_ = ir;
   irStore_ = store;
 }
+
+void Navigator::setGamepad(IGamepadLink* gamepad) { gamepad_ = gamepad; }
 
 void Navigator::setResolver(PromptResolver resolver) { resolver_ = std::move(resolver); }
 
@@ -60,10 +64,12 @@ ShellContext Navigator::ctx() {
                       wifi_,
                       *mic_,
                       *sensor_,
+                      *buttons_,
                       voice_,
                       expression_,
                       ir_,
-                      irStore_};
+                      irStore_,
+                      gamepad_};
 }
 
 void Navigator::start(const char* firstId) {
