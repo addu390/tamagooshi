@@ -47,7 +47,7 @@ class GalaxyScreen : public ArcadeGameScreen {
   }
 
   void step(ShellContext&) override {
-    const float tilt = sensor_ ? sensor_->tiltY() : 0.0f;
+    const float tilt = sensor_ ? sensor_->tiltX() : 0.0f;
     playerX_ += tilt * kMoveGain;
     const float half = kPlayerSz / 2.0f;
     if (playerX_ < half) playerX_ = half;

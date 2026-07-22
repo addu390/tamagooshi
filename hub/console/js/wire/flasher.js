@@ -1,4 +1,4 @@
-// ESP Web Tools plumbing, mirrored to docs/js/gen/wire/flasher.js by gen.
+// ESP Web Tools plumbing, mirrored to website/docs/js/gen/wire/flasher.js by gen.
 
 export const EWT_URL = "https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module";
 

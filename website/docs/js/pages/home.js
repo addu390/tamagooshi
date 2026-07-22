@@ -1,0 +1,19 @@
+import { initChrome } from "../../../common/js/components/chrome.js";
+import { initKeyHints } from "../../../common/js/components/keyhints.js";
+import { initAccentPicker } from "../../../common/js/components/accents.js";
+import { initScrollSpy } from "../../../common/js/components/scrollspy.js";
+import { initHeroRotor } from "../../../common/js/components/rotor.js";
+import { initSetupTabs } from "../../../common/js/components/tabs.js";
+import { initExpandables } from "../../../common/js/components/expandable.js";
+import { initHeroDevice } from "../iso/device.js";
+import { initDemo } from "../iso/demo.js";
+
+initChrome();
+initKeyHints();
+initAccentPicker();
+initScrollSpy();
+initSetupTabs();
+initExpandables();
+initHeroRotor();
+initHeroDevice();
+initDemo();

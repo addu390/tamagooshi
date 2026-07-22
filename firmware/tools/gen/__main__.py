@@ -26,7 +26,7 @@ def _catalog(args):
     _, repo = _paths()
     data = catalog()
     targets = (args if args else
-               [os.path.join(repo, "docs", "js", "gen", "catalog.js"),
+               [os.path.join(repo, "website", "docs", "js", "gen", "catalog.js"),
                 os.path.join(repo, "hub", "console", "js", "catalog.gen.js")])
 
     for out in targets:
@@ -46,9 +46,9 @@ def _sync(args):
     if "--check" in args:
         names = stale(repo)
         if names:
-            raise SystemExit(f"docs wire mirror stale: {', '.join(names)} "
+            raise SystemExit(f"website wire mirror stale: {', '.join(names)} "
                              "(run: python3 -m gen sync)")
-        print("docs wire mirror up to date")
+        print("website wire mirror up to date")
         return
 
     for path in sync(repo):

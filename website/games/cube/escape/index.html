@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crate Escape</title>
+{% include "meta.html" %}
+<link rel="stylesheet" href="../../lib/brand.css">
+<link rel="stylesheet" href="css/escape.css">
+</head>
+<body>
+
+<main class="stage">
+  <header class="hud hud-top">
+    <span id="headline" class="headline">0 COINS &middot; 0M</span>
+  </header>
+
+  <canvas id="view"></canvas>
+
+  <footer class="hud hud-bottom">
+    <span id="readout" class="readout">X +0.00 Y +0.00</span>
+    <span id="status" class="status">PAIR TO PLAY</span>
+  </footer>
+</main>
+
+<script type="module" src="../../lib/brand.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

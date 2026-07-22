@@ -1,0 +1,15 @@
+.brand { display: flex; align-items: center; gap: 11px; font-family: var(--font-display, "Fredoka", sans-serif); font-weight: 600; font-size: 22px; text-transform: uppercase; letter-spacing: 0.02em; }
+.brand .logo { width: 30px; height: 30px; border-radius: var(--radius, 2px); background: var(--text, #18181b); display: grid; place-items: center; color: var(--on-accent, #ffffff); font-size: 18px; }
+.brand .o { display: inline-block; --o-rest: -1.5px; animation: bounceO 1.9s linear both; }
+.brand .o2 { --o-rest: -3px; animation-delay: .16s; }
+@keyframes bounceO {
+  0%   { transform: translateY(0);      animation-timing-function: cubic-bezier(.25,.55,.4,1); }
+  24%  { transform: translateY(-9px);   animation-timing-function: cubic-bezier(.6,0,.75,.35); }
+  46%  { transform: translateY(0);      animation-timing-function: cubic-bezier(.25,.55,.4,1); }
+  62%  { transform: translateY(-4px);   animation-timing-function: cubic-bezier(.6,0,.75,.35); }
+  76%  { transform: translateY(0);      animation-timing-function: cubic-bezier(.25,.55,.4,1); }
+  87%  { transform: translateY(-1.5px); animation-timing-function: cubic-bezier(.6,0,.75,.35); }
+  95%  { transform: translateY(0); }
+  100% { transform: translateY(var(--o-rest)); }
+}
+@media (prefers-reduced-motion: reduce) { .brand .o { animation: none; transform: translateY(var(--o-rest)); } }

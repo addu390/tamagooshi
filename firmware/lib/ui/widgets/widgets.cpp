@@ -415,11 +415,12 @@ void pill(Gfx& g, int cx, int y, const char* text, const lgfx::IFont* font, uint
 }
 
 void heroValue(Gfx& g, int cx, int cy, const char* label, const char* value,
-               const lgfx::IFont* valueFont) {
+               const lgfx::IFont* valueFont, int labelGap) {
   g.c().setFont(valueFont);
   const int vh = g.c().fontHeight();
   if (label && label[0]) {
-    g.str(label, cx, cy - vh / 2 - 6, theme::kDim, typeface::body(), textdatum_t::bottom_center);
+    g.str(label, cx, cy - vh / 2 - labelGap, theme::kDim, typeface::body(),
+          textdatum_t::bottom_center);
   }
   g.str(value, cx, cy, theme::kFg, valueFont, textdatum_t::middle_center);
 }

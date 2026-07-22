@@ -27,6 +27,11 @@ def _frame(topic: str, payload: bytes) -> bytes:
     return struct.pack(">I", len(msg)) + msg
 
 
+def _auth_error(err: BaseException) -> bool:
+    text = str(err).lower()
+    return "insufficient authentication" in text or "insufficient encryption" in text
+
+
 async def discover(timeout: float = 6.0) -> list[dict]:
     found = await BleakScanner.discover(timeout=timeout,
                                         service_uuids=[SERVICE_UUID], return_adv=True)
@@ -72,6 +77,9 @@ class BleTransport(Transport, LineChannel):
 
     def connect(self) -> None:
         self._thread.start()
+        if not (self._address or self._name):
+            self._set_state("idle")
+            return
         self._loop.call_soon_threadsafe(lambda: self._loop.create_task(self._run()))
 
     def device_info(self) -> Optional[dict]:
@@ -129,10 +137,26 @@ class BleTransport(Transport, LineChannel):
                 await step()
                 self._set_state("connected")
                 return
-            except Exception:  # noqa: BLE001
+            except Exception as err:  # noqa: BLE001
+                if _auth_error(err):
+                    await self._decline_pairing()
+                    return
                 log.info("%s; retrying in %.0fs", describe, backoff)
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 30.0)
+
+    async def _decline_pairing(self) -> None:
+        if self._state == "pairing_declined":
+            return
+        self._set_state("pairing_declined")
+        log.warning("pairing was declined; connect again from the dashboard to retry")
+        client = self._client
+        self._client = None
+        if client is not None:
+            try:
+                await client.disconnect()
+            except Exception:  # noqa: BLE001
+                log.debug("disconnect after declined pairing failed", exc_info=True)
 
     async def _attach(self) -> None:
         client = BleakClient(self._address, disconnected_callback=self._on_disconnect)
@@ -149,7 +173,7 @@ class BleTransport(Transport, LineChannel):
 
     def _on_disconnect(self, _client) -> None:
         self._client = None
-        if self._closing:
+        if self._closing or self._state in ("reconnecting", "pairing_declined"):
             return
         log.warning("ble link lost; reconnecting")
         self._set_state("reconnecting")
@@ -171,7 +195,10 @@ class BleTransport(Transport, LineChannel):
                 try:
                     await self._write(INBOUND_UUID, data)
                     break
-                except Exception:  # noqa: BLE001
+                except Exception as err:  # noqa: BLE001
+                    if _auth_error(err):
+                        await self._decline_pairing()
+                        break
                     log.exception("ble write failed; retrying")
                     await asyncio.sleep(1.0)
 
@@ -188,8 +215,11 @@ class BleTransport(Transport, LineChannel):
                 try:
                     await self._write(NUS_RX_UUID, data)
                     break
-                except Exception:  # noqa: BLE001
-                    log.exception("nus write failed; dropping line")
+                except Exception as err:  # noqa: BLE001
+                    if _auth_error(err):
+                        await self._decline_pairing()
+                    else:
+                        log.exception("nus write failed; dropping line")
                     break
 
     async def _write(self, char_uuid: str, data: bytes) -> None:

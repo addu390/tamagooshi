@@ -80,10 +80,7 @@ class BluetoothScreen : public ListScreen {
     }
 
     const std::string name = link.deviceName();
-    if (on && !paired) {
-      g.str("enter on your phone", L.cx, L.bottom - 8, theme::kDim, typeface::micro(),
-            textdatum_t::bottom_center);
-    } else if (!name.empty()) {
+    if (!name.empty()) {
       g.str(name.c_str(), L.cx, L.bottom - 8, theme::kDim, typeface::micro(),
             textdatum_t::bottom_center);
     }

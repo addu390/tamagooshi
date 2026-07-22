@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import logging
 from dataclasses import asdict
 
 from fastapi import APIRouter, HTTPException, Request
@@ -9,9 +11,19 @@ from ...network.transport.factory import resolve_spec, spec_locked, transport_sp
 from ..dependencies import transport
 from ..lifecycle import apply_change
 
+log = logging.getLogger("tamagooshi.api.connection")
+
 router = APIRouter()
 
 SCAN_TIMEOUT = 6.0
+
+
+async def _apply_link_change(request: Request, mutation) -> dict:
+    try:
+        await asyncio.to_thread(transport(request).close)
+    except Exception:  # noqa: BLE001
+        log.exception("failed to close current link before restart")
+    return apply_change(mutation)
 
 
 @router.get("/api/connection")
@@ -28,7 +40,7 @@ async def connection(request: Request):
 
 @router.post("/api/connection/scan")
 async def scan():
-    from ..network.transport.ble import discover
+    from ...network.transport.ble import discover
 
     try:
         devices = await discover(SCAN_TIMEOUT)
@@ -56,14 +68,14 @@ async def put_connection(request: Request):
             saved["device"] = {"name": device.get("name"), "address": device.get("address")}
         save_connection(saved)
 
-    return apply_change(save)
+    return await _apply_link_change(request, save)
 
 
 @router.delete("/api/connection/device")
-async def forget_device():
+async def forget_device(request: Request):
     def forget():
         saved = load_connection()
         saved.pop("device", None)
         save_connection(saved)
 
-    return apply_change(forget)
+    return await _apply_link_change(request, forget)

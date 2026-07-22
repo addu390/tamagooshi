@@ -1,0 +1,18 @@
+@import url("../../common/css/components/brand.css");
+
+.game-brand {
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  z-index: 10;
+}
+
+.game-brand .brand {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.game-brand .brand .logo {
+  background: var(--ink);
+  color: var(--bg);
+}

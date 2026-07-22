@@ -97,7 +97,7 @@ void confirmPrompt(Gfx& g, const Layout& L, const char* title, const char* sub =
 void trend(Gfx& g, int cx, int cy, char dir);
 void pill(Gfx& g, int cx, int y, const char* text, const lgfx::IFont* font, uint16_t color = theme::kFg);
 void heroValue(Gfx& g, int cx, int cy, const char* label, const char* value,
-               const lgfx::IFont* valueFont);
+               const lgfx::IFont* valueFont, int labelGap = 6);
 const lgfx::IFont* heroFont(Gfx& g, const char* value, int maxWidth);
 void toggle(Gfx& g, int rightX, int cy, bool on, uint16_t accent);
 void gauge(Gfx& g, int rightX, int cy, int width, int pct, uint16_t accent);

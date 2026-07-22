@@ -1,7 +1,7 @@
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/logo/dark.svg">
-    <img src="docs/assets/images/logo/light.svg" alt="Tamagooshi" height="34">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/logo/dark.svg">
+    <img src="website/docs/assets/images/logo/light.svg" alt="Tamagooshi" height="34">
   </picture>
 </p>
 
@@ -11,22 +11,22 @@
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/overview/dark.svg">
-    <img src="docs/assets/images/overview/light.svg" alt="Tamagooshi overview" width="920">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/overview/dark.svg">
+    <img src="website/docs/assets/images/overview/light.svg" alt="Tamagooshi overview" width="920">
   </picture>
 </p>
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/rule-dark.svg">
-    <img src="docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/rule-dark.svg">
+    <img src="website/docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
   </picture>
 </p>
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/quickstart-dark.svg">
-    <img src="docs/assets/images/header/quickstart-light.svg" alt="Quick start" height="28">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/quickstart-dark.svg">
+    <img src="website/docs/assets/images/header/quickstart-light.svg" alt="Quick start" height="28">
   </picture>
 </p>
 
@@ -39,15 +39,15 @@ make sim        # desktop simulator, no board needed
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/rule-dark.svg">
-    <img src="docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/rule-dark.svg">
+    <img src="website/docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
   </picture>
 </p>
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/hardware-dark.svg">
-    <img src="docs/assets/images/header/hardware-light.svg" alt="Hardware" height="28">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/hardware-dark.svg">
+    <img src="website/docs/assets/images/header/hardware-light.svg" alt="Hardware" height="28">
   </picture>
 </p>
 
@@ -60,15 +60,15 @@ pio run -e m5stickc-plus -t upload   # or m5stickc-plus-se, m5sticks3
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/rule-dark.svg">
-    <img src="docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/rule-dark.svg">
+    <img src="website/docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
   </picture>
 </p>
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/header/license-dark.svg">
-    <img src="docs/assets/images/header/license-light.svg" alt="License" height="28">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/license-dark.svg">
+    <img src="website/docs/assets/images/header/license-light.svg" alt="License" height="28">
   </picture>
 </p>
 

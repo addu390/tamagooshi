@@ -33,7 +33,7 @@ compile_commands.json
 **/.preview/
 
 node_modules/
-docs/_site/
+website/_site/
 
 notes/
 

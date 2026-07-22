@@ -32,7 +32,7 @@ void BleBearer::begin() {
 
   Preferences prefs;
   if (prefs.begin(kNamespace, true)) {
-    enabled_ = prefs.getUChar("on", 1) != 0;
+    enabled_ = prefs.getUChar("on", 0) != 0;
     prefs.end();
   }
 

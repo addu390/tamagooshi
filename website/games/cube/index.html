@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cube</title>
+{% include "meta.html" %}
+<link rel="stylesheet" href="../lib/brand.css">
+<style>
+  :root {
+    --bg: #0a0910;
+    --ink: #d8d4e2;
+    --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--bg); font-family: var(--mono); }
+  main {
+    height: 100%; display: flex; align-items: center; justify-content: center;
+    gap: 28px; flex-wrap: wrap; padding: 24px;
+  }
+  a.card {
+    display: block; width: 300px; padding: 28px 26px;
+    border: 1px solid; border-radius: 6px; text-decoration: none;
+    letter-spacing: 0.1em; transition: transform 0.15s ease;
+  }
+  a.card:hover { transform: translateY(-3px); }
+  .card h2 { font-size: 17px; margin-bottom: 10px; }
+  .card p { font-size: 12px; line-height: 1.7; }
+  .playground { color: #4af68a; border-color: #1d5c36; background: #020803; }
+  .playground p { color: #6fae88; }
+  .escape { color: #e8c56a; border-color: #77683f; background: #14101c; }
+  .escape p { color: #a8946a; }
+</style>
+</head>
+<body>
+
+<main>
+  <a class="card playground" href="playground/">
+    <h2>PLAYGROUND</h2>
+    <p>Infinite grid, no goal. Tilt the controller to roll the cube in any
+       direction. Use it to check that the gamepad link works.</p>
+  </a>
+  <a class="card escape" href="escape/">
+    <h2>CRATE ESCAPE</h2>
+    <p>Endless run through an old town. Tilt forward to speed up, flick
+       sideways to change lanes, grab coins, dodge crates.</p>
+  </a>
+</main>
+
+<script type="module" src="../lib/brand.js"></script>
+</body>
+</html>
