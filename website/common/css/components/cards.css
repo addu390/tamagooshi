@@ -7,6 +7,12 @@
 .fcard pre { margin: 0 20px 20px; }
 .fcard h3 + p + pre { margin-top: 0; }
 
+.gamegrid { display: flex; flex-wrap: wrap; gap: 16px; margin: 22px 0; }
+.gamegrid .fcard { width: 268px; }
+.gamegrid .fcard img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--border); }
+.gamegrid .fcard h3 { margin: 12px 16px 2px; font-size: 15px; }
+.gamegrid .fcard p { margin: 0 16px 14px; font-size: 12.5px; }
+
 .confmap { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; margin: 18px 0; box-shadow: var(--shadow-card); }
 .confmap-name { padding: 8px 14px; background: var(--code-chrome); border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--code-comment); }
 .confmap-row { display: flex; align-items: baseline; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-soft); transition: background .15s; }

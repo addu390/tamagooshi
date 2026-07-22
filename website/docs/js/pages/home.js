@@ -7,6 +7,7 @@ import { initSetupTabs } from "../../../common/js/components/tabs.js";
 import { initExpandables } from "../../../common/js/components/expandable.js";
 import { initHeroDevice } from "../iso/device.js";
 import { initDemo } from "../iso/demo.js";
+import { initGameMock } from "../iso/game.js";
 
 initChrome();
 initKeyHints();
@@ -17,3 +18,4 @@ initExpandables();
 initHeroRotor();
 initHeroDevice();
 initDemo();
+initGameMock();

@@ -1,4 +1,4 @@
-import { Roller, tiltSign } from "../../core/roller.js";
+import { Roller, tiltSign } from "../../roller.js";
 import { Track } from "./track.js";
 
 export const LANES = 7;

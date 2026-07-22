@@ -1,6 +1,6 @@
 import { Camera, Follower, sub, dot, cross, normOf } from "../../../lib/math3d.js";
 import { tracePath } from "../../../lib/raster.js";
-import { FACES, rollingVerts } from "../../core/roller.js";
+import { FACES, rollingVerts } from "../../roller.js";
 
 const FOV = 1.9;
 const CAM_BACK = 5.4;

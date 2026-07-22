@@ -1,5 +1,5 @@
 import { Camera, Follower, hash2 } from "../../../lib/math3d.js";
-import { boxVerts, rollingVerts } from "../../core/roller.js";
+import { boxVerts, rollingVerts } from "../../roller.js";
 import { C } from "./palette.js";
 import { facades, SIDEWALK_W, MAX_SETBACK, KERB_H } from "./village.js";
 import { facadeQuads, facadeShadow, crateBoxes } from "./buildings.js";

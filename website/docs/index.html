@@ -12,7 +12,7 @@
 <script>
 window.TAMA_PAGE = {
   brand: { href: "#top" },
-  nav: [["#demo", "Demo"], ["#build", "Flash"], ["mixer", "Mixer"], ["shop", "Shop"]],
+  nav: [["#demo", "Demo"], ["#build", "Flash"], ["shop", "Shop"]],
 };
 </script>
 
@@ -61,6 +61,9 @@ window.TAMA_PAGE = {
     <a href="#build">Build &amp; flash</a>
     <h4>Contribute</h4>
     <a href="#development">Development</a>
+    <h4>Side quests</h4>
+    <a href="#mixer">Mixer</a>
+    <a href="#games">Games</a>
   </aside>
 
   <main>
@@ -83,40 +86,7 @@ window.TAMA_PAGE = {
         <a class="confmap-row" href="builder"><code>config builder</code><span>writes the file for you, pick identity, packs and rules, then flash or download</span><em>&rarr;</em></a>
         <a class="confmap-row" href="config"><code>config reference</code><span>every section explained in depth, with live examples to poke at</span><em>&rarr;</em></a>
       </div>
-      <p>Mascots don't have to come from the built-in packs. Any transparent PNG works as a custom mascot, and if you want to design one, the <a href="mixer">mixer</a> builds it from parts.</p>
-      <div class="appmock-wrap">
-        <a class="appmock" href="mixer" aria-label="Open the mixer">
-          <span class="hostmock-bar"><i></i>mixer</span>
-          <span class="mixmock-body">
-            <span class="mixmock-stage">
-              <span class="mixmock-canvas">
-                <span class="mixmock-fig"><i class="mm-eye"></i><i class="mm-eye"></i><i class="mm-mouth"></i></span>
-              </span>
-              <span class="mixmock-frames"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span>
-              <span class="appmock-cta">Download 6-frame</span>
-              <span class="mixmock-files">
-                <span class="mixmock-file"><em>config.yaml</em><i></i><i></i></span>
-                <span class="mixmock-file"><em>directory</em><i></i><i></i></span>
-              </span>
-            </span>
-            <span class="mixmock-form">
-              <span class="mixmock-slot"><b>Body</b><span><i class="on"></i><i></i><i></i><i></i></span></span>
-              <span class="mixmock-slot"><b>Brows</b><span><i></i><i class="on"></i><i></i><i></i></span></span>
-              <span class="mixmock-slot"><b>Hands</b><span><i></i><i></i><i class="on"></i><i></i></span></span>
-              <span class="mixmock-slot"><b>Color</b><span class="mixmock-swatches"><i class="on" style="background:#78a0ea"></i><i style="background:#6dca8a"></i><i style="background:#ff90d9"></i><i style="background:#fdc64f"></i></span></span>
-              <span class="mixmock-slot mixmock-name"><b>Name</b><i></i></span>
-            </span>
-          </span>
-        </a>
-        <div class="appmock-copy">
-          <ul>
-            <li><b>Six expressions.</b> One pick per slot, recolored live, previewed in every device mood.</li>
-            <li><b>Avatar or mascot.</b> Download one frame or all six as one image.</li>
-            <li><b>Config.</b> Save the image next to <code>config.yaml</code>, list it under <code>mascot.custom</code>.</li>
-          </ul>
-          <a class="btn" href="mixer">Open the mixer</a>
-        </div>
-      </div>
+      <p>Mascots don't have to come from the built-in packs. Any transparent PNG works as a custom mascot, and the <a href="#mixer">mixer</a> builds one from parts.</p>
     </section>
 
     <section class="doc" id="build">
@@ -262,6 +232,63 @@ make hub-test              <span class="c"># hub unit tests</span></pre>
               <tr><td><code>POSTHOG_API_KEY</code></td><td>Personal API key for a <code>posthog</code> source.</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc" id="mixer">
+      <h2>Mixer</h2>
+      <p>In-browser mascot generator. Outputs a six-frame image of expressions for <code>mascot.custom</code>.</p>
+      <div class="appmock-wrap">
+        <a class="appmock" href="mixer" aria-label="Open the mixer">
+          <span class="hostmock-bar"><i></i>mixer</span>
+          <span class="mixmock-body">
+            <span class="mixmock-stage">
+              <span class="mixmock-canvas">
+                <span class="mixmock-fig"><i class="mm-eye"></i><i class="mm-eye"></i><i class="mm-mouth"></i></span>
+              </span>
+              <span class="mixmock-frames"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="appmock-cta">Download 6-frame</span>
+              <span class="mixmock-files">
+                <span class="mixmock-file"><em>config.yaml</em><i></i><i></i></span>
+                <span class="mixmock-file"><em>directory</em><i></i><i></i></span>
+              </span>
+            </span>
+            <span class="mixmock-form">
+              <span class="mixmock-slot"><b>Body</b><span><i class="on"></i><i></i><i></i><i></i></span></span>
+              <span class="mixmock-slot"><b>Brows</b><span><i></i><i class="on"></i><i></i><i></i></span></span>
+              <span class="mixmock-slot"><b>Hands</b><span><i></i><i></i><i class="on"></i><i></i></span></span>
+              <span class="mixmock-slot"><b>Color</b><span class="mixmock-swatches"><i class="on" style="background:#78a0ea"></i><i style="background:#6dca8a"></i><i style="background:#ff90d9"></i><i style="background:#fdc64f"></i></span></span>
+              <span class="mixmock-slot mixmock-name"><b>Name</b><i></i></span>
+            </span>
+          </span>
+        </a>
+        <div class="appmock-copy">
+          <ul>
+            <li><b>Six expressions.</b> One pick per slot, recolored live, previewed in every device mood.</li>
+            <li><b>Avatar or mascot.</b> Download one frame or all six as one image.</li>
+            <li><b>Config.</b> Save the image next to <code>config.yaml</code>, list it under <code>mascot.custom</code>.</li>
+          </ul>
+          <a class="btn" href="mixer">Open the mixer</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc" id="games">
+      <h2>Games</h2>
+      <p>Separate from the games that run on-device in firmware. Enable the <code>controller</code> app in the config and the stick pairs as a Bluetooth gamepad.</p>
+      <div class="appmock-wrap">
+        <a class="appmock gamemock" href="games/" aria-label="Open the games">
+          <span class="hostmock-bar"><i></i>games</span>
+          <span class="gamemock-screen"></span>
+        </a>
+        <div class="appmock-copy">
+          <ul>
+            <li><b>The stick is the gamepad.</b> IMU tilt and buttons map to moves.</li>
+            <li><b>IMU tester.</b> Wireframe grid to verify the Bluetooth link before shipping a game.</li>
+            <li><b>Anywhere a gamepad works.</b> Browser games are one example. Anything that reads a BLE gamepad can drive off the stick.</li>
+          </ul>
+          <a class="btn" href="games/">Open the games</a>
         </div>
       </div>
     </section>

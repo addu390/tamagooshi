@@ -1,4 +1,4 @@
-import { Roller, tiltSign } from "../../core/roller.js";
+import { Roller, tiltSign } from "../../roller.js";
 
 const ROLL_DURATION = 0.3;
 

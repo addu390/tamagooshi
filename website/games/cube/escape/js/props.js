@@ -1,7 +1,7 @@
 import { rgbOf } from "../../../lib/color.js";
 import { normOf, sub, dot, cross } from "../../../lib/math3d.js";
 import { tracePath, texPoly } from "../../../lib/raster.js";
-import { FACES } from "../../core/roller.js";
+import { FACES } from "../../roller.js";
 import { LIGHT, HIDDEN, fogT, shadeColor, quadLit, shadePath, UV_TILE } from "./scene.js";
 
 const GOLD_DARK = rgbOf("#5c3c12");

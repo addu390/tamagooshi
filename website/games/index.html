@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamagooshi games</title>
+<meta name="description" content="Browser games driven by the Tamagooshi stick as a Bluetooth gamepad.">
+{% include "head.html" %}
+</head>
+<body>
+
+<script>
+window.TAMA_PAGE = {
+  brand: { href: "/" },
+  nav: [["/", "Home"], ["/#build", "Flash"], ["/shop", "Shop"]],
+};
+</script>
+
+<header class="nav"><div class="wrap nav-inner"></div></header>
+
+<div class="wrap docs single">
+  <main>
+    <section class="doc" id="games">
+      <h2>Browser games</h2>
+      <p>Browser games driven by the stick as a Bluetooth gamepad. Enable the <code>controller</code> app, pair over Bluetooth, and tilt to play.</p>
+      <div class="gamegrid">
+        <a class="fcard" href="cube/playground/">
+          <img src="assets/playground.png" alt="Playground" width="760" height="366" loading="lazy">
+          <h3>Playground</h3>
+          <p>Gamepad testing.</p>
+        </a>
+        <a class="fcard" href="cube/escape/">
+          <img src="assets/escape.png" alt="Crate Escape" width="760" height="366" loading="lazy">
+          <h3>Crate Escape</h3>
+          <p>Endless runner.</p>
+        </a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer><div class="wrap"></div></footer>
+
+<script type="module" src="js/games.js"></script>
+</body>
+</html>
