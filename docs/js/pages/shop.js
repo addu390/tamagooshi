@@ -13,7 +13,7 @@ const BOARDS = [
   { id: "m5stickc-plus-se", name: "M5StickC Plus SE", price: 19, checkout: "",
     url: "https://shop.m5stack.com/products/m5stickc-plus-se-mini-iot-dev-kit-esp32-pico" },
 ];
-const EXTRAS = 10 + 10 + 10;
+const EXTRAS = 10 + 10 + 25;
 const DIY_SHIPPING = 10;
 const fmt = (v) => "$" + (Number.isInteger(v) ? v : v.toFixed(2));
 
