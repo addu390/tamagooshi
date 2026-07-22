@@ -19,9 +19,9 @@
 
     deviceName: "CLAWD",
     deviceColors: {
-      sil: "#221d1a", det: "#c4bcae", grid: "#efece3",
+      sil: "#221d1a", det: "#c4bcae", mark: "#a29a89", grid: "#efece3",
       dimline: "#d8d2c4", dimtext: "#a2988a", call: "#b6ad9e",
-      shell: "#d8d2c6", shade0: [224, 219, 208], bezel: "#e2ddd2",
+      shell: "#cfc8b9", shade0: [190, 183, 168], shade1: [246, 243, 236], bezel: "#d9d3c6",
       well: "#f6f4ec", btnPocket: "#c9c1b1", btnPocketDeep: "#b9b09e",
       btnCap: "#dad4c6", btnCapHi: "#eae5d9",
     },

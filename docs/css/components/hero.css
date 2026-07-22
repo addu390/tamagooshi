@@ -1,5 +1,5 @@
 .hero { border-bottom: 1px solid var(--border); padding: 44px 0 52px; }
-.hero-box { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow-card); overflow: hidden; }
+.hero-box { position: relative; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow-card); overflow: hidden; }
 .hero-inner { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; padding: 48px; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--accent-strong); background: var(--accent-soft); border: 1px solid var(--accent-line); padding: 4px 10px; border-radius: var(--radius); }
 .hero h1 { font-size: 48px; line-height: 1.06; letter-spacing: -0.03em; margin: 18px 0 16px; perspective: 700px; }
@@ -9,6 +9,7 @@
 @media (prefers-reduced-motion: reduce) { .rotor { transition: none; } }
 .hero p.lead { font-size: 18px; color: var(--text-soft); margin: 0 0 28px; max-width: 520px; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-note { position: absolute; left: 48px; bottom: 68px; margin: 0; font-family: var(--mono); font-size: 11px; color: var(--muted); max-width: 300px; }
 .flow-strip { border-top: 1px solid var(--border); background: var(--bg-soft); padding: 12px 22px; font-family: var(--mono); font-size: 13px; color: var(--text-soft); text-align: center; }
 .flow-strip b { color: var(--muted); font-weight: 400; }
 
@@ -16,4 +17,5 @@
   .hero-inner { grid-template-columns: 1fr; gap: 20px; padding: 30px 22px; }
   .hero h1 { font-size: 36px; }
   .device-stage { order: -1; }
+  .hero-note { position: static; margin: 0 22px 14px; max-width: none; }
 }

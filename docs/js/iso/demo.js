@@ -1,4 +1,5 @@
 import { theme as D } from "./device.js";
+import { finishDefs, grain, grainPatch, litScale, luminance, shadow, sheen } from "./finish.js";
 
 export function initDemo() {
   const mount = document.querySelector(".demo-device");
@@ -6,10 +7,10 @@ export function initDemo() {
 
   const PRESET = window.TAMA_PRESET || {};
   const SIL = D.SIL, DET = D.DET, DC = D.colors, GRID = DC.grid;
-  const lit = (t) => `rgb(${DC.shade0.map((v) => Math.round(v + (255 - v) * t)).join(",")})`;
+  const litRgb = (t) => DC.shade0.map((v) => Math.round(v + (255 - v) * t));
+  const lit = (t) => `rgb(${litRgb(t).join(",")})`;
   const SHELL = Object.assign({
-    front: lit(0.85), top: lit(0.55), right: lit(0.3), mascot: lit(0.4),
-    body: DC.shell, bezel: DC.bezel,
+    mascot: lit(0.4), body: DC.shell, bezel: DC.bezel,
   }, PRESET.demoShell || {});
   const FW = 140, FH = 280;
   const dx = 34, dy = -22;
@@ -22,6 +23,7 @@ export function initDemo() {
   const topFace = [[0, 0], [FW, 0], [FW + dx, dy], [dx, dy]];
   const rightFace = [[FW, 0], [FW, FH], [FW + dx, FH + dy], [FW + dx, dy]];
   const DIP = 2.6, obl = Math.hypot(dx, dy);
+  const RIGHT_M = `matrix(0,1,${(dx / obl).toFixed(4)},${(dy / obl).toFixed(4)},${FW},0)`;
   const dipX = -DIP * dx / obl, dipY = -DIP * dy / obl;
   const dipTop = 0.80 * FH + dy;
   const outline = [
@@ -38,21 +40,31 @@ export function initDemo() {
     `<path d="${D.roundedPoly(pts.map(P2), r)}" style="fill:${fill}"${stroke ? ` stroke="${stroke}" stroke-width="${sw}"${dash ? ` stroke-dasharray="4 3"` : ""} vector-effect="non-scaling-stroke"` : ""}/>`;
   const sideSq = (tc, halfT, halfG, r, fill, stroke, sw) =>
     quadPath([S(tc - halfT, 0.5 - halfG), S(tc + halfT, 0.5 - halfG), S(tc + halfT, 0.5 + halfG), S(tc - halfT, 0.5 + halfG)], r, fill, stroke, sw);
+  const sideGrain = (id, tc, halfT, halfG, r) =>
+    `<g transform="${RIGHT_M}">${grainPatch("demo", id, (tc - halfT).toFixed(1),
+      ((0.5 - halfG) * obl).toFixed(1), (halfT * 2).toFixed(1), (halfG * 2 * obl).toFixed(1), r)}</g>`;
 
   const encA = 0.14 * FH, encB = 0.86 * FH, ctrT = 0.50 * FH;
   const encHT = 13, encG = 0.21;
   const pocketT = 19.5, pocketG = 0.26, capT = 14.5, capG = 0.19;
-  const seamLine = (t1, t2) => t2 - t1 < 6 ? "" : `<line x1="${S(t1, 0.5)[0].toFixed(1)}" y1="${S(t1, 0.5)[1].toFixed(1)}" x2="${S(t2, 0.5)[0].toFixed(1)}" y2="${S(t2, 0.5)[1].toFixed(1)}" stroke="${DET}" stroke-width="0.9" stroke-linecap="round"/>`;
+
+  const RIGHT_T0 = 0.26, RIGHT_T1 = 0;
+  const litBtn = litScale((t) => luminance(litRgb(t)), (RIGHT_T0 + RIGHT_T1) / 2, 0.5);
+  const seamLine = (t1, t2) => t2 - t1 < 6 ? "" : `<line x1="${S(t1, 0.5)[0].toFixed(1)}" y1="${S(t1, 0.5)[1].toFixed(1)}" x2="${S(t2, 0.5)[0].toFixed(1)}" y2="${S(t2, 0.5)[1].toFixed(1)}" stroke="${DC.mark}" stroke-width="0.9" stroke-linecap="round"/>`;
 
   const seam =
     seamLine(6, encA - encHT - 3) + seamLine(encA + encHT + 3, ctrT - pocketT - 3)
     + seamLine(ctrT + pocketT + 3, encB - encHT - 3) + seamLine(encB + encHT + 3, FH - 6)
-    + sideSq(encA, encHT, encG, 5, "none", DET, 0.9)
-    + sideSq(encB, encHT, encG, 5, "none", DET, 0.9)
+    + sideSq(encA, encHT, encG, 5, "none", DC.mark, 1.1)
+    + sideSq(encB, encHT, encG, 5, "none", DC.mark, 1.1)
     + `<g id="demoSideBtn" style="cursor:pointer">`
-    + sideSq(ctrT, pocketT, pocketG, 5, DC.btnPocket, SIL, 1)
-    + sideSq(ctrT, pocketT - 2.3, pocketG - 0.036, 4, DC.btnPocketDeep)
-    + `<g id="demoSideCap">` + sideSq(ctrT, capT, capG, 3.5, DC.btnCap, SIL, 1.1) + `</g>`
+    + sideSq(ctrT, pocketT, pocketG, 5, litBtn(DC.btnPocket), SIL, 1)
+    + sideSq(ctrT, pocketT - 2.3, pocketG - 0.036, 4, litBtn(DC.btnPocketDeep))
+    + sideGrain("demoPocketGrain", ctrT, pocketT, pocketG, 5)
+    + `<g id="demoSideCap">`
+    + sideSq(ctrT, capT, capG, 3.5, litBtn(DC.btnCap), SIL, 1.1)
+    + sideGrain("demoCapGrain", ctrT, capT, capG, 3.5)
+    + `</g>`
     + `</g>`
     + sideSq(ctrT - pocketT - 36, 10.5, 0.05, 2, DC.hatSlot)
     + sideSq(ctrT + pocketT + 36, 10.5, 0.05, 2, DC.hatSlot);
@@ -127,18 +139,41 @@ export function initDemo() {
     const ex = x2 - x1, ey = y2 - y1, l = Math.hypot(ex, ey) || 1, t = R / l;
     return `<line x1="${(x1 + ex * t).toFixed(1)}" y1="${(y1 + ey * t).toFixed(1)}" x2="${(x2 - ex * t).toFixed(1)}" y2="${(y2 - ey * t).toFixed(1)}" stroke="${DET}" stroke-width="0.9" stroke-linecap="round"/>`;
   };
+  const topGrain = `<g transform="matrix(1,0,${(-dx / 44).toFixed(4)},${(-dy / 44).toFixed(4)},${dx},${dy})">`
+    + grain("demo", (extra) => `<rect width="${FW}" height="44" ${extra}/>`) + "</g>";
+  const rightGrain = `<g transform="${RIGHT_M}">`
+    + grain("demo", (extra) => `<rect width="${FH}" height="${obl.toFixed(1)}" ${extra}/>`) + "</g>";
+  const frontGrain = grain("demo", (extra) => `<rect width="${FW}" height="${FH}" rx="${R}" ${extra}/>`);
+  const grad = (id, x1, y1, x2, y2, t0, t1) =>
+    `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">
+      <stop offset="0" stop-color="${lit(t0)}"/><stop offset="1" stop-color="${lit(t1)}"/>
+    </linearGradient>`;
+  const faceGrads = `<defs>
+    ${grad("demoFrontG", 0, 0, FW, FH, 1, 0.74)}
+    ${grad("demoTopG", 0, 0, dx, dy, 0.64, 0.34)}
+    ${grad("demoRightG", FW, 0, FW + dx, FH, RIGHT_T0, RIGHT_T1)}
+  </defs>`;
+  const ground = shadow("demo",
+    poly([[0, FH], [FW, FH], [FW + dx, FH + dy], [dx, FH + dy]]));
   const svgInner = `
     ${floor}
+    ${ground}
+    ${finishDefs("demo")}
+    ${faceGrads}
     <clipPath id="demoScr"><rect x="${SCR.x}" y="${SCR.y}" width="${SCR.w}" height="${SCR.h}" rx="6"/></clipPath>
     <clipPath id="demoBody"><path d="${outlineD}"/></clipPath>
     <g class="dev-body">
     <path d="${outlineD}" fill="${SHELL.body}"/>
     <g clip-path="url(#demoBody)">
-    ${quadPath(topFace, R, SHELL.top)}
+    ${quadPath(topFace, R, "url(#demoTopG)")}
+    ${topGrain}
+    ${quadPath(rightFace, R, "url(#demoRightG)")}
+    ${rightGrain}
+    <rect width="${FW}" height="${FH}" rx="${R}" fill="url(#demoFrontG)"/>
+    ${frontGrain}
+    ${sheen("demo", (extra) => `<rect x="${(minx - 4).toFixed(1)}" y="${(miny - 4).toFixed(1)}" width="${(maxx - minx + 8).toFixed(1)}" height="${(maxy - miny + 8).toFixed(1)}" ${extra}/>`)}
     ${hatFeats}
-    ${quadPath(rightFace, R, SHELL.right)}
     ${seam}
-    <rect width="${FW}" height="${FH}" rx="${R}" fill="${SHELL.front}"/>
     </g>
     ${edge(0, 0, FW, 0)}
     ${edge(FW, 0, FW, FH)}

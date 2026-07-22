@@ -1,4 +1,5 @@
 import { rad, project } from "./core.js";
+import { finishDefs, grain, grainPatch, litScale, luminance, shadow, sheen } from "./finish.js";
 import { selectTab } from "../components/tabs.js";
 import { INVADER } from "../components/sprite.js";
 
@@ -13,11 +14,11 @@ const GD = 58;
 let VB = { x: -258, y: -212, w: 520, h: 414 };
 
 const C = Object.assign({
-  sil: "#1b1d23", det: "#b9bec8", grid: "#e9ebf0",
+  sil: "#1b1d23", det: "#a6aab2", mark: "#8f949c", grid: "#e9ebf0",
   dimline: "#c7ccd4", dimtext: "#9298a4", call: "#aeb4be",
-  shell: "#ced3db", shade0: [214, 217, 224], bezel: "#d8dce3",
-  well: "#f4f6f9", btnPocket: "#c3c9d2", btnPocketDeep: "#b4bbc5",
-  btnCap: "#d4d9e0", btnCapHi: "#e4e8ee",
+  shell: "#b6bbc3", shade0: [172, 178, 187], shade1: [238, 241, 246], bezel: "#c4c9d0",
+  well: "#eef0f4", btnPocket: "#aab1bb", btnPocketDeep: "#9ba3ae",
+  btnCap: "#bfc5cd", btnCapHi: "#d5dae0",
   hat: "#3f444c", hatHole: "#14161a", hatSlot: "#2b2f36",
   hatGlass: "#14161c", hatGlassLine: "#4a5160", vent: "#565b64",
 }, PRESET.deviceColors || {});
@@ -58,13 +59,35 @@ function faceNormal(f) {
   return norm(cross(sub(b, a), sub(d, a)));
 }
 
-function shade(nWorld, A, E) {
+function shadeT(nWorld, A, E) {
   const p = project(nWorld, A, E), o = project([0, 0, 0], A, E);
   const nv = norm([p.x - o.x, p.y - o.y, p.depth - o.depth]);
-  const t = Math.max(0.6, Math.min(1, 0.63 + 0.4 * dot(nv, LIGHT)));
-  const c0 = C.shade0, c1 = [255, 255, 255];
-  const c = c0.map((v0, i) => Math.round(v0 + (c1[i] - v0) * ((t - 0.6) / 0.4)));
-  return `rgb(${c[0]},${c[1]},${c[2]})`;
+  return Math.max(0.5, Math.min(1, 0.6 + 0.55 * dot(nv, LIGHT)));
+}
+
+function shadeRgb(t) {
+  const k = Math.max(0, Math.min(1, (t - 0.5) / 0.5));
+  return C.shade0.map((v0, i) => Math.round(v0 + (C.shade1[i] - v0) * k));
+}
+
+const shadeCol = (t) => `rgb(${shadeRgb(t).join(",")})`;
+
+const SIDE_LIGHT = [0, 1, 1, 0, 0.04, 0.18];
+const BTN_GRAD_S = 0.7;
+const BTN_GRAD_T = SIDE_LIGHT[4] - (SIDE_LIGHT[4] + SIDE_LIGHT[5]) * BTN_GRAD_S;
+const FACE_LIGHT = {
+  top: [0, 0, 1, 1, 0.16, 0.12], bottom: [0, 0, 1, 1, 0.16, 0.12],
+  south: SIDE_LIGHT, north: SIDE_LIGHT, east: SIDE_LIGHT, west: SIDE_LIGHT,
+};
+
+function faceFill(f, A, E) {
+  const t = shadeT(faceNormal(f), A, E);
+  const [x1, y1, x2, y2, up, down] = FACE_LIGHT[f.id];
+  return `<linearGradient id="fgrad_${f.id}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">
+      <stop offset="0" stop-color="${shadeCol(t + up)}"/>
+      <stop offset="1" stop-color="${shadeCol(t - down)}"/>
+    </linearGradient>
+    <rect width="${f.w}" height="${f.h}" rx="${CORNER_R}" fill="url(#fgrad_${f.id})"/>`;
 }
 
 function hull2d(pts) {
@@ -199,31 +222,40 @@ const TOP = { o: 4, u: [1, 0, 0], v: [0, 1, 0], feats: (opts) => `
   ${buttonPill(opts && opts.lift)}
   ` };
 
-const SEAM_Y = 0.45 * H;
 const SOUTH = { o: 3, u: [1, 0, 0], v: [0, 0, 1], feats: (opts) => {
   const inset = 0.10 * W, pocket = 10.5, cap = 7.5, cy = H / 2;
   const sl = (opts && opts.sideLift) || { x: 0, y: 0 };
   const ex = inset, bx = W - inset;
   const st = { x: 0.20 * W, w: 0.60 * W, h: 24 };
 
+  const lit = litScale((t) => luminance(shadeRgb(t)), opts.faceT + BTN_GRAD_T, opts.faceT);
+
   const sq = (cx, midY, r, rx, fill, stroke, swd) =>
     `<rect x="${(cx - r).toFixed(1)}" y="${(midY - r).toFixed(1)}" width="${r * 2}" height="${r * 2}" rx="${rx}" fill="${fill}"${stroke ? ` stroke="${stroke}" stroke-width="${swd || 1}" vector-effect="non-scaling-stroke"` : ""}/>`;
+  const sqGrain = (id, cx, midY, r, rx) =>
+    grainPatch("iso", id, (cx - r).toFixed(1), (midY - r).toFixed(1), r * 2, r * 2, rx);
   const slotY = cy - st.h / 2;
   const slot = (cx) => `<rect x="${(cx - 10).toFixed(1)}" y="${(slotY - 1.7).toFixed(1)}" width="20" height="3.4" rx="1.7" fill="${C.hatSlot}"/>`;
-  const seam = (x1, x2) => x2 - x1 < 4 ? "" : `<line x1="${x1.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="${DET}" stroke-width="0.9" vector-effect="non-scaling-stroke"/>`;
+  const seam = (x1, x2) => x2 - x1 < 4 ? "" : `<line x1="${x1.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="${C.mark}" stroke-width="0.9" vector-effect="non-scaling-stroke"/>`;
 
   return `
   ${seam(4, ex - pocket - 2)}${seam(ex + pocket + 2, st.x - 2)}${seam(st.x + st.w + 2, bx - pocket - 2)}${seam(bx + pocket + 2, W - 4)}
-  ${sq(ex, cy, pocket, 3.5, "none", DET, 0.9)}
-  <rect x="${st.x.toFixed(1)}" y="${(cy - st.h / 2).toFixed(1)}" width="${st.w.toFixed(1)}" height="${st.h}" rx="2.5" fill="${C.well}" stroke="${DET}" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
+  ${sq(ex, cy, pocket, 3.5, "none", C.mark, 1.1)}
+  <linearGradient id="wellGrad" x1="0" y1="1" x2="1" y2="0">
+    <stop offset="0" stop-color="color-mix(in srgb, ${C.well} 55%, #fff)"/>
+    <stop offset="1" stop-color="color-mix(in srgb, ${C.well} 96%, #000)"/>
+  </linearGradient>
+  <rect x="${st.x.toFixed(1)}" y="${(cy - st.h / 2).toFixed(1)}" width="${st.w.toFixed(1)}" height="${st.h}" rx="2.5" fill="url(#wellGrad)" stroke="${DET}" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
   <g transform="translate(${(st.x + st.w / 2).toFixed(1)},${cy.toFixed(1)}) scale(1,-1)"><text text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="8.5" font-weight="700" letter-spacing="0.08em" fill="${DIMTEXT}">${T("logoText", "YOUR LOGO")}</text></g>
   ${slot(st.x + st.w / 2 - 33)}${slot(st.x + st.w / 2 + 33)}
   <g class="btn-side" style="cursor:pointer">
-  ${sq(bx, cy, pocket, 3.5, C.btnPocket, SIL, 1)}
-  ${sq(bx, cy, pocket - 1.6, 3, C.btnPocketDeep, null)}
+  ${sq(bx, cy, pocket, 3.5, lit(C.btnPocket), SIL, 1)}
+  ${sq(bx, cy, pocket - 1.6, 3, lit(C.btnPocketDeep), null)}
+  ${sqGrain("sbPocket", bx, cy, pocket, 3.5)}
   <g transform="translate(${sl.x.toFixed(2)},${sl.y.toFixed(2)})">
-  ${sq(bx, cy, cap, 2.5, C.btnCap, SIL, 1.1)}
-  <line x1="${(bx - cap + 2).toFixed(1)}" y1="${(cy - cap + 1.6).toFixed(1)}" x2="${(bx + cap - 2).toFixed(1)}" y2="${(cy - cap + 1.6).toFixed(1)}" stroke="${C.btnCapHi}" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+  ${sq(bx, cy, cap, 2.5, lit(C.btnCap), SIL, 1.1)}
+  ${sqGrain("sbCap", bx, cy, cap, 2.5)}
+  <line x1="${(bx - cap + 2).toFixed(1)}" y1="${(cy - cap + 1.6).toFixed(1)}" x2="${(bx + cap - 2).toFixed(1)}" y2="${(cy - cap + 1.6).toFixed(1)}" stroke="${lit(C.btnCapHi)}" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
   </g>
   </g>`;
 } };
@@ -515,7 +547,7 @@ function dim(a3, b3, out3, label, A, E) {
   <line x1="${pao.x.toFixed(1)}" y1="${pao.y.toFixed(1)}" x2="${pbo.x.toFixed(1)}" y2="${pbo.y.toFixed(1)}" stroke="${DIMLINE}" stroke-width="1" stroke-linecap="round"/>
   <polygon points="${arrow(pao.x, pao.y, dx, dy)}" fill="${DIMLINE}"/>
   <polygon points="${arrow(pbo.x, pbo.y, -dx, -dy)}" fill="${DIMLINE}"/>
-  <text transform="translate(${tx},${ty}) rotate(${ang.toFixed(1)})" text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="11" font-weight="500" letter-spacing="0.02em" fill="${DIMTEXT}">${label}</text>`;
+  <text transform="translate(${tx},${ty}) rotate(${ang.toFixed(1)})" text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10" font-weight="500" letter-spacing="0.02em" fill="${DIMTEXT}">${label}</text>`;
 }
 
 function callout(p3, rise, run, label, sub, A, E, dashed, color) {
@@ -533,7 +565,24 @@ function callout(p3, rise, run, label, sub, A, E, dashed, color) {
     : `<circle cx="${x0.toFixed(1)}" cy="${y0.toFixed(1)}" r="2.4" fill="${mark}"/>`;
   return `<polyline points="${x0.toFixed(1)},${y0.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}" fill="none" stroke="${lead}" stroke-width="1" stroke-linejoin="round"${dash}/>
   ${dot}
-  <text x="${tx.toFixed(1)}" y="${y2.toFixed(1)}" text-anchor="${end}" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10.5" font-weight="700" letter-spacing="0.04em" fill="${txt}">${lines}</text>`;
+  <text x="${tx.toFixed(1)}" y="${y2.toFixed(1)}" text-anchor="${end}" dominant-baseline="central" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="9.5" font-weight="700" letter-spacing="0.04em" fill="${txt}">${lines}</text>`;
+}
+
+function bodyFinish(P) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of P) {
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+  }
+  const x = minX - 6, y = minY - 6, w = maxX - minX + 12, h = maxY - minY + 12;
+  const rect = (extra) =>
+    `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" ${extra}/>`;
+  return finishDefs("iso") + sheen("iso", rect);
+}
+
+function faceGrain(f) {
+  return grain("iso", (extra) =>
+    `<rect width="${f.w}" height="${f.h}" rx="${CORNER_R}" ${extra}/>`);
 }
 
 function render(yawDeg, pitchDeg, opts) {
@@ -550,7 +599,7 @@ function render(yawDeg, pitchDeg, opts) {
   const fills = visible
     .map((f) => ({ f, d: f.idx.reduce((s, i) => s + P[i].depth, 0) / 4 }))
     .sort((m, n) => m.d - n.d)
-    .map(({ f }) => `<g transform="${faceFrame(f.o, f.u, f.v, A, E)}"><rect width="${f.w}" height="${f.h}" rx="${CORNER_R}" fill="${shade(faceNormal(f), A, E)}"/></g>`)
+    .map(({ f }) => `<g transform="${faceFrame(f.o, f.u, f.v, A, E)}">${faceFill(f, A, E)}${faceGrain(f)}</g>`)
     .join("");
 
   opts.lift = zLift(A, E, 5 * (1 - (opts.press || 0)));
@@ -558,6 +607,7 @@ function render(yawDeg, pitchDeg, opts) {
   const feats = visible.map((f) => {
     const spec = FEATURED[f.id];
     if (!spec) return "";
+    opts.faceT = shadeT(faceNormal(f), A, E);
     return `<g transform="${faceFrame(spec.o, spec.u, spec.v, A, E)}">
       <clipPath id="faceClip_${f.id}"><rect width="${f.w}" height="${f.h}" rx="${CORNER_R}"/></clipPath>
       <g clip-path="url(#faceClip_${f.id})">${spec.feats(opts)}</g>
@@ -596,7 +646,8 @@ function render(yawDeg, pitchDeg, opts) {
   const annos = `<g opacity="${alpha.toFixed(3)}">${dims}${calls}</g>`;
   const grid = gridPolys(A, E).map((p) => `<polygon points="${p}"/>`).join("");
 
-  return `<g fill="none" stroke="${GRID}" stroke-width="1">${grid}</g>${shell}<g clip-path="url(#shellClip)">${fills}${feats}</g>${overlay}${interior}${outline}${annos}`;
+  const ground = shadow("iso", [0, 1, 2, 3].map((i) => `${P[i].x.toFixed(1)},${P[i].y.toFixed(1)}`).join(" "));
+  return `<g fill="none" stroke="${GRID}" stroke-width="1">${grid}</g>${ground}${shell}<g clip-path="url(#shellClip)">${fills}${bodyFinish(P)}${feats}</g>${overlay}${interior}${outline}${annos}`;
 }
 
 const CW = 7.3;
@@ -635,8 +686,10 @@ function computeViewBox() {
     if (s.group) CALLOUTS.filter((c) => c.g === s.group).forEach((c) => accLabel(acc, c.p, c.rise, c.run, A, E));
   }
 
-  const PAD = 30;
-  return { x: minx - PAD, y: miny - PAD, w: maxx - minx + 2 * PAD, h: maxy - miny + 2 * PAD };
+  const PAD = 30, ZOOM = 1.14;
+  const w = (maxx - minx + 2 * PAD) / ZOOM, h = (maxy - miny + 2 * PAD) / ZOOM;
+  const cx = (minx + maxx) / 2, cy = (miny + maxy) / 2;
+  return { x: cx - w / 2, y: cy - h / 2, w, h };
 }
 VB = computeViewBox();
 
