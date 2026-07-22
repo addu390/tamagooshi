@@ -4,10 +4,10 @@ from dataclasses import asdict
 
 from fastapi import APIRouter, HTTPException, Request
 
-from ..config.settings import load_connection, save_connection
-from ..network.transport.factory import resolve_spec, spec_locked, transport_spec
-from .deps import transport
-from .lifecycle import apply_change
+from ...config.settings import load_connection, save_connection
+from ...network.transport.factory import resolve_spec, spec_locked, transport_spec
+from ..dependencies import transport
+from ..lifecycle import apply_change
 
 router = APIRouter()
 

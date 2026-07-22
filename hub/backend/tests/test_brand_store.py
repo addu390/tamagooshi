@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from src.config import store
+from src.config import BrandNotFound, BrandService, default_catalog
 
 
 def _write_brand(folder, bid, name):
@@ -28,19 +28,24 @@ def dirs(tmp_path, monkeypatch):
     return user, builtin
 
 
-def test_user_copy_finds_flat_and_folder(dirs):
+@pytest.fixture
+def store(dirs):
+    return BrandService(default_catalog())
+
+
+def test_has_user_copy_finds_flat_and_folder(dirs, store):
     user, _ = dirs
     _write_brand(user, "flat", "FLAT")
     folder = user / "nested"
     folder.mkdir(parents=True)
     (folder / "config.yaml").write_text("brand: {id: nested}", encoding="utf-8")
 
-    assert store.user_copy("flat") == str(user / "flat.yaml")
-    assert store.user_copy("nested") == str(folder)
-    assert store.user_copy("ghost") is None
+    assert store.has_user_copy("flat")
+    assert store.has_user_copy("nested")
+    assert not store.has_user_copy("ghost")
 
 
-def test_builtin_exists(dirs):
+def test_builtin_exists(dirs, store):
     _, builtin = dirs
     _write_brand(builtin, "acme", "ACME")
 
@@ -48,7 +53,7 @@ def test_builtin_exists(dirs):
     assert not store.builtin_exists("ghost")
 
 
-def test_list_brands_marks_overrides(dirs):
+def test_list_brands_marks_overrides(dirs, store):
     user, builtin = dirs
     _write_brand(builtin, "acme", "ACME")
     _write_brand(user, "acme", "EDITED")
@@ -62,7 +67,7 @@ def test_list_brands_marks_overrides(dirs):
     assert brands["custom"]["overrides_builtin"] is False
 
 
-def test_create_brand_clones_template(dirs):
+def test_create_brand_clones_template(dirs, store):
     user, builtin = dirs
     _write_template(builtin)
 
@@ -74,7 +79,7 @@ def test_create_brand_clones_template(dirs):
     assert data["hub"]["sources"] == []
 
 
-def test_create_brand_rejects_bad_input(dirs):
+def test_create_brand_rejects_bad_input(dirs, store):
     user, builtin = dirs
     _write_template(builtin)
     _write_brand(user, "taken", "TAKEN")
@@ -88,7 +93,7 @@ def test_create_brand_rejects_bad_input(dirs):
         store.create_brand("taken", "AGAIN")
 
 
-def test_delete_user_brand_removes_flat_and_folder(dirs):
+def test_delete_user_brand_removes_flat_and_folder(dirs, store):
     user, _ = dirs
     _write_brand(user, "flat", "FLAT")
     folder = user / "nested"
@@ -102,17 +107,17 @@ def test_delete_user_brand_removes_flat_and_folder(dirs):
     assert not folder.exists()
 
 
-def test_delete_user_brand_missing_raises(dirs):
-    with pytest.raises(FileNotFoundError):
+def test_delete_user_brand_missing_raises(dirs, store):
+    with pytest.raises(BrandNotFound):
         store.delete_user_brand("ghost")
 
 
-def test_import_manifest_requires_id(dirs):
+def test_import_manifest_requires_id(dirs, store):
     with pytest.raises(ValueError):
         store.import_manifest({"brand": {"name": "NO ID"}})
 
 
-def test_import_manifest_writes_user_copy(dirs):
+def test_import_manifest_writes_user_copy(dirs, store):
     user, _ = dirs
 
     assert store.import_manifest({"brand": {"id": "acme", "name": "ACME"}}) == "acme"

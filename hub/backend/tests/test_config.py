@@ -1,7 +1,6 @@
 import pytest
-import yaml
 
-from src.config import hub_config_from_manifest, load_config, resolve_brand
+from src.config import BrandNotFound, default_catalog, hub_config_from_manifest, load_config
 from src.services.sources import parse_sources
 from src.services.sources.datadog import DatadogSourceConfig
 from src.services.sources.posthog import PosthogSourceConfig
@@ -24,9 +23,7 @@ def test_parse_sources_unknown_type_raises():
 
 
 def test_gooshi_manifest_maps_to_hub_config():
-    with open(resolve_brand("gooshi"), "r", encoding="utf-8") as fh:
-        data = yaml.safe_load(fh)
-    cfg = hub_config_from_manifest(data)
+    cfg = hub_config_from_manifest(default_catalog().manifest("gooshi"))
 
     assert cfg.device_id == "sim"
     assert cfg.brand.name == "TAMAGOOSHI"
@@ -41,9 +38,7 @@ def test_gooshi_manifest_maps_to_hub_config():
 
 
 def test_demo_manifest_has_demo_hub():
-    with open(resolve_brand("demo"), "r", encoding="utf-8") as fh:
-        data = yaml.safe_load(fh)
-    cfg = hub_config_from_manifest(data)
+    cfg = hub_config_from_manifest(default_catalog().manifest("demo"))
 
     assert cfg.brand.logo_id == "demo"
     assert any(r.mood == "panic" for r in cfg.moods)
@@ -84,8 +79,5 @@ def test_broker_env_overrides_manifest(monkeypatch):
 
 def test_unknown_brand_raises(monkeypatch):
     monkeypatch.delenv("TAMA_BRANDS_DIR", raising=False)
-    try:
-        resolve_brand("does-not-exist")
-        assert False, "expected FileNotFoundError"
-    except FileNotFoundError:
-        pass
+    with pytest.raises(BrandNotFound):
+        default_catalog().manifest("does-not-exist")

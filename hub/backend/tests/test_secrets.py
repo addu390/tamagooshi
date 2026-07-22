@@ -3,7 +3,7 @@ import stat
 
 from src.config.secrets import apply_secrets, delete_secret, load_secrets, set_secret
 from src.config.settings import data_dir
-from src.config import store
+from src.config import BrandService, default_catalog
 
 
 def test_secret_roundtrip(tmp_path, monkeypatch):
@@ -32,6 +32,7 @@ def test_apply_secrets_respects_real_env(tmp_path, monkeypatch):
 
 def test_store_copy_on_write_for_builtin_brand(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
+    store = BrandService(default_catalog())
 
     store.set_source_enabled("demo", 0, False)
 
@@ -44,6 +45,7 @@ def test_store_copy_on_write_for_builtin_brand(tmp_path, monkeypatch):
 
 def test_store_add_and_remove_source(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
+    store = BrandService(default_catalog())
 
     before = len(store.read_manifest("demo")["hub"]["sources"])
     store.add_source("demo", {"type": "demo", "metrics": []})
@@ -55,6 +57,7 @@ def test_store_add_and_remove_source(tmp_path, monkeypatch):
 
 def test_store_update_source(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
+    store = BrandService(default_catalog())
 
     replacement = {"type": "demo", "interval_secs": 9.0,
                    "metrics": [{"key": "swapped", "label": "SWAPPED", "value_start": 1.0}]}

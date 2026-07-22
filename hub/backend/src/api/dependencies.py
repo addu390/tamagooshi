@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import Request
 
 from ..config.models import HubConfig
+from ..config.service import BrandService
 from ..network.transport.base import Transport
 from ..services.flash import Flasher
 from ..services.worker import Worker
@@ -26,3 +27,7 @@ def hub_config(request: Request) -> HubConfig:
 
 def brand_id(request: Request) -> str:
     return request.app.state.config.brand_id
+
+
+def brands(request: Request) -> BrandService:
+    return request.app.state.brands

@@ -5,10 +5,9 @@ import shutil
 
 from fastapi import APIRouter, HTTPException, Request
 
-from ..config import store
-from ..features.buddy.agents.catalog import CATALOG
-from .deps import brand_id, hub_config
-from .lifecycle import apply_change
+from ...features.buddy.agents.catalog import CATALOG
+from ..dependencies import brand_id, brands, hub_config
+from ..lifecycle import apply_change
 
 router = APIRouter()
 
@@ -41,5 +40,5 @@ async def put_agents(request: Request):
     if enabled and default not in enabled:
         raise HTTPException(status_code=400, detail="default agent must be enabled")
 
-    bid = brand_id(request)
-    return apply_change(lambda: store.update_agent(bid, default, enabled))
+    service, bid = brands(request), brand_id(request)
+    return apply_change(lambda: service.update_agent(bid, default, enabled))

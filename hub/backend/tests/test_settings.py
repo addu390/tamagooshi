@@ -1,6 +1,6 @@
 import yaml
 
-from src.config import load_config, resolve_brand
+from src.config import default_catalog, load_config
 from src.config.settings import load_settings, save_settings
 
 
@@ -35,5 +35,6 @@ def test_user_brand_dir_wins(tmp_path, monkeypatch):
     (user_brands / "gooshi.yaml").write_text(
         yaml.safe_dump({"brand": {"id": "gooshi", "name": "CUSTOM"}}), encoding="utf-8"
     )
-    manifest = resolve_brand("gooshi")
-    assert manifest.startswith(str(user_brands))
+    catalog = default_catalog()
+    assert catalog.origin("gooshi") == "user"
+    assert catalog.manifest("gooshi")["brand"]["name"] == "CUSTOM"

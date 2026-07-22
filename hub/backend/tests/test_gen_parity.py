@@ -16,8 +16,9 @@ from gen.emit.mirror import stale  # noqa: E402
 from gen.network.transports import DEFAULT_PROTOCOL, LINKS, PROTOCOLS  # noqa: E402
 from gen.platform.boards import RELEASE_BASE  # noqa: E402
 
-from src.api.flash import RELEASE_PREFIX  # noqa: E402
+from src.api.routes.flash import RELEASE_PREFIX  # noqa: E402
 from src.config import loader  # noqa: E402
+from src.config.sources.fs import manifest_candidates  # noqa: E402
 from src.network.transport.factory import TRANSPORTS  # noqa: E402
 
 
@@ -34,7 +35,7 @@ def test_tz_minutes_parity(value):
 
 @pytest.mark.parametrize("brand_id", ["gooshi", "acme"])
 def test_brand_candidate_parity(brand_id):
-    hub = [os.path.relpath(p, "root") for p in loader.manifest_candidates("root", brand_id)]
+    hub = [os.path.relpath(p, "root") for p in manifest_candidates("root", brand_id)]
     gen = [os.path.relpath(p, "root")
            for p in gen_manifest.manifest_candidates("root", brand_id)]
     assert hub == gen == [os.path.join(brand_id, "config.yaml"), f"{brand_id}.yaml"]

@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from src.api.connection import connection, forget_device, put_connection
+from src.api.routes.connection import connection, forget_device, put_connection
 from src.config.settings import load_connection
 from src.network.transport.base import LinkStatus
 from src.network.transport.factory import transport_spec

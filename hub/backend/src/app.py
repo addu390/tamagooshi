@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from .api import (agents_router, brands_router, config_router, connection_router,
                   events_router, flash_router, mount_ui, rules_router, secrets_router,
                   sources_router, status_router)
-from .config import HubConfig, load_config
+from .config import BrandService, HubConfig, default_catalog, load_config
 from .config.secrets import apply_secrets
 from .features.buddy import create_bridge
 from .network import InboundRegistry, InboundRouter, Publisher
@@ -25,7 +25,8 @@ log = logging.getLogger("tamagooshi.app")
 
 def create_app(config: HubConfig | None = None) -> FastAPI:
     apply_secrets()
-    config = config or load_config()
+    catalog = default_catalog()
+    config = config or load_config(catalog)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -72,6 +73,7 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
 
     app = FastAPI(title="Tamagooshi Hub", version="0.1.0", lifespan=lifespan)
     app.state.config = config
+    app.state.brands = BrandService(catalog)
 
     app.include_router(status_router)
     app.include_router(events_router)

@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from src.api.flash import RELEASE_PREFIX, flash_status, start_flash
+from src.api.routes.flash import RELEASE_PREFIX, flash_status, start_flash
 from src.services.flash import Flasher
 
 IMAGE_URL = RELEASE_PREFIX + "gooshi-m5stickcplus.bin"

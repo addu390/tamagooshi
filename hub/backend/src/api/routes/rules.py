@@ -4,10 +4,9 @@ from typing import get_args
 
 from fastapi import APIRouter, HTTPException, Request
 
-from ..config import store
-from ..model.types import Mood, Op, Severity
-from .deps import brand_id, hub_config
-from .lifecycle import apply_change
+from ...model.types import Mood, Op, Severity
+from ..dependencies import brand_id, brands, hub_config
+from ..lifecycle import apply_change
 
 router = APIRouter()
 
@@ -39,12 +38,12 @@ async def _rule_list(request: Request) -> list:
 @router.put("/api/rules/moods")
 async def put_moods(request: Request):
     moods = await _rule_list(request)
-    bid = brand_id(request)
-    return apply_change(lambda: store.update_rules(bid, moods=moods))
+    service, bid = brands(request), brand_id(request)
+    return apply_change(lambda: service.update_rules(bid, moods=moods))
 
 
 @router.put("/api/rules/alerts")
 async def put_alerts(request: Request):
     alerts = await _rule_list(request)
-    bid = brand_id(request)
-    return apply_change(lambda: store.update_rules(bid, alerts=alerts))
+    service, bid = brands(request), brand_id(request)
+    return apply_change(lambda: service.update_rules(bid, alerts=alerts))

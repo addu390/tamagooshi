@@ -4,13 +4,12 @@ import os
 
 from fastapi import APIRouter, HTTPException, Request
 
-from ..config import store
-from ..services.sources import (
+from ...services.sources import (
     CollectError, build_source, collect_once, parse_sources, provider, providers,
 )
-from ..services.worker import SourceRuntime
-from .deps import brand_id, worker
-from .lifecycle import apply_change
+from ...services.worker import SourceRuntime
+from ..dependencies import brand_id, brands, worker
+from ..lifecycle import apply_change
 
 router = APIRouter()
 
@@ -96,8 +95,8 @@ async def add_source(request: Request):
     config = await request.json()
     _parse(config)
 
-    bid = brand_id(request)
-    return apply_change(lambda: store.add_source(bid, config))
+    service, bid = brands(request), brand_id(request)
+    return apply_change(lambda: service.add_source(bid, config))
 
 
 @router.put("/api/sources/{index}")
@@ -106,16 +105,16 @@ async def edit_source(request: Request, index: int):
     config = await request.json()
     _parse(config)
 
-    bid = brand_id(request)
-    return apply_change(lambda: store.update_source(bid, index, config))
+    service, bid = brands(request), brand_id(request)
+    return apply_change(lambda: service.update_source(bid, index, config))
 
 
 @router.delete("/api/sources/{index}")
 async def remove_source(request: Request, index: int):
     _runtime(request, index)
 
-    bid = brand_id(request)
-    return apply_change(lambda: store.remove_source(bid, index))
+    service, bid = brands(request), brand_id(request)
+    return apply_change(lambda: service.remove_source(bid, index))
 
 
 @router.post("/api/sources/{index}/toggle")
@@ -125,7 +124,7 @@ async def toggle_source(request: Request, index: int):
     enabled = bool(body.get("enabled"))
 
     runtime = worker(request).set_enabled(index, enabled)
-    store.set_source_enabled(brand_id(request), index, enabled)
+    brands(request).set_source_enabled(brand_id(request), index, enabled)
     return _to_json(runtime)
 
 

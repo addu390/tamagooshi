@@ -1,43 +1,13 @@
 from __future__ import annotations
 
 import os
-import sys
 
-import yaml
-
+from ..model import AlertRule, MoodRule
 from ..services.sources import parse_sources
-from .scenes import apply_scene
 from .models import HubConfig
-from .settings import load_settings, user_brands_dir
-
-
-def _builtin_brands_dir() -> str:
-    override = os.environ.get("TAMA_BRANDS_DIR")
-    if override:
-        return override
-    bundled = os.path.join(getattr(sys, "_MEIPASS", ""), "brands")
-    if bundled != "brands" and os.path.isdir(bundled):
-        return bundled
-    here = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(here, "..", "..", "..", "..", "brands"))
-
-
-def brand_dirs() -> list[str]:
-    return [user_brands_dir(), _builtin_brands_dir()]
-
-
-def manifest_candidates(brands_dir: str, brand_id: str) -> list[str]:
-    # Order shared with firmware/tools/gen/manifest.py
-    return [os.path.join(brands_dir, brand_id, "config.yaml"),
-            os.path.join(brands_dir, brand_id + ".yaml")]
-
-
-def resolve_brand(brand_id: str) -> str:
-    for brands in brand_dirs():
-        for candidate in manifest_candidates(brands, brand_id):
-            if os.path.exists(candidate):
-                return candidate
-    raise FileNotFoundError(f"brand '{brand_id}' not found under {brand_dirs()}")
+from .settings import load_settings
+from .source import BrandSource
+from .wiring import default_catalog
 
 
 # Same as firmware/tools/gen/manifest.py tz_minutes
@@ -92,17 +62,32 @@ def hub_config_from_manifest(data: dict, device_id: str = "sim") -> HubConfig:
     return cfg
 
 
-def load_config() -> HubConfig:
-    brand = os.environ.get("TAMA_BRAND") or load_settings().get("brand") or "gooshi"
-    manifest = resolve_brand(brand)
-    with open(manifest, "r", encoding="utf-8") as fh:
-        data = yaml.safe_load(fh) or {}
+def apply_scene(cfg: HubConfig, scenes: dict, scene: str) -> HubConfig:
+    active = scenes.get(scene)
+    if active is None:
+        return cfg
+    if "sources" in active:
+        cfg.sources = parse_sources(active["sources"] or [])
+    if "moods" in active:
+        cfg.moods = [MoodRule.model_validate(m) for m in (active["moods"] or [])]
+    if "alerts" in active:
+        cfg.alerts = [AlertRule.model_validate(a) for a in (active["alerts"] or [])]
+    return cfg
 
-    cfg = hub_config_from_manifest(data, os.environ.get("TAMA_DEVICE_ID", "sim"))
 
-    scene = os.environ.get("TAMA_SCENE") or None
+def active_brand() -> str:
+    return os.environ.get("TAMA_BRAND") or load_settings().get("brand") or "gooshi"
+
+
+def load_config(source: BrandSource | None = None) -> HubConfig:
+    source = source or default_catalog()
+    brand = active_brand()
+    cfg = hub_config_from_manifest(source.manifest(brand),
+                                   os.environ.get("TAMA_DEVICE_ID", "sim"))
+
+    scene = os.environ.get("TAMA_SCENE")
     if scene:
-        cfg = apply_scene(cfg, manifest, scene)
+        cfg = apply_scene(cfg, source.scenes(brand), scene)
 
     env_broker = os.environ.get("TAMA_BROKER")
     if env_broker:

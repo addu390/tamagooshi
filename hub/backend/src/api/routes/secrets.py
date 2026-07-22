@@ -4,8 +4,8 @@ import os
 
 from fastapi import APIRouter, HTTPException, Request
 
-from ..config.secrets import delete_secret, load_secrets, set_secret
-from .deps import hub_config
+from ...config.secrets import delete_secret, load_secrets, set_secret
+from ..dependencies import hub_config
 
 router = APIRouter()
 

@@ -4,7 +4,7 @@ from dataclasses import asdict
 
 from fastapi import APIRouter, Request
 
-from .deps import hub_config
+from ..dependencies import hub_config
 
 router = APIRouter()
 

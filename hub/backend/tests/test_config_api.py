@@ -5,11 +5,15 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from src.api.agents import put_agents
-from src.api.config import config as get_config
-from src.api.config import put_device, put_identity
-from src.api.rules import put_alerts, put_moods
-from src.config import store
+from src.api.routes.agents import put_agents
+from src.api.routes.config import config as get_config
+from src.api.routes.config import put_device, put_identity
+from src.api.routes.rules import put_alerts, put_moods
+from src.config import BrandService, default_catalog
+
+
+def _service():
+    return BrandService(default_catalog())
 
 
 def _request(body=None, active_brand="demo"):
@@ -18,8 +22,8 @@ def _request(body=None, active_brand="demo"):
     async def json_body():
         return json.loads(json.dumps(body))
 
-    return SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(config=config)),
-                           json=json_body)
+    state = SimpleNamespace(config=config, brands=_service())
+    return SimpleNamespace(app=SimpleNamespace(state=state), json=json_body)
 
 
 @pytest.fixture
@@ -39,17 +43,17 @@ def test_put_identity_roundtrip(data_dir):
     result = asyncio.run(put_identity(_request({"name": "ACME", "tagline": "beep"})))
 
     assert result == {"restarting": True}
-    brand = store.read_manifest("demo")["brand"]
+    brand = _service().read_manifest("demo")["brand"]
     assert brand["name"] == "ACME"
     assert brand["tagline"] == "beep"
 
 
 def test_put_device_roundtrip(data_dir):
-    device = store.read_manifest("demo").get("device") or {}
+    device = _service().read_manifest("demo").get("device") or {}
     device["carousel_secs"] = 12
     asyncio.run(put_device(_request(device)))
 
-    assert store.read_manifest("demo")["device"]["carousel_secs"] == 12
+    assert _service().read_manifest("demo")["device"]["carousel_secs"] == 12
 
 
 def test_put_device_rejects_non_object(data_dir):
@@ -63,7 +67,7 @@ def test_put_moods_roundtrip(data_dir):
               "priority": 3}]
     asyncio.run(put_moods(_request(moods)))
 
-    assert store.read_manifest("demo")["hub"]["moods"] == moods
+    assert _service().read_manifest("demo")["hub"]["moods"] == moods
 
 
 def test_put_alerts_invalid_rule_400(data_dir):
@@ -83,7 +87,7 @@ def test_put_rules_rejects_non_list(data_dir):
 def test_put_agents_roundtrip(data_dir):
     asyncio.run(put_agents(_request({"default": "claude", "enabled": ["claude"]})))
 
-    agent = store.read_manifest("demo")["hub"]["agent"]
+    agent = _service().read_manifest("demo")["hub"]["agent"]
     assert agent == {"default": "claude", "enabled": ["claude"]}
 
 
