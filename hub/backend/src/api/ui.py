@@ -26,7 +26,7 @@ def _ui_dir() -> str | None:
 
 def _tokens_path(ui_dir: str) -> str | None:
     for candidate in (os.path.join(ui_dir, "tokens.css"),
-                      os.path.join(_repo(), "docs", "css", "tokens.css")):
+                      os.path.join(_repo(), "website", "common", "css", "tokens.css")):
         if os.path.isfile(candidate):
             return candidate
     return None

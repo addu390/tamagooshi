@@ -10,7 +10,7 @@ a = Analysis(
     datas=[
         (os.path.join(repo, "brands"), "brands"),
         (os.path.join(repo, "hub", "console"), "ui"),
-        (os.path.join(repo, "docs", "css", "tokens.css"), "ui"),
+        (os.path.join(repo, "website", "common", "css", "tokens.css"), "ui"),
     ],
     hiddenimports=["uvicorn.protocols.http.auto", "uvicorn.protocols.websockets.auto",
                    "uvicorn.lifespan.on"],
