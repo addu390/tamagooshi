@@ -88,8 +88,7 @@ window.TAMA_PAGE = {
           <a class="btn" href="builder?brand=claude">Open the config builder</a>
         </div>
       </div>
-      <pre data-lang="bash">make brand BRAND=claude                              <span class="c"># generate headers into firmware/.gen/current</span>
-cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + flash (pick your board's env)</span></pre>
+      <pre data-lang="bash">cd firmware && TAMA_BRAND=claude pio run -e m5sticks3 -t upload    <span class="c"># build and flash (swap the env for your board)</span></pre>
     </section>
   </main>
 </div>

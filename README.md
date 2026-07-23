@@ -55,7 +55,29 @@ M5Stack StickC Plus, StickC Plus SE, and StickS3. Flash from the browser via the
 
 ```bash
 cd firmware
-pio run -e m5stickc-plus -t upload   # or m5stickc-plus-se, m5sticks3
+TAMA_BRAND=<id> pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-plus-se
+```
+
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/rule-dark.svg">
+    <img src="website/docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+  </picture>
+</p>
+
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/hub-dark.svg">
+    <img src="website/docs/assets/images/header/hub-light.svg" alt="Hub" height="28">
+  </picture>
+</p>
+
+Feeds the device its metrics. Match the brand to what the device is flashed with.
+
+```bash
+pip install -e hub/backend        # once, Python 3.10+
+make hub TAMA_BRAND=<id>          # pairs with your device over BLE
+make hub-test                     # hub unit tests
 ```
 
 <p align="left">

@@ -193,18 +193,21 @@ TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</s
       <p>For working on the project itself. Nothing here is needed for the three setups above.</p>
       <div class="setup">
         <div class="tabbar" role="tablist" aria-label="Development areas">
-          <button class="tab active" data-setup="firmware" role="tab" aria-selected="true">Firmware</button>
+          <button class="tab active" data-setup="sim" role="tab" aria-selected="true">Simulator</button>
+          <button class="tab" data-setup="firmware" role="tab" aria-selected="false">Firmware</button>
           <button class="tab" data-setup="hub" role="tab" aria-selected="false">Hub</button>
         </div>
-        <div class="setup-pane" data-pane="firmware">
-          <p>The firmware is a PlatformIO project under <code>firmware/</code>. The desktop simulator draws the same screen as hardware, so most work needs no board at all.</p>
-          <pre data-lang="bash">make sim BRAND=demo      <span class="c"># simulator, offline</span>
-make sim-live BRAND=demo <span class="c"># simulator against the Docker stack's broker</span></pre>
-          <h3>Build a lean image</h3>
-          <p>The flashed image carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand lists and skip the config partition entirely.</p>
-          <pre data-lang="bash">make brand BRAND=&lt;id&gt;                              <span class="c"># generate headers into firmware/.gen/current</span>
-cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + flash only that brand (pick your board's env)</span></pre>
-          <p>A lean build compiles just its listed content, so nothing is filtered at runtime. Pass <code>DEV=&lt;id&gt;</code> to bake in a developer name.</p>
+        <div class="setup-pane" data-pane="sim">
+          <p>The desktop simulator draws the same screen as hardware, so most work needs no board at all. It builds and runs locally from the PlatformIO project under <code>firmware/</code>.</p>
+          <pre data-lang="bash">make sim TAMA_BRAND=demo      <span class="c"># build and run the simulator, offline</span>
+make sim-live TAMA_BRAND=demo <span class="c"># run it against the Docker stack's broker</span></pre>
+        </div>
+        <div class="setup-pane" data-pane="firmware" hidden>
+          <p>The firmware is a PlatformIO project under <code>firmware/</code>. Set the brand, then build and flash over USB. The build regenerates that brand's headers on its own.</p>
+          <h3>Build and flash locally</h3>
+          <p>The flashed image carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand lists and skip the config partition. Pass <code>TAMA_DEV=&lt;id&gt;</code> to bake in a developer name.</p>
+          <pre data-lang="bash">cd firmware && TAMA_BRAND=&lt;id&gt; pio run -e m5sticks3 -t upload    <span class="c"># build and flash that brand (swap the env for your board)</span>
+make brand TAMA_BRAND=&lt;id&gt;                                     <span class="c"># optional: just generate headers into firmware/.gen/current</span></pre>
           <h3>Build-time environment</h3>
           <table>
             <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
@@ -217,14 +220,16 @@ cd firmware && pio run -e m5stickc-plus -t upload    <span class="c"># build + f
         </div>
         <div class="setup-pane" data-pane="hub" hidden>
           <p>The hub is a Python package under <code>hub/backend</code>, with the console it serves in <code>hub/console</code>. The wire format is defined once per side, in <code>hub/backend/src/wire</code> and <code>firmware/lib/wire</code>.</p>
-          <pre data-lang="bash">pip install -e hub/backend <span class="c"># once, Python 3.10+</span>
-make hub                   <span class="c"># run it bare, pairs over BLE</span>
-make logs                  <span class="c"># tail the Docker stack's hub logs</span>
-make hub-test              <span class="c"># hub unit tests</span></pre>
+          <p>The hub runs a brand too, so match it to what the device is flashed with. Set <code>TAMA_BRAND=&lt;id&gt;</code>, the same variable used everywhere else. It defaults to <code>gooshi</code>.</p>
+          <pre data-lang="bash">pip install -e hub/backend       <span class="c"># once, Python 3.10+</span>
+make hub TAMA_BRAND=&lt;id&gt;          <span class="c"># run it bare, pairs over BLE (defaults to gooshi)</span>
+make logs                        <span class="c"># tail the Docker stack's hub logs</span>
+make hub-test                    <span class="c"># hub unit tests</span></pre>
           <h3>Runtime environment</h3>
           <table>
             <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
             <tbody>
+              <tr><td><code>TAMA_BRAND</code></td><td>Which brand the hub runs (default <code>gooshi</code>). Match it to the device's flashed brand.</td></tr>
               <tr><td><code>TAMA_TRANSPORT</code></td><td>The single <code>link:protocol</code> channel the hub uses to reach the device, e.g. <code>ble:gatt</code> or <code>wifi:mqtt</code>.</td></tr>
               <tr><td><code>TAMA_BROKER</code></td><td>MQTT broker address (default <code>localhost:1883</code>).</td></tr>
               <tr><td><code>TAMA_DEVICE_ID</code></td><td>Device identity for MQTT routing.</td></tr>

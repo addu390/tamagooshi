@@ -5,7 +5,7 @@ Firmware for the M5Stick family (`m5stickc-plus`, `m5stickc-plus-se`, `m5sticks3
 ## Simulator
 
 ```bash
-make sim BRAND=demo DEV=Adesh
+make sim TAMA_BRAND=demo TAMA_DEV=John
 make sim-live   # against a broker
 ```
 
@@ -16,7 +16,7 @@ Keys: Enter/Space is SELECT, arrows are NEXT/PREV, Backspace is BACK, H is HOME.
 ## Build and flash
 
 ```bash
-pio run -e m5stickc-plus -t upload   # or m5stickc-plus-se, m5sticks3
+pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-plus-se
 pio device monitor
 ```
 
@@ -29,7 +29,7 @@ Transports are `link: protocol` pairs (`ble: gatt` is the base; add `wifi: mqtt`
 `TAMA_BRAND` (default `gooshi`) selects `brands/<id>/config.yaml`. The prebuild step generates only that brand's mascots, themes, and games into `.gen/current/`.
 
 ```bash
-TAMA_BRAND=demo pio run -e m5stickc-plus -t upload
+TAMA_BRAND=demo pio run -e m5sticks3 -t upload
 ```
 
 `TAMA_DEV` is optional. When set, the home status bar shows that name.

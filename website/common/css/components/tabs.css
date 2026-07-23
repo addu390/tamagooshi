@@ -9,7 +9,7 @@
 
 .setup { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; margin: 18px 0; box-shadow: var(--shadow-card); }
 .setup-pane { padding: 18px 20px 20px; }
-.setup-pane > p:first-child { margin-top: 0; color: var(--text-soft); font-size: 14px; }
+.setup-pane > p:first-child { margin-top: 0; }
 .setup-pane > :last-child { margin-bottom: 0; }
 
 @media (max-width: 900px) {
