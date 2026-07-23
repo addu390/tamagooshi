@@ -16,6 +16,9 @@ venv/
 .piolibdeps/
 firmware/.gen/
 firmware/include/secrets.h
+firmware/managed_components/
+firmware/sdkconfig.*
+firmware/dependencies.lock
 
 build/
 build-gui/
