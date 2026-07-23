@@ -13,6 +13,18 @@
 .gamegrid .fcard h3 { margin: 12px 16px 2px; font-size: 15px; }
 .gamegrid .fcard p { margin: 0 16px 14px; font-size: 12.5px; }
 
+.catbox { display: grid; grid-template-columns: 1fr 1fr; height: 270px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); margin: 14px 0 24px; }
+.catpane { display: flex; flex-direction: column; min-height: 0; }
+.catpane + .catpane { border-left: 1px solid var(--border); }
+.catpane-h { flex: none; display: flex; align-items: center; gap: 8px; padding: 11px 16px; border-bottom: 1px solid var(--border); background: var(--bg-soft); font-weight: 500; font-size: 14px; }
+.catpane-h .walk-n { color: var(--text); border-color: var(--text); }
+.catlist { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px; }
+.catitem { flex: none; display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
+.catitem code { flex: none; min-width: 82px; font-family: var(--mono); font-size: 12.5px; color: var(--text-soft); }
+.catitem-label { font-size: 13px; color: var(--text-soft); }
+.catitem-sensor { margin-left: auto; display: flex; color: var(--text-soft); }
+.catitem-sensor svg { width: 18px; height: 18px; }
+
 .confmap { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; margin: 18px 0; box-shadow: var(--shadow-card); }
 .confmap-name { padding: 8px 14px; background: var(--code-chrome); border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--code-comment); }
 .confmap-row { display: flex; align-items: baseline; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-soft); transition: background .15s; }

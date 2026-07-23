@@ -61,9 +61,10 @@ window.TAMA_PAGE = {
     <a href="#build">Build &amp; flash</a>
     <h4>Contribute</h4>
     <a href="#development">Development</a>
-    <h4>Side quests</h4>
-    <a href="#mixer">Mixer</a>
-    <a href="#games">Games</a>
+    <h4>Library</h4>
+    <a href="#apps">Apps &amp; games</a>
+    <a href="#gamepad">Gamepad</a>
+    <a href="#mixer">Mascot Mixer</a>
   </aside>
 
   <main>
@@ -191,6 +192,10 @@ TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</s
     <section class="doc" id="development">
       <h2>Development</h2>
       <p>For working on the project itself. Nothing here is needed for the three setups above.</p>
+      <details class="doc-disclosure">
+        <summary>System overview</summary>
+        <img class="doc-figure" src="docs/assets/images/overview/light.svg" alt="System overview: metric sources, hub, and device" loading="lazy">
+      </details>
       <div class="setup">
         <div class="tabbar" role="tablist" aria-label="Development areas">
           <button class="tab active" data-setup="sim" role="tab" aria-selected="true">Simulator</button>
@@ -241,8 +246,42 @@ make hub-test                    <span class="c"># hub unit tests</span></pre>
       </div>
     </section>
 
+    <section class="doc" id="apps">
+      <h2>Apps &amp; games</h2>
+      <p>Apps and games that can run on the device. Configuration: <code>device.apps</code> and <code>device.games</code>. Some games use IMU/mic for inputs.</p>
+      <div class="catbox">
+        <div class="catpane">
+          <div class="catpane-h">Apps <span class="walk-n" data-count="apps"></span></div>
+          <div class="catlist" data-catalog="apps"></div>
+        </div>
+        <div class="catpane">
+          <div class="catpane-h">Games <span class="walk-n" data-count="games"></span></div>
+          <div class="catlist" data-catalog="games"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc" id="gamepad">
+      <h2>Gamepad</h2>
+      <p>Separate from the games that run on-device in firmware. Enable the <code>controller</code> app in the config and the stick pairs as a Bluetooth gamepad.</p>
+      <div class="appmock-wrap">
+        <a class="appmock gamemock" href="games/" aria-label="Open the games">
+          <span class="hostmock-bar"><i></i>games</span>
+          <span class="gamemock-screen"></span>
+        </a>
+        <div class="appmock-copy">
+          <ul>
+            <li><b>The stick is the gamepad.</b> IMU tilt and buttons map to moves.</li>
+            <li><b>IMU tester.</b> Wireframe grid to verify the Bluetooth link before shipping a game.</li>
+            <li><b>Anywhere a gamepad works.</b> Browser games are one example. Anything that reads a BLE gamepad can drive off the stick.</li>
+          </ul>
+          <a class="btn" href="games/">Open the games</a>
+        </div>
+      </div>
+    </section>
+
     <section class="doc" id="mixer">
-      <h2>Mixer</h2>
+      <h2>Mascot Mixer</h2>
       <p>In-browser mascot generator. Outputs a six-frame image of expressions for <code>mascot.custom</code>.</p>
       <div class="appmock-wrap">
         <a class="appmock" href="mixer" aria-label="Open the mixer">
@@ -275,25 +314,6 @@ make hub-test                    <span class="c"># hub unit tests</span></pre>
             <li><b>Config.</b> Save the image next to <code>config.yaml</code>, list it under <code>mascot.custom</code>.</li>
           </ul>
           <a class="btn" href="mixer">Open the mixer</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="doc" id="games">
-      <h2>Games</h2>
-      <p>Separate from the games that run on-device in firmware. Enable the <code>controller</code> app in the config and the stick pairs as a Bluetooth gamepad.</p>
-      <div class="appmock-wrap">
-        <a class="appmock gamemock" href="games/" aria-label="Open the games">
-          <span class="hostmock-bar"><i></i>games</span>
-          <span class="gamemock-screen"></span>
-        </a>
-        <div class="appmock-copy">
-          <ul>
-            <li><b>The stick is the gamepad.</b> IMU tilt and buttons map to moves.</li>
-            <li><b>IMU tester.</b> Wireframe grid to verify the Bluetooth link before shipping a game.</li>
-            <li><b>Anywhere a gamepad works.</b> Browser games are one example. Anything that reads a BLE gamepad can drive off the stick.</li>
-          </ul>
-          <a class="btn" href="games/">Open the games</a>
         </div>
       </div>
     </section>

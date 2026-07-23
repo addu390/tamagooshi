@@ -5,9 +5,11 @@ import { initScrollSpy } from "../../../common/js/components/scrollspy.js";
 import { initHeroRotor } from "../../../common/js/components/rotor.js";
 import { initSetupTabs } from "../../../common/js/components/tabs.js";
 import { initExpandables } from "../../../common/js/components/expandable.js";
+import { initCatalogLists } from "../../../common/js/components/catalog.js";
 import { initHeroDevice } from "../iso/device.js";
 import { initDemo } from "../iso/demo.js";
 import { initGameMock } from "../iso/game.js";
+import CATALOG from "../gen/catalog.js";
 
 initChrome();
 initKeyHints();
@@ -19,3 +21,4 @@ initHeroRotor();
 initHeroDevice();
 initDemo();
 initGameMock();
+initCatalogLists(CATALOG);

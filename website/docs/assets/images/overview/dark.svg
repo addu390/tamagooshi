@@ -22,7 +22,7 @@
     .lbl { font-size: 9px; fill: var(--soft); }
     .chip { font-size: 7px; letter-spacing: .08em; fill: var(--muted); text-transform: uppercase; }
     .note { font-size: 8px; fill: var(--muted); }
-    .cap { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11.5px; fill: var(--soft); }
+    .cap { font-size: 11px; fill: var(--soft); }
     .tkey { font-size: 9px; fill: var(--term-dim); }
     .tpath { font-size: 9px; fill: var(--term-bright); }
     .side { font-size: 8px; fill: var(--soft); }
