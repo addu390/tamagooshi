@@ -1,7 +1,7 @@
 SCREEN_W = 135
 SCREEN_H = 240
 
-RELEASE_BASE = "https://github.com/addu390/tamagooshi/releases/latest/download/"
+RELEASE_BASE = "https://gooshi.me/firmware/"
 
 BOARDS = {
     "m5stickc-plus": {

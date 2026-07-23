@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
     paths: [website/**, .github/workflows/website.yml]
+  workflow_run:
+    workflows: [firmware]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -15,6 +18,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -27,6 +31,13 @@ jobs:
         working-directory: website
       - run: npm run build
         working-directory: website
+      - name: Mirror firmware images from the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view --repo ${{ github.repository }} >/dev/null 2>&1; then
+            gh release download --repo ${{ github.repository }} --pattern '*.bin' --dir website/_site/firmware
+          fi
       - uses: actions/upload-pages-artifact@v5
         with:
           path: website/_site

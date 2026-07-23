@@ -9,7 +9,7 @@ from ...services import flash
 from ..dependencies import flasher
 
 # Same as RELEASE_BASE in firmware/tools/gen/platform/boards.py
-RELEASE_PREFIX = "https://github.com/addu390/tamagooshi/releases/latest/download/"
+RELEASE_PREFIX = "https://gooshi.me/firmware/"
 
 router = APIRouter()
 
