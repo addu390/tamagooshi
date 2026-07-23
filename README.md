@@ -72,7 +72,7 @@ TAMA_BRAND=<id> pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-pl
   </picture>
 </p>
 
-Feeds the device its metrics. Match the brand to what the device is flashed with.
+Runs on the machine and communicates with the device over BLE. `TAMA_BRAND` selects the brand config.
 
 ```bash
 pip install -e hub/backend        # once, Python 3.10+
