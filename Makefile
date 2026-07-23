@@ -37,6 +37,9 @@ logs:
 hub-sim:
 	cd hub/backend && TAMA_TRANSPORT=wifi:mqtt TAMA_BROKER=$(BROKER) TAMA_DEVICE_ID=sim python -m src
 
+hub-test:
+	cd hub/backend && python -m pytest
+
 sim:
 	cd firmware && pio run -e native_sim -t exec
 

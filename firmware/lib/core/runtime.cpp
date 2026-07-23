@@ -68,9 +68,8 @@ void Runtime::begin() {
   auto wire = [this](Channel& ch, bool isHub) {
     if (!ch.valid()) return;
     IInboundPipeline* pipeline = ch.pipeline;
-    ch.connection->onMessage([this, pipeline](const std::string& t, const std::string& p) {
+    ch.connection->onMessage([pipeline](const std::string& t, const std::string& p) {
       pipeline->onInbound(t, p);
-      renderIfNeeded();
     });
     ch.connection->onConnection([this, pipeline, isHub](bool connected) {
       pipeline->onConnected(connected);
@@ -80,7 +79,6 @@ void Runtime::begin() {
         state_.agent_connected = connected;
       state_.connected = state_.hub_connected || state_.agent_connected;
       nav_.markDirty();
-      renderIfNeeded();
     });
   };
   wire(channels_.hub(), true);

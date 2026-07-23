@@ -47,13 +47,13 @@ void NusEndpoint::onLink(bool connected) {
   if (connectionHandler_) connectionHandler_(false);
 }
 
-void NusEndpoint::onWrite(NimBLECharacteristic* chr) {
+void NusEndpoint::onWrite(NimBLECharacteristic* chr, NimBLEConnInfo&) {
   if (chr != rx_chr_) return;
   const std::string value = chr->getValue();
   ingest(reinterpret_cast<const uint8_t*>(value.data()), value.size());
 }
 
-void NusEndpoint::onSubscribe(NimBLECharacteristic* chr, ble_gap_conn_desc*, uint16_t subValue) {
+void NusEndpoint::onSubscribe(NimBLECharacteristic* chr, NimBLEConnInfo&, uint16_t subValue) {
   if (chr != tx_chr_) return;
   const bool wants = subValue != 0;
   if (wants == subscribed_) return;

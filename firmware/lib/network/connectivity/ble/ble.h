@@ -50,9 +50,9 @@ class BleBearer : public IBearer, public ILink, public NimBLEServerCallbacks {
   bool paired() const override { return paired_; }
   void unpair() override;
 
-  void onConnect(NimBLEServer* server, ble_gap_conn_desc* desc) override;
-  void onDisconnect(NimBLEServer* server) override;
-  void onAuthenticationComplete(ble_gap_conn_desc* desc) override;
+  void onConnect(NimBLEServer* server, NimBLEConnInfo& connInfo) override;
+  void onDisconnect(NimBLEServer* server, NimBLEConnInfo& connInfo, int reason) override;
+  void onAuthenticationComplete(NimBLEConnInfo& connInfo) override;
 
  private:
   std::string brand_;

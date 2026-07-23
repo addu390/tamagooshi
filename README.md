@@ -58,6 +58,8 @@ cd firmware
 TAMA_BRAND=<id> pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-plus-se
 ```
 
+`<id>` is a folder under `brands/`, its `config.yaml` defines what the build includes.
+
 <p align="left">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/rule-dark.svg">
@@ -75,7 +77,7 @@ TAMA_BRAND=<id> pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-pl
 Runs on the machine and communicates with the device over BLE. `TAMA_BRAND` selects the brand config.
 
 ```bash
-pip install -e hub/backend        # once, Python 3.10+
+pip install -e "hub/backend[voice,claude,cursor]"   # once, Python 3.10+, extras optional
 make hub TAMA_BRAND=<id>          # pairs with your device over BLE
 make hub-test                     # hub unit tests
 ```

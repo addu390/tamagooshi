@@ -4,8 +4,8 @@
 
 #if TAMA_BOARD_HAS_IR
 
-#include <freertos/FreeRTOS.h>
-#include <freertos/ringbuf.h>
+#include <driver/rmt_rx.h>
+#include <driver/rmt_tx.h>
 
 #include "ir.h"
 
@@ -24,9 +24,20 @@ class M5IrTransceiver : public IIrTransceiver {
   bool fetchLearned(IrFrame& out) override;
 
  private:
+  static bool onRxDone(rmt_channel_handle_t channel, const rmt_rx_done_event_data_t* edata,
+                       void* ctx);
+  void armReceive();
+
+  static constexpr size_t kRxBufSymbols = 128;
+
   int txPin_;
   int rxPin_;
-  RingbufHandle_t rx_ = nullptr;
+  rmt_channel_handle_t tx_ = nullptr;
+  rmt_channel_handle_t rx_ = nullptr;
+  rmt_encoder_handle_t encoder_ = nullptr;
+  rmt_symbol_word_t rxBuf_[kRxBufSymbols] = {};
+  volatile size_t rxCount_ = 0;
+  volatile bool rxDone_ = false;
   bool learning_ = false;
 };
 

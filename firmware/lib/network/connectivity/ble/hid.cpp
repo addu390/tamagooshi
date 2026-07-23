@@ -54,12 +54,12 @@ uint16_t GamepadEndpoint::appearance() const { return kGamepadAppearance; }
 
 void GamepadEndpoint::setup(BleBearer&, NimBLEServer* nim) {
   hid_ = new NimBLEHIDDevice(nim);
-  hid_->manufacturer(manufacturer_);
-  hid_->pnp(kUsbSig, kVendorId, kProductId, kProductVersion);
-  hid_->hidInfo(0x00, 0x01);
-  hid_->reportMap(const_cast<uint8_t*>(kReportMap), sizeof(kReportMap));
+  hid_->setManufacturer(manufacturer_);
+  hid_->setPnp(kUsbSig, kVendorId, kProductId, kProductVersion);
+  hid_->setHidInfo(0x00, 0x01);
+  hid_->setReportMap(const_cast<uint8_t*>(kReportMap), sizeof(kReportMap));
 
-  input_ = hid_->inputReport(kReportId);
+  input_ = hid_->getInputReport(kReportId);
   input_->setCallbacks(this);
 
   hid_->startServices();
@@ -69,7 +69,7 @@ void GamepadEndpoint::onLink(bool connected) {
   if (!connected) subscribed_ = false;
 }
 
-void GamepadEndpoint::onSubscribe(NimBLECharacteristic* chr, ble_gap_conn_desc*,
+void GamepadEndpoint::onSubscribe(NimBLECharacteristic* chr, NimBLEConnInfo&,
                                   uint16_t subValue) {
   if (chr == input_) subscribed_ = subValue != 0;
 }

@@ -208,9 +208,9 @@ TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</s
 make sim-live TAMA_BRAND=demo <span class="c"># run it against the Docker stack's broker</span></pre>
         </div>
         <div class="setup-pane" data-pane="firmware" hidden>
-          <p>The firmware is a PlatformIO project under <code>firmware/</code>. Set the brand, then build and flash over USB. The build regenerates that brand's headers on its own.</p>
+          <p>The firmware is a PlatformIO project under <code>firmware/</code>. Set the brand, then build and flash over USB. The build regenerates that brand's headers on its own. A brand id is a folder under <code>brands/</code>, and its <code>config.yaml</code> defines what the build includes.</p>
           <h3>Build and flash locally</h3>
-          <p>The flashed image carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand lists and skip the config partition. Pass <code>TAMA_DEV=&lt;id&gt;</code> to bake in a developer name.</p>
+          <p>The pre-built images carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand config lists. Pass <code>TAMA_DEV=&lt;id&gt;</code> to bake in a developer name.</p>
           <pre data-lang="bash">cd firmware && TAMA_BRAND=&lt;id&gt; pio run -e m5sticks3 -t upload    <span class="c"># build and flash that brand (swap the env for your board)</span>
 make brand TAMA_BRAND=&lt;id&gt;                                     <span class="c"># optional: just generate headers into firmware/.gen/current</span></pre>
           <h3>Build-time environment</h3>
@@ -226,7 +226,8 @@ make brand TAMA_BRAND=&lt;id&gt;                                     <span class
         <div class="setup-pane" data-pane="hub" hidden>
           <p>The hub is a Python package under <code>hub/backend</code>, with the console it serves in <code>hub/console</code>. The wire format is defined once per side, in <code>hub/backend/src/wire</code> and <code>firmware/lib/wire</code>.</p>
           <p>The hub runs a brand too, so match it to what the device is flashed with. Set <code>TAMA_BRAND=&lt;id&gt;</code>, the same variable used everywhere else. It defaults to <code>gooshi</code>.</p>
-          <pre data-lang="bash">pip install -e hub/backend       <span class="c"># once, Python 3.10+</span>
+          <p>The extras are optional: <code>voice</code> pulls Whisper for transcription, <code>claude</code> and <code>cursor</code> pull the agent SDKs, <code>dev</code> pulls pytest. The base install works without them.</p>
+          <pre data-lang="bash">pip install -e "hub/backend[voice,claude,cursor]"  <span class="c"># once, Python 3.10+</span>
 make hub TAMA_BRAND=&lt;id&gt;          <span class="c"># run it bare, pairs over BLE (defaults to gooshi)</span>
 make logs                        <span class="c"># tail the Docker stack's hub logs</span>
 make hub-test                    <span class="c"># hub unit tests</span></pre>
@@ -240,6 +241,9 @@ make hub-test                    <span class="c"># hub unit tests</span></pre>
               <tr><td><code>TAMA_DEVICE_ID</code></td><td>Device identity for MQTT routing.</td></tr>
               <tr><td><code>DATADOG_API_KEY</code> / <code>DATADOG_APP_KEY</code></td><td>Credentials for a <code>datadog</code> source.</td></tr>
               <tr><td><code>POSTHOG_API_KEY</code></td><td>Personal API key for a <code>posthog</code> source.</td></tr>
+              <tr><td><code>CURSOR_API_KEY</code></td><td>Required by the <code>cursor</code> voice agent. The <code>claude</code> agent uses the local <code>claude</code> CLI login instead.</td></tr>
+              <tr><td><code>TAMA_AGENT_CWD</code></td><td>Directory the voice agents run in (defaults to the hub's working directory).</td></tr>
+              <tr><td><code>TAMA_CURSOR_MODEL</code> / <code>TAMA_CLAUDE_MODEL</code></td><td>Model overrides for the voice agents.</td></tr>
             </tbody>
           </table>
         </div>

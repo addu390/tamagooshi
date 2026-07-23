@@ -35,8 +35,8 @@ class HubEndpoint : public ITransport, public IBleService, public NimBLECharacte
   bool advertiseUuid() const override { return true; }
   void onLink(bool connected) override;
 
-  void onWrite(NimBLECharacteristic* chr) override;
-  void onSubscribe(NimBLECharacteristic* chr, ble_gap_conn_desc* desc, uint16_t subValue) override;
+  void onWrite(NimBLECharacteristic* chr, NimBLEConnInfo& connInfo) override;
+  void onSubscribe(NimBLECharacteristic* chr, NimBLEConnInfo& connInfo, uint16_t subValue) override;
 
  private:
   void ingest(const uint8_t* data, size_t len);

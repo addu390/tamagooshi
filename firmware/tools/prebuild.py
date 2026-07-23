@@ -1,5 +1,7 @@
+import importlib
 import os
 import sys
+from pathlib import Path
 
 Import("env")
 
@@ -9,11 +11,27 @@ brands = os.path.abspath(os.path.join(project, "..", "brands"))
 brand = os.environ.get("TAMA_BRAND", "gooshi")
 out = os.path.join(project, ".gen", "current")
 
+
+def build_python():
+    for entry in sys.path:
+        path = Path(entry)
+        if path.name != "site-packages":
+            continue
+        for candidate in (path.parents[2] / "bin" / "python", path.parents[1] / "Scripts" / "python.exe"):
+            if candidate.exists():
+                return str(candidate)
+    return sys.executable
+
+
 try:
     import PIL  # noqa: F401
     import yaml  # noqa: F401
 except ImportError:
-    env.Execute('"$PYTHONEXE" -m pip install -r "%s"' % os.path.join(tools, "requirements.txt"))
+    env.Execute(
+        '"%s" -m pip --python "%s" install -r "%s"'
+        % (sys.executable, build_python(), os.path.join(tools, "requirements.txt"))
+    )
+    importlib.invalidate_caches()
 
 sys.path.insert(0, tools)
 from gen.manifest import parse_transports

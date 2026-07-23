@@ -29,7 +29,7 @@ class GamepadEndpoint : public IGamepadLink,
   uint16_t appearance() const override;
   void onLink(bool connected) override;
 
-  void onSubscribe(NimBLECharacteristic* chr, ble_gap_conn_desc* desc, uint16_t subValue) override;
+  void onSubscribe(NimBLECharacteristic* chr, NimBLEConnInfo& connInfo, uint16_t subValue) override;
 
  private:
   void push(const GamepadFrame& frame);

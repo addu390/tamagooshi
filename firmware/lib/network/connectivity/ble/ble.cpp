@@ -52,8 +52,8 @@ void BleBearer::begin() {
     if (service->advertiseUuid()) adv->addServiceUUID(service->serviceUuid());
     if (const uint16_t look = service->appearance()) adv->setAppearance(look);
   }
+  adv->enableScanResponse(true);
   adv->setName(name_);
-  adv->setScanResponse(true);
   if (enabled_) NimBLEDevice::startAdvertising();
   started_ = true;
 }
@@ -90,21 +90,21 @@ void BleBearer::unpair() {
   if (central_) NimBLEDevice::getServer()->disconnect(connHandle_);
 }
 
-void BleBearer::onConnect(NimBLEServer*, ble_gap_conn_desc* desc) {
-  connHandle_ = desc->conn_handle;
+void BleBearer::onConnect(NimBLEServer*, NimBLEConnInfo& connInfo) {
+  connHandle_ = connInfo.getConnHandle();
   central_ = true;
   for (IBleService* service : services_) service->onLink(true);
 }
 
-void BleBearer::onDisconnect(NimBLEServer*) {
+void BleBearer::onDisconnect(NimBLEServer*, NimBLEConnInfo&, int) {
   central_ = false;
   paired_ = false;
   for (IBleService* service : services_) service->onLink(false);
   if (enabled_) NimBLEDevice::startAdvertising();
 }
 
-void BleBearer::onAuthenticationComplete(ble_gap_conn_desc* desc) {
-  paired_ = desc->sec_state.encrypted;
+void BleBearer::onAuthenticationComplete(NimBLEConnInfo& connInfo) {
+  paired_ = connInfo.isEncrypted();
 }
 
 }  // namespace tama
