@@ -15,7 +15,6 @@ void NusEndpoint::setup(BleBearer&, NimBLEServer* nim) {
   rx_chr_->setCallbacks(this);
   tx_chr_ = svc->createCharacteristic(nus::kTx, NIMBLE_PROPERTY::NOTIFY);
   tx_chr_->setCallbacks(this);
-  svc->start();
 }
 
 void NusEndpoint::send(const std::string& line) {

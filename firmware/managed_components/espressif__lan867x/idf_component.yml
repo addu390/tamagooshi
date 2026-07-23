@@ -1,0 +1,14 @@
+dependencies:
+  espressif/lan86xx_common:
+    require: public
+  idf: '>=5.3'
+description: LAN867x Ethernet PHY Driver
+repository: git://github.com/espressif/esp-eth-drivers.git
+repository_info:
+  commit_sha: 73b2195a27b6e571b2949ae780aef5bdd266ee0b
+  path: lan867x
+targets:
+- esp32
+- esp32p4
+url: https://github.com/espressif/esp-eth-drivers/tree/master/lan867x
+version: 2.0.0

@@ -1,0 +1,5 @@
+dependencies:
+  ethernet_init:
+    version: '*'
+  idf:
+    version: '>=5.0'

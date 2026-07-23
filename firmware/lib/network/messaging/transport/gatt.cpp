@@ -50,7 +50,6 @@ void HubEndpoint::setup(BleBearer&, NimBLEServer* nim) {
   NimBLECharacteristic* info =
       svc->createCharacteristic(gatt::kInfo, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC);
   info->setValue("{\"id\":\"" + id_ + "\",\"fw\":\"" + fw_ + "\",\"brand\":\"" + brand_ + "\"}");
-  svc->start();
 }
 
 void HubEndpoint::publish(const std::string& topic, const std::string& payload, uint8_t, bool) {

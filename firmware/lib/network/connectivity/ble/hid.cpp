@@ -61,8 +61,6 @@ void GamepadEndpoint::setup(BleBearer&, NimBLEServer* nim) {
 
   input_ = hid_->getInputReport(kReportId);
   input_->setCallbacks(this);
-
-  hid_->startServices();
 }
 
 void GamepadEndpoint::onLink(bool connected) {
