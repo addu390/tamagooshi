@@ -55,10 +55,16 @@ BOARDS = {
 def has_ir(board):
     return board["ir_tx_pin"] >= 0 and board["ir_rx_pin"] >= 0
 
+WIFI_BUILDS = False
+
 VARIANTS = [
     {"variant": "gooshi", "transports": "ble:gatt"},
     {"variant": "gooshi-wifi", "transports": "ble:gatt,wifi:mqtt"},
 ]
+
+
+def enabled_variants():
+    return [v for v in VARIANTS if WIFI_BUILDS or "wifi" not in v["transports"]]
 
 
 def macro(board_id):
@@ -82,7 +88,7 @@ def flash_catalog():
 def ci_matrix():
     rows = []
     for bid, b in BOARDS.items():
-        for v in VARIANTS:
+        for v in enabled_variants():
             rows.append({
                 "env": bid,
                 "board": bid,
