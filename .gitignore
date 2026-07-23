@@ -17,6 +17,7 @@ venv/
 firmware/.gen/
 firmware/include/secrets.h
 firmware/managed_components/
+firmware/.dummy/
 firmware/sdkconfig.*
 firmware/dependencies.lock
 
