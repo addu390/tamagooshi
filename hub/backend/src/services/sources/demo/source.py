@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import random
 import time
-from typing import Callable, List
+from collections.abc import Callable
 
 from ....model import MetricUpdate
 from ..base import Emit, Source
@@ -68,13 +68,13 @@ class DemoSource(Source):
         clock: Callable[[], float] | None = None,
     ):
         self._interval = cfg.interval_secs
-        self._states: List[_MetricState] = [_MetricState(m) for m in cfg.metrics]
+        self._states: list[_MetricState] = [_MetricState(m) for m in cfg.metrics]
         self._rng = rng or random.Random()
         self._clock = clock or time.monotonic
         self._start = self._clock()
         self._status: dict[str, dict] = {}
 
-    def tick(self, elapsed: float | None = None) -> List[MetricUpdate]:
+    def tick(self, elapsed: float | None = None) -> list[MetricUpdate]:
         if elapsed is None:
             elapsed = self._clock() - self._start
 

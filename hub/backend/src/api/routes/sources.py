@@ -5,7 +5,12 @@ import os
 from fastapi import APIRouter, HTTPException, Request
 
 from ...services.sources import (
-    CollectError, build_source, collect_once, parse_sources, provider, providers,
+    CollectError,
+    build_source,
+    collect_once,
+    parse_sources,
+    provider,
+    providers,
 )
 from ...services.worker import SourceRuntime
 from ..dependencies import brand_id, brands, worker
@@ -56,7 +61,7 @@ def _runtime(request: Request, index: int) -> SourceRuntime:
 def _parse(config: dict):
     try:
         return parse_sources([config])[0]
-    except Exception as err:  # noqa: BLE001 - reported as a validation failure
+    except Exception as err:
         raise HTTPException(status_code=400, detail=str(err)) from err
 
 
@@ -77,7 +82,7 @@ async def test_source(request: Request):
     cfg = _parse(await request.json())
     try:
         source = build_source(cfg)
-    except Exception as err:  # noqa: BLE001 - reported as a test failure
+    except Exception as err:
         raise HTTPException(status_code=400, detail=str(err)) from err
 
     try:

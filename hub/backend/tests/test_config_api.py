@@ -4,7 +4,6 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
-
 from src.api.routes.agents import put_agents
 from src.api.routes.config import config as get_config
 from src.api.routes.config import put_device, put_identity

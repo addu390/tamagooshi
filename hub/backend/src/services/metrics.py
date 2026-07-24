@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from pydantic import ValidationError
 
@@ -15,21 +14,21 @@ log = logging.getLogger("tamagooshi.pipeline")
 
 
 class Pipeline:
-    def __init__(self, config: HubConfig, publisher: Publisher, bus: Optional[EventBus] = None):
+    def __init__(self, config: HubConfig, publisher: Publisher, bus: EventBus | None = None):
         self._config = config
         self._publisher = publisher
         self._bus = bus
         self._store = MetricStore()
         self._mood = MoodEngine(config.moods, config.default_mood)
         self._alerts = AlertEngine(config.alerts)
-        self._current_mood: Optional[str] = None
+        self._current_mood: str | None = None
 
     @property
     def alerts(self) -> AlertEngine:
         return self._alerts
 
     @property
-    def current_mood(self) -> Optional[str]:
+    def current_mood(self) -> str | None:
         return self._current_mood
 
     def metric_snapshot(self):
@@ -93,7 +92,7 @@ class Pipeline:
             log.info("ack received for %s", ack.page_id)
             self._alerts.acknowledge(ack.page_id)
 
-    def _publish_mood(self, mood: str, reason: Optional[str] = None) -> None:
+    def _publish_mood(self, mood: str, reason: str | None = None) -> None:
         if mood == self._current_mood:
             return
 

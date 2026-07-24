@@ -30,7 +30,7 @@ class PosthogSource(PollingSource):
         self._headers = {"Authorization": f"Bearer {api_key}"}
 
     @classmethod
-    def from_config(cls, cfg: PosthogSourceConfig) -> "PosthogSource":
+    def from_config(cls, cfg: PosthogSourceConfig) -> PosthogSource:
         return cls(cfg, require_env(cfg.api_key_env))
 
     async def fetch(self, client: httpx.AsyncClient, metric: PosthogMetric) -> float:

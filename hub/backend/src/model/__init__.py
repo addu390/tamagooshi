@@ -13,8 +13,8 @@ __all__ = [
     "MetricStore",
     "MetricUpdate",
     "Mood",
-    "MoodRule",
     "MoodEngine",
+    "MoodRule",
     "Op",
     "Severity",
 ]

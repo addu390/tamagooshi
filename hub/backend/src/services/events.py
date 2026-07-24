@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from typing import AsyncIterator, List, Optional
 
 
 @dataclass(frozen=True)
@@ -15,9 +15,9 @@ class Event:
 
 class EventBus:
     def __init__(self, history: int = 50):
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
-        self._queues: List[asyncio.Queue[Event]] = []
-        self._history: List[Event] = []
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._queues: list[asyncio.Queue[Event]] = []
+        self._history: list[Event] = []
         self._max_history = history
 
     def attach(self, loop: asyncio.AbstractEventLoop) -> None:

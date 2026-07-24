@@ -46,7 +46,7 @@ def sprite_header(m, base_dir):
         f"kPalette, kFrames, {idx} }};")
     lines += ["", f"}}  // namespace tama::sprites::{m['id']}", "",
               "namespace tama::characters {",
-              f"inline Character& {m['id']}() {{ static SpriteChar inst(sprites::{m['id']}::kDef);"
-              " return inst; }",
+              (f"inline Character& {m['id']}() {{ static SpriteChar inst(sprites::{m['id']}::kDef);"
+               " return inst; }"),
               "}  // namespace tama::characters", ""]
     return "\n".join(lines)

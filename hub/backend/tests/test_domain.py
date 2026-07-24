@@ -1,6 +1,12 @@
-from src.model import AlertRule, Condition, MoodRule
-from src.model import AlertEngine, MetricStore, MoodEngine
-from src.model import MetricUpdate
+from src.model import (
+    AlertEngine,
+    AlertRule,
+    Condition,
+    MetricStore,
+    MetricUpdate,
+    MoodEngine,
+    MoodRule,
+)
 
 
 def _store(**vals) -> MetricStore:

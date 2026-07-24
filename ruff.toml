@@ -1,2 +1,3 @@
 [lint.per-file-ignores]
 "firmware/tools/prebuild.py" = ["F821", "E402"]
+"hub/backend/tests/test_gen_parity.py" = ["E402"]

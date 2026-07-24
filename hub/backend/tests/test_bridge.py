@@ -2,10 +2,10 @@ import asyncio
 import base64
 import json
 
-from src.wire.codec import adpcm
 from src.features.buddy.agents.base import AgentBackend, AgentStartupError
 from src.features.buddy.bridge import VoiceBridge
 from src.features.buddy.transcriber import Transcriber
+from src.wire.codec import adpcm
 
 
 class FakeChannel:
@@ -177,7 +177,7 @@ def test_startup_error_is_reported_to_device():
 
 def test_unknown_permission_id_is_ignored():
     async def run():
-        bridge, channel, backend = make_bridge()
+        bridge, _, backend = make_bridge()
         await bridge._handle(json.dumps({"cmd": "permission", "id": "req_abc",
                                          "decision": "once"}))
         assert backend.prompts == []

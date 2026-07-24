@@ -27,9 +27,9 @@ try:
     import PIL  # noqa: F401
     import yaml  # noqa: F401
 except ImportError:
+    requirements = os.path.join(tools, "requirements.txt")
     env.Execute(
-        '"%s" -m pip --python "%s" install -r "%s"'
-        % (sys.executable, build_python(), os.path.join(tools, "requirements.txt"))
+        f'"{sys.executable}" -m pip --python "{build_python()}" install -r "{requirements}"'
     )
     importlib.invalidate_caches()
 

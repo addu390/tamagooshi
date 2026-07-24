@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import time as _time
-from typing import Optional
 
 from ..config import BrandConfig
 from ..model import AlertRule, MetricUpdate
-from .transport import MessageHandler, Transport
 from ..wire import protocol, topics
+from .transport import MessageHandler, Transport
 
 
 class Publisher:
@@ -41,7 +40,7 @@ class Publisher:
         body = protocol.TimeSet(epoch=int(_time.time()), tz_offset=tz_offset)
         self.publish_envelope(topics.time(self._device_id), "time.set", body, retain=False)
 
-    def publish_mood(self, state: str, reason: Optional[str] = None) -> None:
+    def publish_mood(self, state: str, reason: str | None = None) -> None:
         body = protocol.MoodSet(state=state, reason=reason)
         self.publish_envelope(topics.mood(self._device_id), "mood.set", body)
 

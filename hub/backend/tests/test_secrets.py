@@ -1,9 +1,9 @@
 import os
 import stat
 
+from src.config import BrandService, default_catalog
 from src.config.secrets import apply_secrets, delete_secret, load_secrets, set_secret
 from src.config.settings import data_dir
-from src.config import BrandService, default_catalog
 
 
 def test_secret_roundtrip(tmp_path, monkeypatch):

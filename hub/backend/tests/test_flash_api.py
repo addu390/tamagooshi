@@ -6,7 +6,6 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
-
 from src.api.routes.flash import RELEASE_PREFIX, flash_status, start_flash
 from src.services.flash import Flasher
 

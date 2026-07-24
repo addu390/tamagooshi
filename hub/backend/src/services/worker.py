@@ -4,7 +4,6 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass
-from typing import List, Optional
 
 from ..config import HubConfig
 from .metrics import Pipeline
@@ -17,10 +16,10 @@ log = logging.getLogger("tamagooshi.worker")
 class SourceRuntime:
     index: int
     config: SourceConfigBase
-    source: Optional[Source] = None
-    task: Optional[asyncio.Task] = None
-    error: Optional[str] = None
-    last_emit: Optional[float] = None
+    source: Source | None = None
+    task: asyncio.Task | None = None
+    error: str | None = None
+    last_emit: float | None = None
 
     @property
     def running(self) -> bool:
@@ -80,10 +79,10 @@ class Worker:
 
         return runtime
 
-    def snapshot(self) -> List[SourceRuntime]:
+    def snapshot(self) -> list[SourceRuntime]:
         return list(self._runtimes)
 
-    def _build(self, runtime: SourceRuntime) -> Optional[Source]:
+    def _build(self, runtime: SourceRuntime) -> Source | None:
         try:
             source = build_source(runtime.config)
             runtime.error = None
@@ -105,7 +104,7 @@ class Worker:
             await runtime.source.run(self._emit_for(runtime))
         except asyncio.CancelledError:
             raise
-        except Exception as exc:  # noqa: BLE001 - surfaced as source status
+        except Exception as exc:
             log.exception("source %d (%s) stopped", runtime.index, runtime.config.type)
             runtime.error = str(exc)
 

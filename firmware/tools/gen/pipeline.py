@@ -1,10 +1,27 @@
 import os
 
 from gen import registry
-from gen.emit.headers import (emit_boards, emit_brand, emit_features, emit_logo, emit_mascots,
-                              emit_portal, emit_roles, emit_themes, emit_typefaces)
-from gen.manifest import (load, parse_transports, resolve_manifest, select_features,
-                          select_mascots, select_options, select_themes, tz_minutes)
+from gen.emit.headers import (
+    emit_boards,
+    emit_brand,
+    emit_features,
+    emit_logo,
+    emit_mascots,
+    emit_portal,
+    emit_roles,
+    emit_themes,
+    emit_typefaces,
+)
+from gen.manifest import (
+    load,
+    parse_transports,
+    resolve_manifest,
+    select_features,
+    select_mascots,
+    select_options,
+    select_themes,
+    tz_minutes,
+)
 from gen.network.transports import transport_macros
 
 

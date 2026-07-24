@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Optional
 
 from ...config.models import AgentConfig
 from ...network.transport.base import LineChannel
-from .bridge import VoiceBridge
 from .agents.registry import create_agent, known_agents
+from .bridge import VoiceBridge
 from .transcriber import WhisperTranscriber
 
 log = logging.getLogger("tamagooshi.buddy")
@@ -15,7 +14,7 @@ log = logging.getLogger("tamagooshi.buddy")
 __all__ = ["VoiceBridge", "create_bridge"]
 
 
-def _lineup(cfg: AgentConfig) -> Optional[tuple[str, list[str]]]:
+def _lineup(cfg: AgentConfig) -> tuple[str, list[str]] | None:
     default = os.getenv("TAMA_AGENT", "").lower() or cfg.default
     if default in ("", "off", "none"):
         return None
@@ -31,7 +30,7 @@ def _lineup(cfg: AgentConfig) -> Optional[tuple[str, list[str]]]:
     return default, enabled
 
 
-def create_bridge(transport: object, cfg: AgentConfig) -> Optional[VoiceBridge]:
+def create_bridge(transport: object, cfg: AgentConfig) -> VoiceBridge | None:
     lineup = _lineup(cfg)
     if lineup is None:
         return None

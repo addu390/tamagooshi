@@ -90,7 +90,7 @@ def _check_id(iid):
 def _insert_entry(path, iid, entry):
     with open(path, "r", encoding="utf-8") as fh:
         text = fh.read()
-    if re.search(rf'^\s*"{iid}":', text, re.M):
+    if re.search(rf'^\s*"{iid}":', text, re.MULTILINE):
         raise SystemExit(f"'{iid}' already registered in {os.path.basename(path)}")
     at = text.rstrip().rfind("\n}")
     with open(path, "w", encoding="utf-8") as fh:

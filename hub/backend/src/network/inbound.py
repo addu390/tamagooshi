@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Dict
 
 from ..wire import protocol
 
@@ -25,7 +25,7 @@ DeviceObserver = Callable[[DeviceInfo], None]
 
 class InboundRegistry:
     def __init__(self, observer: DeviceObserver | None = None):
-        self._devices: Dict[str, DeviceInfo] = {}
+        self._devices: dict[str, DeviceInfo] = {}
         self._observer = observer
 
     def track(self, topic: str, body: dict) -> None:
@@ -41,7 +41,7 @@ class InboundRegistry:
         if fresh and self._observer is not None:
             self._observer(info)
 
-    def snapshot(self) -> Dict[str, dict]:
+    def snapshot(self) -> dict[str, dict]:
         return {
             dev_id: {
                 "device_id": info.device_id,
@@ -56,7 +56,7 @@ class InboundRegistry:
 class InboundRouter:
     def __init__(self, registry: InboundRegistry):
         self._registry = registry
-        self._handlers: Dict[str, EnvelopeHandler] = {}
+        self._handlers: dict[str, EnvelopeHandler] = {}
 
     def on(self, type_: str, handler: EnvelopeHandler) -> None:
         self._handlers[type_] = handler

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 MessageHandler = Callable[[str, str], None]
 LineHandler = Callable[[str], None]
@@ -12,12 +12,12 @@ StateHandler = Callable[["LinkStatus"], None]
 @dataclass(frozen=True)
 class LinkStatus:
     state: str
-    device: Optional[dict] = None
+    device: dict | None = None
 
 
 class Transport(abc.ABC):
     _state: str = "connecting"
-    _state_handler: Optional[StateHandler] = None
+    _state_handler: StateHandler | None = None
 
     @abc.abstractmethod
     def on_message(self, handler: MessageHandler) -> None: ...
@@ -37,7 +37,7 @@ class Transport(abc.ABC):
     def status(self) -> LinkStatus:
         return LinkStatus(state=self._state, device=self.device_info())
 
-    def device_info(self) -> Optional[dict]:
+    def device_info(self) -> dict | None:
         return None
 
     def _set_state(self, state: str) -> None:

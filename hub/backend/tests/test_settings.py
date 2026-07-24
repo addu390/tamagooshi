@@ -1,5 +1,4 @@
 import yaml
-
 from src.config import default_catalog, load_config
 from src.config.settings import load_settings, save_settings
 

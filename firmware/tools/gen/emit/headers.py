@@ -5,7 +5,8 @@ from gen.emit.sprites import sprite_header
 from gen.features.mascots import MASCOTS
 from gen.images import logo_mask
 from gen.manifest import hostname
-from gen.platform.boards import BOARDS, SCREEN_H, SCREEN_W, has_ir, macro as board_macro
+from gen.platform.boards import BOARDS, SCREEN_H, SCREEN_W, has_ir
+from gen.platform.boards import macro as board_macro
 from gen.ui.themes import ROLES as THEME_ROLES
 from gen.ui.typefaces import ROLES as TYPEFACE_ROLES
 
@@ -73,8 +74,8 @@ def emit_features(out_dir, category, enabled):
         lines.append('')
     if rows:
         lines += ['inline constexpr FeatureInfo kGenerated[] = {', *rows, '};',
-                  'inline constexpr int kGeneratedCount = '
-                  'sizeof(kGenerated) / sizeof(kGenerated[0]);', '']
+                  ('inline constexpr int kGeneratedCount = '
+                   'sizeof(kGenerated) / sizeof(kGenerated[0]);'), '']
     else:
         lines += ['inline constexpr const FeatureInfo* kGenerated = nullptr;',
                   'inline constexpr int kGeneratedCount = 0;', '']
@@ -105,7 +106,7 @@ def emit_themes(out_dir, themes):
     rows = []
     for name, spec in themes:
         assert len(spec["roles"]) == len(THEME_ROLES)
-        vals = ", ".join("0x%04X" % v for v in spec["roles"])
+        vals = ", ".join(f"0x{v:04X}" for v in spec["roles"])
         rows.append(f'    {{{cstr(name)}, {vals}}},')
     text = "\n".join(['#pragma once', '', 'const Theme kThemes[] = {', *rows, '};', ''])
     write(os.path.join(out_dir, "themes.gen.h"), text)

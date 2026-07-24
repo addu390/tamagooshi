@@ -10,16 +10,15 @@ import pytest
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "firmware" / "tools"))
 
-from gen import manifest as gen_manifest  # noqa: E402
-from gen.emit import blob as gen_blob  # noqa: E402
-from gen.emit.mirror import stale  # noqa: E402
-from gen.network.transports import DEFAULT_PROTOCOL, LINKS, PROTOCOLS  # noqa: E402
-from gen.platform.boards import RELEASE_BASE  # noqa: E402
-
-from src.api.routes.flash import RELEASE_PREFIX  # noqa: E402
-from src.config import loader  # noqa: E402
-from src.config.sources.fs import manifest_candidates  # noqa: E402
-from src.network.transport.factory import TRANSPORTS  # noqa: E402
+from gen import manifest as gen_manifest
+from gen.emit import blob as gen_blob
+from gen.emit.mirror import stale
+from gen.network.transports import DEFAULT_PROTOCOL, LINKS, PROTOCOLS
+from gen.platform.boards import RELEASE_BASE
+from src.api.routes.flash import RELEASE_PREFIX
+from src.config import loader
+from src.config.sources.fs import manifest_candidates
+from src.network.transport.factory import TRANSPORTS
 
 
 def _catalog():

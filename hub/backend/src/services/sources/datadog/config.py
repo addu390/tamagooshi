@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Literal
+from typing import Literal
 
 from pydantic import Field
 
@@ -17,4 +17,4 @@ class DatadogSourceConfig(SourceConfigBase):
     window_secs: int = 900
     api_key_env: str = "DATADOG_API_KEY"
     app_key_env: str = "DATADOG_APP_KEY"
-    metrics: List[DatadogMetric] = Field(default_factory=list)
+    metrics: list[DatadogMetric] = Field(default_factory=list)

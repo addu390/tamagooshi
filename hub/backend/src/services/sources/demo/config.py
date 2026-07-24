@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -21,10 +21,10 @@ class Keyframe(BaseModel):
 class DemoMetric(MetricSpec):
     value_start: float
     drift: float = 0.0
-    incident: Optional[Incident] = None
-    timeline: Optional[List[Keyframe]] = None
+    incident: Incident | None = None
+    timeline: list[Keyframe] | None = None
 
 
 class DemoSourceConfig(SourceConfigBase):
     type: Literal["demo"] = "demo"
-    metrics: List[DemoMetric] = Field(default_factory=list)
+    metrics: list[DemoMetric] = Field(default_factory=list)

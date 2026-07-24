@@ -1,7 +1,6 @@
 import asyncio
 
 import httpx
-
 from src.services.sources import MetricSpec, PollingSource
 from src.services.sources.demo import DemoSourceConfig
 from src.services.sources.demo.source import DemoSource

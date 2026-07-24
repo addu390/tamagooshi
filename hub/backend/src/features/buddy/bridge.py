@@ -4,7 +4,7 @@ import asyncio
 import json
 import logging
 import threading
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from ...network.transport.base import LineChannel
 from .agents.base import AgentBackend, AgentRunError, AgentStartupError
@@ -36,7 +36,7 @@ class VoiceBridge:
         self._default = default
         self._backends: dict[str, AgentBackend] = {}
         self._assembler = VoiceAssembler()
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
+        self._loop: asyncio.AbstractEventLoop | None = None
         self._submit_lock = asyncio.Lock()
         self._pending: dict[str, tuple[str, str]] = {}
         self._seq = 0
@@ -96,7 +96,7 @@ class VoiceBridge:
 
         try:
             text = await asyncio.to_thread(self._transcriber.transcribe, pcm, SAMPLE_RATE)
-        except Exception:  # noqa: BLE001
+        except Exception:
             log.exception("transcription failed")
             self._send_reply("Transcription failed on the hub, check its logs.", done=True)
             return
@@ -143,7 +143,7 @@ class VoiceBridge:
 
         try:
             backend = self._backend(agent)
-        except Exception:  # noqa: BLE001
+        except Exception:
             log.exception("failed to create %s backend", agent)
             self._send_reply(f"The {agent} backend could not be created, check the hub logs.",
                              done=True)
@@ -169,7 +169,7 @@ class VoiceBridge:
             flush(done=False)
             self._send_reply(f"The run failed: {err}", done=True)
             self._send_snapshot(running=0, msg="run failed")
-        except Exception:  # noqa: BLE001 - never leave the device stuck on "thinking"
+        except Exception:
             log.exception("agent backend crashed")
             flush(done=False)
             self._send_reply("The agent crashed on the hub, check its logs.", done=True)

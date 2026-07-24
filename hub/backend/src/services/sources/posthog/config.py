@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Literal, Optional
+from typing import Literal
 
 from pydantic import Field, model_validator
 
@@ -8,11 +8,11 @@ from ..spec import MetricSpec, SourceConfigBase
 
 
 class PosthogMetric(MetricSpec):
-    query: Optional[str] = None
-    insight: Optional[str] = None
+    query: str | None = None
+    insight: str | None = None
 
     @model_validator(mode="after")
-    def _one_source(self) -> "PosthogMetric":
+    def _one_source(self) -> PosthogMetric:
         if bool(self.query) == bool(self.insight):
             raise ValueError("posthog metric needs exactly one of 'query' or 'insight'")
         return self
@@ -23,4 +23,4 @@ class PosthogSourceConfig(SourceConfigBase):
     host: str = "https://us.posthog.com"
     project_id: str
     api_key_env: str = "POSTHOG_API_KEY"
-    metrics: List[PosthogMetric] = Field(default_factory=list)
+    metrics: list[PosthogMetric] = Field(default_factory=list)

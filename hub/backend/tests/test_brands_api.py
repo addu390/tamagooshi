@@ -5,8 +5,12 @@ from types import SimpleNamespace
 import pytest
 import yaml
 from fastapi import HTTPException
-
-from src.api.routes.brands import brand_manifest, create_brand, delete_brand, export_brand
+from src.api.routes.brands import (
+    brand_manifest,
+    create_brand,
+    delete_brand,
+    export_brand,
+)
 from src.config import BrandService, default_catalog
 
 

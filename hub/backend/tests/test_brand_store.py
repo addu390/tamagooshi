@@ -1,6 +1,5 @@
 import pytest
 import yaml
-
 from src.config import BrandNotFound, BrandService, default_catalog
 
 

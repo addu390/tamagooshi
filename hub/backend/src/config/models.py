@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Optional
-
 from pydantic import BaseModel, Field, SerializeAsAny
 
 from ..model import AlertRule, Mood, MoodRule
@@ -15,16 +13,16 @@ class BrokerConfig(BaseModel):
 
 class AgentConfig(BaseModel):
     default: str = "cursor"
-    enabled: List[str] = Field(default_factory=list)
+    enabled: list[str] = Field(default_factory=list)
 
 
 class BrandConfig(BaseModel):
     name: str = "TAMAGOOSHI"
-    tagline: Optional[str] = None
-    logo_id: Optional[str] = None
-    theme: Optional[str] = None
-    mascot: Optional[str] = None
-    carousel_secs: Optional[int] = None
+    tagline: str | None = None
+    logo_id: str | None = None
+    theme: str | None = None
+    mascot: str | None = None
+    carousel_secs: int | None = None
     tz_offset: int = 0
 
 
@@ -35,6 +33,6 @@ class HubConfig(BaseModel):
     brand: BrandConfig = Field(default_factory=BrandConfig)
     agent: AgentConfig = Field(default_factory=AgentConfig)
     default_mood: Mood = "happy"
-    sources: SerializeAsAny[List[SourceConfigBase]] = Field(default_factory=list)
-    moods: List[MoodRule] = Field(default_factory=list)
-    alerts: List[AlertRule] = Field(default_factory=list)
+    sources: SerializeAsAny[list[SourceConfigBase]] = Field(default_factory=list)
+    moods: list[MoodRule] = Field(default_factory=list)
+    alerts: list[AlertRule] = Field(default_factory=list)

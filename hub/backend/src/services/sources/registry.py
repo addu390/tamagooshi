@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, List
 
 from .base import Source
 from .spec import SourceConfigBase
@@ -16,7 +16,7 @@ class SourceProvider:
     description: str = ""
 
 
-_PROVIDERS: Dict[str, SourceProvider] = {}
+_PROVIDERS: dict[str, SourceProvider] = {}
 
 
 def register(provider: SourceProvider) -> None:
@@ -31,11 +31,11 @@ def provider(type_: str) -> SourceProvider:
         raise ValueError(f"unknown source type: {type_!r} (known: {known})")
 
 
-def providers() -> List[SourceProvider]:
+def providers() -> list[SourceProvider]:
     return [_PROVIDERS[type_] for type_ in sorted(_PROVIDERS)]
 
 
-def parse_sources(raw: List[dict]) -> List[SourceConfigBase]:
+def parse_sources(raw: list[dict]) -> list[SourceConfigBase]:
     return [provider(item.get("type")).config_model.model_validate(item) for item in raw]
 
 

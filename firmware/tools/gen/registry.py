@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 from gen.features.apps import APPS
 from gen.features.games import GAMES

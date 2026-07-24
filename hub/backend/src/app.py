@@ -7,9 +7,19 @@ from dataclasses import asdict
 
 from fastapi import FastAPI
 
-from .api import (agents_router, brands_router, config_router, connection_router,
-                  events_router, flash_router, mount_ui, rules_router, secrets_router,
-                  sources_router, status_router)
+from .api import (
+    agents_router,
+    brands_router,
+    config_router,
+    connection_router,
+    events_router,
+    flash_router,
+    mount_ui,
+    rules_router,
+    secrets_router,
+    sources_router,
+    status_router,
+)
 from .config import BrandService, HubConfig, default_catalog, load_config
 from .config.secrets import apply_secrets
 from .features.buddy import create_bridge

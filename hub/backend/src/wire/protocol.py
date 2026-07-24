@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, ValidationError
 
@@ -14,7 +14,7 @@ PROTOCOL_VERSION = 1
 _CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 
-def ulid(now_ms: Optional[int] = None) -> str:
+def ulid(now_ms: int | None = None) -> str:
     ms = int(time.time() * 1000) if now_ms is None else now_ms
     rand = int.from_bytes(os.urandom(10), "big")
     value = (ms << 80) | rand
@@ -40,28 +40,28 @@ class MetricUpsert(BaseModel):
     key: str
     label: str
     value: str
-    trend: Optional[str] = None
+    trend: str | None = None
     kind: Literal["normal", "star"] = "normal"
-    ts: Optional[int] = None
+    ts: int | None = None
 
 
 class Branding(BaseModel):
     name: str
-    tagline: Optional[str] = None
-    logo_id: Optional[str] = None
+    tagline: str | None = None
+    logo_id: str | None = None
 
 
 class MoodSet(BaseModel):
     state: Mood
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 class PageRaise(BaseModel):
     id: str
     title: str
     severity: Severity = "warning"
-    body: Optional[str] = None
-    source: Optional[str] = None
+    body: str | None = None
+    source: str | None = None
     requires_ack: bool = True
 
 
@@ -70,9 +70,9 @@ class PageRef(BaseModel):
 
 
 class ConfigSet(BaseModel):
-    theme: Optional[str] = None
-    character_id: Optional[str] = None
-    carousel_secs: Optional[int] = None
+    theme: str | None = None
+    character_id: str | None = None
+    carousel_secs: int | None = None
 
 
 class TimeSet(BaseModel):
@@ -85,7 +85,7 @@ class PageAck(BaseModel):
     by: str = "device"
 
 
-def envelope(type_: str, body: BaseModel, src: str = "hub", now_ms: Optional[int] = None) -> str:
+def envelope(type_: str, body: BaseModel, src: str = "hub", now_ms: int | None = None) -> str:
     env = Envelope(
         type=type_,
         id=ulid(now_ms),
@@ -96,7 +96,7 @@ def envelope(type_: str, body: BaseModel, src: str = "hub", now_ms: Optional[int
     return json.dumps(env.model_dump(), separators=(",", ":"))
 
 
-def parse_envelope(payload: str) -> Optional[Envelope]:
+def parse_envelope(payload: str) -> Envelope | None:
     try:
         data = json.loads(payload)
     except (json.JSONDecodeError, TypeError):

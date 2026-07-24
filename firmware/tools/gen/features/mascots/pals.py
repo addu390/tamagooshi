@@ -1,5 +1,15 @@
-from gen.features.mascots.drawing import (INK, auto_outline, blank, ellipse, kawaii_pal,
-                                          kblush, keye, kmouth, mirror, px)
+from gen.features.mascots.drawing import (
+    INK,
+    auto_outline,
+    blank,
+    ellipse,
+    kawaii_pal,
+    kblush,
+    keye,
+    kmouth,
+    mirror,
+    px,
+)
 
 
 def build_kcat(expr, o):

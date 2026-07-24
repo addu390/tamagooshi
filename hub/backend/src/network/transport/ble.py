@@ -4,7 +4,6 @@ import asyncio
 import logging
 import struct
 import threading
-from typing import Optional
 
 from bleak import BleakClient, BleakScanner
 
@@ -45,17 +44,17 @@ async def discover(timeout: float = 6.0) -> list[dict]:
 class BleTransport(Transport, LineChannel):
     QUEUE_LIMIT = 256
 
-    def __init__(self, name: Optional[str] = None, address: Optional[str] = None,
+    def __init__(self, name: str | None = None, address: str | None = None,
                  scan_timeout: float = 12.0):
         self._name = name
         self._address = address
         self._found_name = name
         self._scan_timeout = scan_timeout
-        self._handler: Optional[MessageHandler] = None
-        self._line_handler: Optional[LineHandler] = None
+        self._handler: MessageHandler | None = None
+        self._line_handler: LineHandler | None = None
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._loop.run_forever, daemon=True)
-        self._client: Optional[BleakClient] = None
+        self._client: BleakClient | None = None
         self._queue: asyncio.Queue = asyncio.Queue()
         self._line_queue: asyncio.Queue = asyncio.Queue()
         self._rx = bytearray()
@@ -82,7 +81,7 @@ class BleTransport(Transport, LineChannel):
             return
         self._loop.call_soon_threadsafe(lambda: self._loop.create_task(self._run()))
 
-    def device_info(self) -> Optional[dict]:
+    def device_info(self) -> dict | None:
         if not (self._address or self._found_name):
             return None
         return {"name": self._found_name, "address": self._address}
@@ -94,7 +93,7 @@ class BleTransport(Transport, LineChannel):
                 asyncio.run_coroutine_threadsafe(self._client.disconnect(), self._loop).result(
                     timeout=10
                 )
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("ble disconnect failed")
         self._loop.call_soon_threadsafe(self._loop.stop)
 
@@ -155,7 +154,7 @@ class BleTransport(Transport, LineChannel):
         if client is not None:
             try:
                 await client.disconnect()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.debug("disconnect after declined pairing failed", exc_info=True)
 
     async def _attach(self) -> None:
@@ -195,7 +194,7 @@ class BleTransport(Transport, LineChannel):
                 try:
                     await self._write(INBOUND_UUID, data)
                     break
-                except Exception as err:  # noqa: BLE001
+                except Exception as err:
                     if _auth_error(err):
                         await self._decline_pairing()
                         break
@@ -215,7 +214,7 @@ class BleTransport(Transport, LineChannel):
                 try:
                     await self._write(NUS_RX_UUID, data)
                     break
-                except Exception as err:  # noqa: BLE001
+                except Exception as err:
                     if _auth_error(err):
                         await self._decline_pairing()
                     else:
@@ -253,7 +252,7 @@ class BleTransport(Transport, LineChannel):
 
             try:
                 self._handler(topic, payload)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("inbound handler failed for %s", topic)
 
     def _on_nus_notify(self, _char, data: bytearray) -> None:
@@ -267,5 +266,5 @@ class BleTransport(Transport, LineChannel):
 
             try:
                 self._line_handler(line)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.exception("agent line handler failed")

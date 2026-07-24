@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 
 Mood = Literal["happy", "neutral", "sick", "panic", "celebrate", "sleepy"]
 Severity = Literal["info", "warning", "critical"]
@@ -15,5 +15,5 @@ class MetricUpdate:
     label: str
     value: str
     kind: MetricKind = "normal"
-    trend: Optional[str] = None
-    raw: Optional[float] = None
+    trend: str | None = None
+    raw: float | None = None

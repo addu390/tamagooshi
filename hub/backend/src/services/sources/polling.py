@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import Dict, List
 
 import httpx
 
@@ -27,12 +26,12 @@ class PollingSource(Source):
 
     name = "polling"
 
-    def __init__(self, interval_secs: float, metrics: List[MetricSpec], timeout_secs: float = 10.0):
+    def __init__(self, interval_secs: float, metrics: list[MetricSpec], timeout_secs: float = 10.0):
         self._interval = interval_secs
         self._metrics = metrics
         self._timeout = timeout_secs
-        self._last: Dict[str, float] = {}
-        self._status: Dict[str, dict] = {}
+        self._last: dict[str, float] = {}
+        self._status: dict[str, dict] = {}
 
     async def fetch(self, client: httpx.AsyncClient, metric: MetricSpec) -> float:
         raise NotImplementedError
@@ -50,8 +49,8 @@ class PollingSource(Source):
             raw=value,
         )
 
-    async def poll(self, client: httpx.AsyncClient) -> List[MetricUpdate]:
-        updates: List[MetricUpdate] = []
+    async def poll(self, client: httpx.AsyncClient) -> list[MetricUpdate]:
+        updates: list[MetricUpdate] = []
 
         for metric in self._metrics:
             try:
@@ -67,7 +66,7 @@ class PollingSource(Source):
 
         return updates
 
-    def metric_status(self) -> Dict[str, dict]:
+    def metric_status(self) -> dict[str, dict]:
         return dict(self._status)
 
     async def run(self, emit: Emit) -> None:

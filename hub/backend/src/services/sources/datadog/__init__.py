@@ -10,4 +10,4 @@ register(SourceProvider(
     description="Infrastructure and APM metrics through Datadog timeseries queries.",
 ))
 
-__all__ = ["DatadogMetric", "DatadogSourceConfig", "DatadogSource"]
+__all__ = ["DatadogMetric", "DatadogSource", "DatadogSourceConfig"]

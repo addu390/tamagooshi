@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import threading
-from typing import Optional
 
 from .base import AgentBackend, AgentRunError, AgentStartupError, OnDelta
 
@@ -17,13 +16,13 @@ class ClaudeBackend(AgentBackend):
     thread and bridges the blocking AgentBackend contract onto it.
     """
 
-    def __init__(self, cwd: str, model: Optional[str] = None):
+    def __init__(self, cwd: str, model: str | None = None):
         self._cwd = cwd
         self._model = model
         self._client = None
         self._lock = threading.Lock()
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
-        self._thread: Optional[threading.Thread] = None
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._thread: threading.Thread | None = None
 
     def send(self, text: str, on_delta: OnDelta) -> str:
         with self._lock:
@@ -60,7 +59,7 @@ class ClaudeBackend(AgentBackend):
         except CLINotFoundError as err:
             self._client = None
             raise AgentStartupError(str(err)) from err
-        except Exception as err:  # noqa: BLE001 - SDK raises on spawn/auth problems
+        except Exception as err:
             self._client = None
             raise AgentStartupError(str(err)) from err
 
@@ -72,7 +71,7 @@ class ClaudeBackend(AgentBackend):
                         if isinstance(block, TextBlock):
                             parts.append(block.text)
                             on_delta(block.text)
-        except Exception as err:  # noqa: BLE001
+        except Exception as err:
             raise AgentRunError(str(err)) from err
         return "".join(parts)
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 import paho.mqtt.client as mqtt
 
@@ -16,7 +15,7 @@ class MqttTransport(Transport):
         self._host = host
         self._port = port
         self._device_id = device_id
-        self._handler: Optional[MessageHandler] = None
+        self._handler: MessageHandler | None = None
         self._client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2,
             client_id=client_id,
@@ -63,5 +62,5 @@ class MqttTransport(Transport):
             return
         try:
             self._handler(msg.topic, msg.payload.decode("utf-8", "replace"))
-        except Exception:  # noqa: BLE001
+        except Exception:
             log.exception("inbound handler failed for %s", msg.topic)

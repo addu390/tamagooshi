@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Callable, Dict
+from collections.abc import Callable
 
 from .base import AgentBackend
 from .catalog import AGENTS
@@ -25,7 +25,7 @@ def _make_claude() -> AgentBackend:
     )
 
 
-_FACTORIES: Dict[str, Callable[[], AgentBackend]] = {
+_FACTORIES: dict[str, Callable[[], AgentBackend]] = {
     "cursor": _make_cursor,
     "claude": _make_claude,
 }

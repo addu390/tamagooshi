@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import os
 import signal
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from fastapi import HTTPException
 from pydantic import ValidationError
@@ -12,7 +12,7 @@ from pydantic import ValidationError
 class RestartController:
     def __init__(self) -> None:
         self._pending = False
-        self._stop: Optional[Callable[[], None]] = None
+        self._stop: Callable[[], None] | None = None
 
     def bind(self, stop: Callable[[], None]) -> None:
         self._stop = stop

@@ -1,9 +1,8 @@
 import pytest
-
+from src.config.models import AgentConfig
 from src.features.buddy import create_bridge
 from src.features.buddy.agents.catalog import AGENTS
 from src.features.buddy.agents.registry import _FACTORIES, create_agent, known_agents
-from src.config.models import AgentConfig
 from src.network.transport.base import LineChannel
 
 
@@ -25,7 +24,7 @@ class FakeBackend:
 
 @pytest.fixture
 def stub_backend(monkeypatch):
-    import src.features.buddy as buddy
+    from src.features import buddy
 
     monkeypatch.setattr(buddy, "create_agent", lambda kind: FakeBackend())
 

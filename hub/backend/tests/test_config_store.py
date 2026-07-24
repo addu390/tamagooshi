@@ -1,6 +1,5 @@
 import pytest
 from pydantic import ValidationError
-
 from src.config import BrandService, default_catalog
 
 

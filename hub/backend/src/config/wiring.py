@@ -4,8 +4,8 @@ import os
 import sys
 
 from .catalog import LayeredCatalog
-from .sources import FileTreeSource, FileTreeStore
 from .settings import user_brands_dir
+from .sources import FileTreeSource, FileTreeStore
 
 
 def builtin_brands_dir() -> str:

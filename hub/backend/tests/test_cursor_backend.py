@@ -2,7 +2,6 @@ import sys
 import types
 
 import pytest
-
 from src.features.buddy.agents.base import AgentRunError, AgentStartupError
 
 

@@ -1,9 +1,8 @@
 import json
 
 from src.config import BrandConfig
-from src.model import AlertRule, Condition
+from src.model import AlertRule, Condition, MetricUpdate
 from src.network import Publisher
-from src.model import MetricUpdate
 from src.wire import topics
 
 
@@ -37,7 +36,7 @@ def test_state_messages_are_retained():
 def test_metric_is_retained_per_key():
     pub, fake = _publisher()
     pub.publish_metric(MetricUpdate(key="mrr", label="MRR", value="$1k", kind="star"))
-    topic, env, _, retain = _last(fake)
+    topic, _, _, retain = _last(fake)
     assert topic == topics.metric("sim", "mrr")
     assert retain is True
 

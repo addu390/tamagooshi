@@ -3,7 +3,6 @@ from __future__ import annotations
 import base64
 import binascii
 import logging
-from typing import Optional
 
 from ...wire.codec import adpcm
 
@@ -44,7 +43,7 @@ class VoiceAssembler:
 
         self._next_seq += 1
 
-    def finish(self) -> Optional[bytes]:
+    def finish(self) -> bytes | None:
         """Returns 16-bit little-endian PCM at SAMPLE_RATE, or None on a broken stream."""
         broken, chunks = self._broken, self._chunks
         self.reset()

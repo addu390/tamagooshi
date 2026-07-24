@@ -26,7 +26,7 @@ class DatadogSource(PollingSource):
         self._app_key = app_key
 
     @classmethod
-    def from_config(cls, cfg: DatadogSourceConfig) -> "DatadogSource":
+    def from_config(cls, cfg: DatadogSourceConfig) -> DatadogSource:
         return cls(cfg, require_env(cfg.api_key_env), require_env(cfg.app_key_env))
 
     async def fetch(self, client: httpx.AsyncClient, metric: DatadogMetric) -> float:

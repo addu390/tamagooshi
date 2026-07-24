@@ -2,24 +2,23 @@ from __future__ import annotations
 
 import threading
 from dataclasses import dataclass, field
-from typing import Dict, List, Set
 
-from .rules import AlertRule
 from .conditions import matches
+from .rules import AlertRule
 from .store import MetricStore
 
 
 @dataclass
 class AlertTransition:
-    raised: List[AlertRule] = field(default_factory=list)
-    cleared: List[str] = field(default_factory=list)
+    raised: list[AlertRule] = field(default_factory=list)
+    cleared: list[str] = field(default_factory=list)
 
 
 class AlertEngine:
-    def __init__(self, rules: List[AlertRule]):
+    def __init__(self, rules: list[AlertRule]):
         self._rules = {r.id: r for r in rules}
-        self._active: Set[str] = set()
-        self._acked: Set[str] = set()
+        self._active: set[str] = set()
+        self._acked: set[str] = set()
         self._lock = threading.Lock()
 
     def evaluate(self, store: MetricStore) -> AlertTransition:
@@ -37,11 +36,11 @@ class AlertEngine:
             if page_id in self._active:
                 self._acked.add(page_id)
 
-    def active_rules(self) -> List[AlertRule]:
+    def active_rules(self) -> list[AlertRule]:
         with self._lock:
             return [self._rules[rid] for rid in self._active]
 
-    def snapshot(self) -> Dict[str, object]:
+    def snapshot(self) -> dict[str, object]:
         with self._lock:
             return {
                 "active": sorted(self._active),

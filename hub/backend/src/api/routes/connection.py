@@ -21,7 +21,7 @@ SCAN_TIMEOUT = 6.0
 async def _apply_link_change(request: Request, mutation) -> dict:
     try:
         await asyncio.to_thread(transport(request).close)
-    except Exception:  # noqa: BLE001
+    except Exception:
         log.exception("failed to close current link before restart")
     return apply_change(mutation)
 
@@ -44,7 +44,7 @@ async def scan():
 
     try:
         devices = await discover(SCAN_TIMEOUT)
-    except Exception as err:  # noqa: BLE001
+    except Exception as err:
         raise HTTPException(status_code=503, detail=f"bluetooth scan failed: {err}") from err
 
     return {"devices": devices}

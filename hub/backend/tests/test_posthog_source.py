@@ -3,8 +3,11 @@ import asyncio
 import httpx
 import pytest
 from pydantic import ValidationError
-
-from src.services.sources.posthog import PosthogMetric, PosthogSource, PosthogSourceConfig
+from src.services.sources.posthog import (
+    PosthogMetric,
+    PosthogSource,
+    PosthogSourceConfig,
+)
 
 
 @pytest.mark.parametrize("kw", [{}, {"query": "SELECT 1", "insight": "abc"}])

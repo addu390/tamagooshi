@@ -10,4 +10,4 @@ register(SourceProvider(
     description="Product analytics from HogQL queries or saved insights.",
 ))
 
-__all__ = ["PosthogMetric", "PosthogSourceConfig", "PosthogSource"]
+__all__ = ["PosthogMetric", "PosthogSource", "PosthogSourceConfig"]

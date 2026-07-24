@@ -1,6 +1,10 @@
 import pytest
-
-from src.config import BrandNotFound, default_catalog, hub_config_from_manifest, load_config
+from src.config import (
+    BrandNotFound,
+    default_catalog,
+    hub_config_from_manifest,
+    load_config,
+)
 from src.services.sources import parse_sources
 from src.services.sources.datadog import DatadogSourceConfig
 from src.services.sources.posthog import PosthogSourceConfig

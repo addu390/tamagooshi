@@ -6,8 +6,8 @@ import sys
 import tempfile
 import threading
 import uuid
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 import httpx
 
@@ -37,15 +37,15 @@ class Flasher:
     def __init__(self, publish: ProgressHandler):
         self._publish = publish
         self._lock = threading.Lock()
-        self._job: Optional[str] = None
+        self._job: str | None = None
 
     @property
     def busy(self) -> bool:
         return self._job is not None
 
     def start(self, port: str, image_url: str,
-              config_offset: Optional[int] = None,
-              config_blob: Optional[bytes] = None) -> str:
+              config_offset: int | None = None,
+              config_blob: bytes | None = None) -> str:
         with self._lock:
             if self._job is not None:
                 raise RuntimeError("a flash is already running")
@@ -58,8 +58,8 @@ class Flasher:
         thread.start()
         return job
 
-    def _emit(self, job: str, state: str, pct: Optional[int] = None,
-              message: Optional[str] = None) -> None:
+    def _emit(self, job: str, state: str, pct: int | None = None,
+              message: str | None = None) -> None:
         data: dict = {"job": job, "state": state}
         if pct is not None:
             data["pct"] = pct
@@ -68,29 +68,28 @@ class Flasher:
         self._publish(data)
 
     def _run(self, job: str, port: str, image_url: str,
-             config_offset: Optional[int], config_blob: Optional[bytes]) -> None:
+             config_offset: int | None, config_blob: bytes | None) -> None:
         try:
             with tempfile.TemporaryDirectory(prefix="tama-flash-") as tmp:
                 parts = self._prepare(job, Path(tmp), image_url, config_offset, config_blob)
                 self._write(job, port, parts)
             self._emit(job, "finished", pct=100, message="Done. The device restarts itself.")
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001
             self._emit(job, "error", message=str(err))
         finally:
             with self._lock:
                 self._job = None
 
     def _prepare(self, job: str, tmp: Path, image_url: str,
-                 config_offset: Optional[int],
-                 config_blob: Optional[bytes]) -> list[tuple[int, Path]]:
+                 config_offset: int | None,
+                 config_blob: bytes | None) -> list[tuple[int, Path]]:
         self._emit(job, "downloading", pct=0, message="Downloading firmware image…")
 
         image = tmp / "firmware.bin"
         with httpx.stream("GET", image_url, follow_redirects=True, timeout=120) as resp:
             resp.raise_for_status()
             with open(image, "wb") as fh:
-                for chunk in resp.iter_bytes():
-                    fh.write(chunk)
+                fh.writelines(resp.iter_bytes())
 
         parts: list[tuple[int, Path]] = [(0, image)]
         if config_blob is not None and config_offset is not None:

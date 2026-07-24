@@ -10,4 +10,4 @@ register(SourceProvider(
     description="Synthetic drifting metrics, no credentials needed.",
 ))
 
-__all__ = ["DemoMetric", "DemoSourceConfig", "Incident", "DemoSource"]
+__all__ = ["DemoMetric", "DemoSource", "DemoSourceConfig", "Incident"]

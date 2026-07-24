@@ -28,7 +28,7 @@ async def import_brand(request: Request):
     try:
         data = YAML.load(await request.body())
         bid = brands(request).import_manifest(data)
-    except Exception as err:  # noqa: BLE001 - reject any unparsable manifest
+    except Exception as err:
         raise HTTPException(status_code=400, detail=f"invalid brand config: {err}") from err
 
     return {"id": bid}

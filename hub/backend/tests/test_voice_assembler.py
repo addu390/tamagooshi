@@ -1,7 +1,7 @@
 import base64
 
-from src.wire.codec import adpcm
 from src.features.buddy.voice import VoiceAssembler
+from src.wire.codec import adpcm
 
 
 def b64(data: bytes) -> str:

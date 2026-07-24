@@ -49,8 +49,8 @@ def rect(g, x0, y0, x1, y1, c):
 def rrect(g, x0, y0, x1, y1, c, r=2):
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
-            cxp = x0 + r if x < x0 + r else (x1 - r if x > x1 - r else x)
-            cyp = y0 + r if y < y0 + r else (y1 - r if y > y1 - r else y)
+            cxp = x0 + r if x < x0 + r else (min(x, x1 - r))
+            cyp = y0 + r if y < y0 + r else (min(y, y1 - r))
             if (x - cxp) ** 2 + (y - cyp) ** 2 <= r * r + 0.5:
                 px(g, x, y, c)
 

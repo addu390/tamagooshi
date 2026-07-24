@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Awaitable, Callable
+from collections.abc import Awaitable, Callable
 
 from ...model import MetricUpdate
 
