@@ -14,6 +14,7 @@ class M5Mic : public IMicSource {
  public:
   void begin() override {
     if (M5.Speaker.isEnabled()) M5.Speaker.end();
+    powerCodecForCapture();
     M5.Mic.begin();
   }
 
@@ -28,8 +29,12 @@ class M5Mic : public IMicSource {
     std::memset(buf_, 0, sizeof(buf_));
     if (!capture(buf_, kSamples)) return 0;
 
+    int32_t mean = 0;
+    for (int i = 0; i < kSamples; ++i) mean += buf_[i];
+    mean /= kSamples;
+
     int32_t sum = 0;
-    for (int i = 0; i < kSamples; ++i) sum += std::abs(buf_[i]);
+    for (int i = 0; i < kSamples; ++i) sum += std::abs(buf_[i] - mean);
     return sum / kSamples;
   }
 
@@ -46,6 +51,12 @@ class M5Mic : public IMicSource {
   uint32_t recordRate() const override { return kRate; }
 
  private:
+  void powerCodecForCapture() {
+    if (M5.getBoard() != m5::board_t::board_M5StickS3) return;
+    M5.In_I2C.bitOn(kStickS3PmicAddr, kPmicOutputReg, kCodecPowerBit, kPmicFreqHz);
+    m5gfx::delay(20);
+  }
+
   bool capture(int16_t* out, size_t samples) {
     if (!M5.Mic.record(out, samples, kRate)) return false;
     const uint32_t start = m5gfx::millis();
@@ -58,6 +69,10 @@ class M5Mic : public IMicSource {
 
   static constexpr int kSamples = 256;
   static constexpr uint32_t kRate = 16000;
+  static constexpr uint8_t kStickS3PmicAddr = 0x6E;
+  static constexpr uint8_t kPmicOutputReg = 0x11;
+  static constexpr uint8_t kCodecPowerBit = 0b00001000;
+  static constexpr uint32_t kPmicFreqHz = 100000;
 
   int16_t buf_[kSamples] = {0};
 };

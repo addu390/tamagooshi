@@ -27,6 +27,11 @@ class ScreamScreen : public ArcadeGameScreen {
     }
   }
 
+  Transition tick(ShellContext& ctx, uint32_t nowMs) override {
+    if (st_ != St::Run && idle_.due(nowMs, kIdleSampleMs)) sample();
+    return ArcadeGameScreen::tick(ctx, nowMs);
+  }
+
  protected:
   const char* title() const override { return "SCREAM"; }
   const char* readyHint() const override { return "YELL TO FLY"; }
@@ -43,45 +48,59 @@ class ScreamScreen : public ArcadeGameScreen {
   void onReset() override {
     y_ = h_ / 2.0f;
     wall_.reset(rng_, w_, h_);
-    level_ = 0;
     loud_ = false;
   }
 
   void step(ShellContext&) override {
-    level_ = mic_ ? mic_->level() : 0;
-    loud_ = level_ > kThreshold;
+    sample();
 
     y_ += loud_ ? -kRiseRate * kStepSec : kFallRate * kStepSec;
+    if (y_ < kHeroR) y_ = kHeroR;
 
     if (wall_.advance(kWallRate * kStepSec, rng_, w_, h_)) ++score_;
 
-    if (y_ < 0 || y_ > h_) return die();
+    if (y_ > h_) return die();
     if (wall_.blocks(kHeroX, y_, kHeroR)) return die();
   }
 
  private:
+  void sample() {
+    level_ = mic_ ? mic_->level() : 0;
+    if (baseline_ < 0) {
+      baseline_ = level_;
+    } else {
+      baseline_ += (level_ - baseline_) / (level_ < baseline_ ? 4 : 128);
+    }
+    threshold_ = baseline_ * 2 + kMinDelta;
+    loud_ = level_ > threshold_;
+  }
+
   void drawMeter(Gfx& g) {
     auto& c = g.c();
     const int y = h_ - kMeterH;
-    int len = w_ * level_ / kMeterMax;
+    int len = w_ * level_ / (threshold_ * 2);
     if (len > w_) len = w_;
     c.fillRect(0, y, w_, kMeterH, theme::kBg);
     if (len > 0) c.fillRect(0, y, len, kMeterH, loud_ ? theme::kHi : theme::kDim);
+    c.drawFastVLine(w_ / 2, y - 2, kMeterH + 2, theme::kFg);
   }
 
   static constexpr int kHeroX = 40;
   static constexpr int kHeroR = 8;
-  static constexpr int kThreshold = 250;
-  static constexpr int kMeterMax = 1000;
+  static constexpr int kMinDelta = 200;
   static constexpr int kMeterH = 3;
-  static constexpr float kRiseRate = 200.0f;
-  static constexpr float kFallRate = 67.0f;
-  static constexpr float kWallRate = 67.0f;
+  static constexpr uint32_t kIdleSampleMs = 150;
+  static constexpr float kRiseRate = 180.0f;
+  static constexpr float kFallRate = 48.0f;
+  static constexpr float kWallRate = 48.0f;
 
   IMicSource* mic_ = nullptr;
-  GapChannel wall_{20, 50, 10};
+  GapChannel wall_{20, 66, 10};
+  AnimClock idle_;
   float y_ = 67;
   int level_ = 0;
+  int baseline_ = -1;
+  int threshold_ = kMinDelta;
   bool loud_ = false;
 };
 

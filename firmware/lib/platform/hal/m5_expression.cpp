@@ -38,6 +38,7 @@ void M5Expression::begin() {
   if (redLedPin_ >= 0) pinMode(redLedPin_, OUTPUT);
 #endif
   led(false);
+  M5.Speaker.begin();
   M5.Speaker.setVolume(160);
 }
 
@@ -51,7 +52,7 @@ void M5Expression::led(bool on) {
 }
 
 void M5Expression::apply(const ExpressionState& state) {
-  const bool wantBuzz = state.buzzerActive && !state.muted;
+  const bool wantBuzz = state.buzzerActive && !state.muted && M5.Speaker.isRunning();
   if (wantBuzz && !buzzing_) {
     M5.Speaker.tone(kAlertToneHz, kAlertToneMs);
   } else if (!wantBuzz && buzzing_) {
@@ -68,6 +69,7 @@ void M5Expression::play(const ExpressionCue& cue) {
     led(true);
     return;
   }
+  if (!M5.Speaker.isRunning()) return;
   toneFor(cue);
 }
 

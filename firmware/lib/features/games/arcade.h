@@ -118,8 +118,10 @@ class ArcadeGameScreen : public AppScreen {
   void onEnter(ShellContext&) override { toReady(); }
 
   void render(Gfx& g, ShellContext& ctx) final {
+    const bool resized = w_ != g.w() || h_ != g.h();
     w_ = g.w();
     h_ = g.h();
+    if (resized && st_ == St::Ready) onReset();
     renderWorld(g, ctx);
     chrome(g);
   }
