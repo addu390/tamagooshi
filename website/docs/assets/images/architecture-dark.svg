@@ -39,7 +39,7 @@
     .line { stroke: var(--strong); fill: none; }
     .grid { stroke: var(--border); }
     .dot { fill: var(--text); }
-    .scr { fill: #18181b; stroke: var(--border); }
+    .scr { fill: var(--hole); stroke: var(--border); }
     .px { fill: #e4e4e7; }
     .ok { fill: color-mix(in srgb, var(--accent) 88%, #fff); }
     .term { fill: var(--term); }
