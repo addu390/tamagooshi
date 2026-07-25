@@ -1,6 +1,6 @@
 import CATALOG from "../gen/catalog.js";
 import { el } from "../../../common/js/core/dom.js";
-import { singleSelect, multiSelect } from "../../../common/js/components/dropdown.js";
+import { singleSelect, multiSelect } from "../../../common/js/components/selects.js";
 import { initChrome } from "../../../common/js/components/chrome.js";
 import { initAccentPicker } from "../../../common/js/components/accents.js";
 import { initKeyHints } from "../../../common/js/components/keyhints.js";

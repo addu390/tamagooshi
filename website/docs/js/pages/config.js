@@ -4,7 +4,7 @@ import { initAccentPicker } from "../../../common/js/components/accents.js";
 import { initScrollSpy } from "../../../common/js/components/scrollspy.js";
 import { initSetupTabs } from "../../../common/js/components/tabs.js";
 import { initExpandables } from "../../../common/js/components/expandable.js";
-import { initPickRow } from "../../../common/js/components/chips.js";
+import { initPickRow } from "../../../common/js/components/selects.js";
 import { INVADER, INVADER_MOODS, SQUIRCLE, spriteSvg } from "../../../common/js/components/sprite.js";
 
 initChrome();

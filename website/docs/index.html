@@ -194,7 +194,7 @@ TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</s
       <p>For working on the project itself. Nothing here is needed for the three setups above.</p>
       <details class="doc-disclosure">
         <summary>System overview</summary>
-        <img class="doc-figure" src="docs/assets/images/overview/light.svg" alt="System overview: metric sources, hub, and device" loading="lazy">
+        <img class="doc-figure" src="docs/assets/images/architecture-light.svg" alt="System overview: metric sources, hub, and device" loading="lazy">
       </details>
       <div class="setup">
         <div class="tabbar" role="tablist" aria-label="Development areas">
@@ -253,6 +253,14 @@ make hub-test                    <span class="c"># hub unit tests</span></pre>
     <section class="doc" id="apps">
       <h2>Apps &amp; games</h2>
       <p>Apps and games that can run on the device. Configuration: <code>device.apps</code> and <code>device.games</code>. Some games use IMU/mic for inputs.</p>
+      <details class="doc-disclosure">
+        <summary>HID mode</summary>
+        <div class="doc-body">
+          <p>HID (Human Interface Device) apps (<code>controller</code>, <code>media</code>, <code>clicker</code>, <code>jiggler</code>, <code>volume</code>) require a matching HID mode on the device: <code>gamepad</code>, <code>desk</code> (media + keyboard + mouse), or <code>off</code>. Apps whose capability is not in the active mode are locked. Set the mode in the hub. After it saves, reboot the device, forget it on the host, and re-pair so the new HID descriptors apply.</p>
+          <img class="doc-figure" src="docs/assets/images/hid-light.svg" alt="HID mode: hub on the laptop sets gamepad, desk, or off on the device" loading="lazy">
+          <p class="note">On macOS, if Keyboard Setup Assistant appears for <code>desk</code> mode, dismiss it.</p>
+        </div>
+      </details>
       <div class="catbox">
         <div class="catpane">
           <div class="catpane-h">Apps <span class="walk-n" data-count="apps"></span></div>

@@ -11,8 +11,8 @@
 
 <p align="left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/overview/dark.svg">
-    <img src="website/docs/assets/images/overview/light.svg" alt="Tamagooshi overview" width="920">
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/architecture-dark.svg">
+    <img src="website/docs/assets/images/architecture-light.svg" alt="Tamagooshi overview" width="920">
   </picture>
 </p>
 

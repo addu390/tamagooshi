@@ -10,10 +10,15 @@ const ICONS = {
 
 const ITEM_ICONS = {
   galaxy: "imu",
-  scream: "mic",
+  balance: "imu",
+  climb: "imu",
   level: "imu",
   pomodoro: "imu",
+  dice: "imu",
   controller: "gamepad",
+  scream: "mic",
+  hush: "mic",
+  sound: "mic",
   remote: "ir",
 };
 

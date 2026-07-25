@@ -1,5 +1,16 @@
 import { el } from "../core/dom.js";
 
+export function initPickRow(rowId, apply) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+
+  const chips = [...row.querySelectorAll(".pickchip")];
+  chips.forEach((chip) => chip.addEventListener("click", () => {
+    chips.forEach((c) => c.classList.toggle("on", c === chip));
+    apply(chip.dataset);
+  }));
+}
+
 const normalize = (opts) => opts.map((o) => (Array.isArray(o) ? o : [o, o]));
 
 export const closeMenus = () =>

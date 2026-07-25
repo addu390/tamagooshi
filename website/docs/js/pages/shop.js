@@ -1,7 +1,7 @@
 import { initChrome } from "../../../common/js/components/chrome.js";
 import { initKeyHints } from "../../../common/js/components/keyhints.js";
 import { initAccentPicker } from "../../../common/js/components/accents.js";
-import { singleSelect } from "../../../common/js/components/dropdown.js";
+import { singleSelect } from "../../../common/js/components/selects.js";
 
 initChrome();
 initKeyHints();

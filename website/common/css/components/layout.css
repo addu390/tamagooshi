@@ -15,7 +15,12 @@ section.doc:last-child { border-bottom: 0; }
 .doc-disclosure summary::-webkit-details-marker { display: none; }
 .doc-disclosure summary::before { content: ""; width: 6px; height: 6px; border-right: 1.5px solid var(--text-soft); border-bottom: 1.5px solid var(--text-soft); transform: rotate(-45deg); transition: transform .15s; }
 .doc-disclosure[open] summary::before { transform: rotate(45deg); }
-.doc-disclosure .doc-figure { margin: 0; padding: 4px 14px 14px; }
+.doc-disclosure .doc-figure,
+.doc-disclosure .doc-body { margin: 0; padding: 4px 14px 14px; }
+.doc-disclosure .doc-body p { margin: 0 0 8px; }
+.doc-disclosure .doc-body p:last-child { margin-bottom: 0; }
+.doc-disclosure .doc-body .doc-figure { margin: 10px 0; padding: 0; }
+.doc-disclosure .doc-body .note { margin: 10px 0 0; }
 main h2 { font-size: 28px; letter-spacing: -0.02em; margin: 8px 0 6px; scroll-margin-top: 84px; }
 main h3 { font-size: 17px; margin: 26px 0 6px; }
 main p { color: var(--text-soft); }
