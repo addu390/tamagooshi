@@ -58,6 +58,7 @@ def catalog():
             "protocols": {link: [[p, PROTOCOL_DESC.get(p, p)] for p in protos]
                           for link, protos in PROTOCOLS.items()},
         },
+        "hid_modes": registry.hid_mode_rows(),
         "logo": _default_logo(),
     }
 

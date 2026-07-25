@@ -12,6 +12,7 @@ class MetricsScreen : public AppScreen {
   void onEnter(ShellContext&) override {
     idx_ = 0;
     primed_ = false;
+    confirm_.cancel();
   }
 
   void render(Gfx& g, ShellContext& ctx) override {
@@ -25,6 +26,10 @@ class MetricsScreen : public AppScreen {
       return;
     }
     if (idx_ >= static_cast<int>(s.metrics.size())) idx_ = 0;
+    if (confirm_.active()) {
+      confirm_.render(g, L);
+      return;
+    }
     const Metric& m = s.metrics[idx_];
     const int center = L.landscape ? (L.top + 20 + L.bottom) / 2 : L.cy;
     const int trendDy = L.landscape ? 22 : 30;
@@ -32,10 +37,11 @@ class MetricsScreen : public AppScreen {
                        widgets::heroFont(g, m.value.c_str(), L.w - 16));
     widgets::trend(g, cx, center + trendDy, m.trend.empty() ? ' ' : m.trend[0]);
     widgets::dots(g, cx, L.bottom - 6, static_cast<int>(s.metrics.size()), idx_);
-    widgets::hints(g, "PREV", "NEXT");
+    widgets::hints(g, "NEXT", "CLEAR");
   }
 
   Transition tick(ShellContext& ctx, uint32_t nowMs) override {
+    if (confirm_.active()) return Transition::none();
     const int n = static_cast<int>(ctx.state.metrics.size());
     if (n <= 1) return Transition::none();
     if (!primed_) {
@@ -51,16 +57,32 @@ class MetricsScreen : public AppScreen {
   }
 
   Transition handleInput(Intent intent, ShellContext& ctx) override {
-    const int n = static_cast<int>(ctx.state.metrics.size());
+    auto& metrics = ctx.state.metrics;
+    const int n = static_cast<int>(metrics.size());
     if (n == 0) return Transition::none();
-    if (intent == Intent::Select) {
-      idx_ = (idx_ + 1) % n;
-      lastAdvance_ = 0;
-      primed_ = false;
+    if (idx_ >= n) idx_ = 0;
+
+    if (confirm_.active()) {
+      if (intent == Intent::Select) {
+        ctx.state.removeMetric(metrics[idx_].key);
+        confirm_.cancel();
+        idx_ = 0;
+        primed_ = false;
+        return Transition::redraw();
+      }
+      if (intent == Intent::Next) {
+        confirm_.cancel();
+        return Transition::redraw();
+      }
+      return Transition::none();
+    }
+
+    if (intent == Intent::Next) {
+      confirm_.arm("CLEAR METRIC", metrics[idx_].label);
       return Transition::redraw();
     }
-    if (intent == Intent::Next || intent == Intent::Prev) {
-      idx_ = cycleIndex(intent, idx_, n);
+    if (intent == Intent::Select) {
+      idx_ = (idx_ + 1) % n;
       lastAdvance_ = 0;
       primed_ = false;
       return Transition::redraw();
@@ -72,6 +94,7 @@ class MetricsScreen : public AppScreen {
   int idx_ = 0;
   bool primed_ = false;
   uint32_t lastAdvance_ = 0;
+  widgets::ConfirmFlow confirm_;
 };
 
 }  // namespace

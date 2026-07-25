@@ -24,7 +24,7 @@
 #include "buddy/voice/uplink.h"
 #endif
 #include "capture.h"
-#include "gamepad.h"
+#include "hid.h"
 #include "hal/m5_buttons.h"
 #include "hal/profile.h"
 #include "hub/pipeline.h"
@@ -244,21 +244,25 @@ class SimIr : public IIrTransceiver {
   uint32_t learnedAt_ = 0;
 };
 
-class SimGamepad : public IGamepadLink {
+class SimHid : public IHidLink {
  public:
   void activate() override { active_ = true; }
   void deactivate() override { active_ = false; }
-  bool ready() const override { return active_; }
+  bool ready(HidCapability) const override { return active_; }
   void send(const GamepadFrame& frame) override { last_ = frame; }
+  void tap(MediaKey) override {}
+  void tap(KeyboardKey) override {}
+  void nudge(int8_t, int8_t) override {}
 
  private:
   bool active_ = false;
   GamepadFrame last_;
 };
 
-class SimIrStore : public IIrStore {
+class SimIrCodeRepository : public IIrCodeRepository {
  public:
-  SimIrStore() : buttons_{{"BTN 1", SimIr::necLikeFrame()}, {"BTN 2", SimIr::necLikeFrame()}} {}
+  SimIrCodeRepository()
+      : buttons_{{"BTN 1", SimIr::necLikeFrame()}, {"BTN 2", SimIr::necLikeFrame()}} {}
 
   int load(IrButton* out, int max) override {
     const int n = std::min<int>(static_cast<int>(buttons_.size()), max);
@@ -359,16 +363,18 @@ NullInputSource g_input;
 SimSensor g_sensor;
 SimMic g_mic;
 SimIr g_ir;
-SimIrStore g_irStore;
-SimGamepad g_gamepad;
+SimIrCodeRepository g_irCodes;
+SimHid g_hid;
 SimConfig g_config;
+NullMetricRepository g_metrics;
+NullHidProfileRepository g_hidProfile;
 StaticBoardProfile g_board(board::capabilities());
 IdFn g_idGen =
     ids::ulidGenerator([] { return nowMs(); }, [] { return static_cast<uint8_t>(rand()); });
 ArduinoJsonCodec g_codec(g_idGen, [] { return nowMs(); }, kSimId);
 SimSystemControl g_systemControl;
 Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_systemControl, g_buttons, g_input,
-                  g_sensor, g_telemetry, g_mic, g_config);
+                  g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile);
 HubPipeline g_hubPipeline(g_transport, g_codec, g_runtime.router(), g_board, kSimId, "0.1.0-sim");
 #if defined(TAMA_ENABLE_BUDDY)
 BuddyController g_buddyController(g_runtime.state());
@@ -473,6 +479,10 @@ void setup() {
   binding.voice = &g_voiceUplink;
   binding.resolvePrompt = [hubResolver, agentResolver,
                            voiceResolver](const Page& page, PromptOutcome outcome) {
+    if (page.id == "hid.reboot") {
+      if (outcome == PromptOutcome::Ack) g_systemControl.reboot();
+      return;
+    }
     if (page.source == "agent")
       agentResolver(page.id, outcome);
     else if (page.source == "voice")
@@ -482,6 +492,10 @@ void setup() {
   };
 #else
   binding.resolvePrompt = [hubResolver](const Page& page, PromptOutcome outcome) {
+    if (page.id == "hid.reboot") {
+      if (outcome == PromptOutcome::Ack) g_systemControl.reboot();
+      return;
+    }
     hubResolver(page.id, outcome);
   };
 #endif
@@ -492,8 +506,8 @@ void setup() {
 
   g_runtime.begin();
   g_runtime.nav().add(screens::wifi());
-  g_runtime.nav().setIr(&g_ir, &g_irStore);
-  g_runtime.nav().setGamepad(&g_gamepad);
+  g_runtime.nav().setIr(&g_ir, &g_irCodes);
+  g_runtime.nav().setHid(&g_hid);
 
 #if defined(TAMA_ENABLE_BUDDY)
   if (const char* scenario = std::getenv("TAMA_BUDDY_STATE")) {

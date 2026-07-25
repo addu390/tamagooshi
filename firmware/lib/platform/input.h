@@ -72,18 +72,4 @@ class NullInputSource : public IInputSource {
   void onGesture(GestureHandler) override {}
 };
 
-class NullMicSource : public IMicSource {
- public:
-  void begin() override {}
-  void end() override {}
-  int level() override { return 0; }
-};
-
-class NullSensorSource : public ISensorSource {
- public:
-  void begin() override {}
-  void poll() override {}
-  void onMotion(MotionHandler) override {}
-};
-
 }  // namespace tama

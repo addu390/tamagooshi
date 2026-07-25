@@ -3,10 +3,8 @@
 #if TAMA_BOARD_HAS_IR
 
 #include <M5Unified.h>
-#include <Preferences.h>
 
 #include <algorithm>
-#include <string>
 
 namespace tama {
 
@@ -34,11 +32,6 @@ void toFrame(const rmt_symbol_word_t* items, size_t count, IrFrame& out) {
     if (!appendPulse(out, items[i].duration1)) return;
   }
 }
-
-constexpr char kStoreNamespace[] = "remote";
-
-std::string labelKey(int i) { return "label" + std::to_string(i); }
-std::string frameKey(int i) { return "frame" + std::to_string(i); }
 
 }  // namespace
 
@@ -127,36 +120,6 @@ bool M5IrTransceiver::fetchLearned(IrFrame& out) {
   toFrame(rxBuf_, rxCount_, out);
   armReceive();
   return out.count >= kMinLearnedPulses;
-}
-
-int NvsIrStore::load(IrButton* out, int max) {
-  Preferences prefs;
-  if (!prefs.begin(kStoreNamespace, true)) return 0;
-  const int count = std::min<int>(prefs.getUChar("count", 0), max);
-  int n = 0;
-  for (int i = 0; i < count; ++i) {
-    IrButton& b = out[n];
-    b.label = prefs.getString(labelKey(i).c_str(), "").c_str();
-    const size_t bytes =
-        prefs.getBytes(frameKey(i).c_str(), b.frame.pulses, sizeof(b.frame.pulses));
-    b.frame.count = static_cast<uint8_t>(bytes / sizeof(b.frame.pulses[0]));
-    if (!b.label.empty() && !b.frame.empty()) ++n;
-  }
-  prefs.end();
-  return n;
-}
-
-void NvsIrStore::save(const IrButton* buttons, int count) {
-  Preferences prefs;
-  if (!prefs.begin(kStoreNamespace, false)) return;
-  prefs.clear();
-  prefs.putUChar("count", static_cast<uint8_t>(count));
-  for (int i = 0; i < count; ++i) {
-    prefs.putString(labelKey(i).c_str(), buttons[i].label.c_str());
-    prefs.putBytes(frameKey(i).c_str(), buttons[i].frame.pulses,
-                   buttons[i].frame.count * sizeof(buttons[i].frame.pulses[0]));
-  }
-  prefs.end();
 }
 
 }  // namespace tama

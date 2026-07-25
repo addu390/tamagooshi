@@ -37,3 +37,30 @@ games = Category("games", "game", GAMES, "TAMA_GAME")
 themes = Category("themes", "theme", THEMES)
 typefaces = Category("typefaces", "typeface", TYPEFACES)
 mascots = Category("mascots", "mascot", MASCOTS)
+
+HID_KINDS = ("gamepad", "media", "keyboard", "mouse")
+
+HID_MODES = {
+    "gamepad": {"label": "Gamepad", "capabilities": ("gamepad",)},
+    "desk": {"label": "Desk", "capabilities": ("media", "keyboard", "mouse")},
+    "off": {"label": "Off", "capabilities": ()},
+}
+
+
+def hid_bits(capabilities):
+    bits = 0
+    for kind in capabilities:
+        bits |= 1 << HID_KINDS.index(kind)
+    return bits
+
+
+def hid_macros(game_ids, app_ids):
+    used = ({games.items[i].get("hid") for i in game_ids}
+            | {apps.items[i].get("hid") for i in app_ids})
+    kinds = [k for k in HID_KINDS if k in used]
+    return [f"TAMA_NEEDS_HID={int(bool(kinds))}"]
+
+
+def hid_mode_rows():
+    return [[mode_id, meta["label"], list(meta["capabilities"])]
+            for mode_id, meta in HID_MODES.items()]

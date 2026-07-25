@@ -21,6 +21,7 @@ int severityRank(Severity s) {
 }  // namespace
 
 void DeviceState::upsertMetric(const Metric& m) {
+  metrics_dirty = true;
   for (auto& existing : metrics) {
     if (existing.key == m.key) {
       existing = m;
@@ -30,6 +31,16 @@ void DeviceState::upsertMetric(const Metric& m) {
   }
   metrics.push_back(m);
   floatStarsFirst(metrics);
+}
+
+void DeviceState::removeMetric(const std::string& key) {
+  for (auto it = metrics.begin(); it != metrics.end(); ++it) {
+    if (it->key == key) {
+      metrics.erase(it);
+      metrics_dirty = true;
+      return;
+    }
+  }
 }
 
 const Metric* DeviceState::starMetric() const {

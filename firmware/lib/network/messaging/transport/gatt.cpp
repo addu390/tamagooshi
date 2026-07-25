@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <utility>
 
-#include "hal/identity.h"
-
 namespace tama {
 
 namespace {
@@ -39,7 +37,7 @@ HubEndpoint::HubEndpoint(BleBearer& bearer, std::string brand, std::string fwVer
     : bearer_(bearer), brand_(std::move(brand)), fw_(std::move(fwVersion)) {}
 
 void HubEndpoint::setup(BleBearer&, NimBLEServer* nim) {
-  id_ = identity::deviceId();
+  id_ = bearer_.deviceId();
 
   NimBLEService* svc = nim->createService(gatt::kService);
   inbound_ = svc->createCharacteristic(gatt::kInbound,

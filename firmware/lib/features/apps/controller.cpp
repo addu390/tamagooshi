@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "apps.h"
+#include "hidsession.h"
 #include "motion.h"
 #include "theme.h"
 #include "widgets.h"
@@ -30,16 +31,12 @@ class ControllerScreen : public AppScreen {
   const char* id() const override { return "app.controller"; }
 
   void onEnter(ShellContext& ctx) override {
-    gamepad_ = ctx.gamepad;
+    hid_.enter(ctx);
     filter_.reset();
     frame_ = GamepadFrame{};
-    if (gamepad_) gamepad_->activate();
   }
 
-  void onExit() override {
-    if (gamepad_) gamepad_->deactivate();
-    gamepad_ = nullptr;
-  }
+  void onExit() override { hid_.exit(); }
 
   Transition tick(ShellContext& ctx, uint32_t nowMs) override {
     if (!sampler_.due(nowMs, kSampleMs)) return Transition::none();
@@ -50,7 +47,7 @@ class ControllerScreen : public AppScreen {
     }
     frame_.buttons = static_cast<uint8_t>((ctx.buttons.held(0) ? 0x01 : 0) |
                                           (ctx.buttons.held(1) ? 0x02 : 0));
-    if (gamepad_) gamepad_->send(frame_);
+    hid_.send(frame_);
 
     return redraw_.due(nowMs, kRedrawMs) ? Transition::redraw() : Transition::none();
   }
@@ -59,27 +56,24 @@ class ControllerScreen : public AppScreen {
 
   void render(Gfx& g, ShellContext& ctx) override {
     const auto L = widgets::frame(g, ctx.state, "GAMEPAD");
-    const bool live = gamepad_ && gamepad_->ready();
-    const char* status = statusLabel(ctx, live);
-    const uint16_t accent = statusColor(ctx, live);
 
     if (L.landscape) {
       const int contentTop = L.top + 6;
       const int pad = L.bottom - contentTop - 6;
       const int cy = (contentTop + L.bottom) / 2;
-      stick(g, L.w / 3 - 10, cy, pad, live);
+      stick(g, L.w / 3 - 10, cy, pad, hid_.live());
 
       const int colX = 2 * L.w / 3 + 8;
-      widgets::pill(g, colX, cy - 28, status, typeface::micro(), accent);
+      hid_.statusPill(g, ctx, colX, cy - 28);
       chip(g, colX - 22, cy + 14, "A", frame_.buttons & 0x01);
       chip(g, colX + 22, cy + 14, "B", frame_.buttons & 0x02);
     } else {
-      widgets::pill(g, L.cx, L.top + 8, status, typeface::micro(), accent);
+      hid_.statusPill(g, ctx, L.cx, L.top + 20);
 
-      const int padTop = L.top + 36;
+      const int padTop = L.top + 44;
       const int pad = std::min(L.w - 44, L.bottom - padTop - 38);
       const int cy = padTop + pad / 2;
-      stick(g, L.cx, cy, pad, live);
+      stick(g, L.cx, cy, pad, hid_.live());
 
       const int rowY = cy + pad / 2 + 18;
       chip(g, L.cx - 26, rowY, "A", frame_.buttons & 0x01);
@@ -90,19 +84,6 @@ class ControllerScreen : public AppScreen {
   }
 
  private:
-  const char* statusLabel(ShellContext& ctx, bool live) const {
-    if (!gamepad_) return "UNAVAILABLE";
-    if (!ctx.link.enabled()) return "BT OFF";
-    if (live) return "LIVE";
-    return ctx.link.connected() ? "CONNECTING" : "PAIR TO PLAY";
-  }
-
-  uint16_t statusColor(ShellContext& ctx, bool live) const {
-    if (live) return theme::kHi;
-    if (!gamepad_ || !ctx.link.enabled()) return theme::kDim;
-    return theme::kWarn;
-  }
-
   void stick(Gfx& g, int cx, int cy, int size, bool live) {
     auto& c = g.c();
     const int half = size / 2;
@@ -131,10 +112,10 @@ class ControllerScreen : public AppScreen {
     }
   }
 
+  GamepadSession hid_;
   AnimClock sampler_;
   AnimClock redraw_;
   motion::TiltFilter filter_{kSmoothing};
-  IGamepadLink* gamepad_ = nullptr;
   GamepadFrame frame_;
 };
 

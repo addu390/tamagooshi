@@ -34,15 +34,11 @@ except ImportError:
     importlib.invalidate_caches()
 
 sys.path.insert(0, tools)
-from gen.manifest import parse_transports
-from gen.network.transports import transport_macros
 from gen.pipeline import generate
 
-macros = generate(brand, brands, out, os.environ.get("TAMA_DEV", ""))
+macros = generate(brand, brands, out, os.environ.get("TAMA_DEV", ""),
+                  os.environ.get("TAMA_TRANSPORTS"))
 env.Append(CPPPATH=[out])
 
 if env["PIOPLATFORM"] != "native":
-    override = os.environ.get("TAMA_TRANSPORTS")
-    if override:
-        macros = transport_macros(parse_transports(override))
     env.Append(CPPDEFINES=macros)

@@ -76,6 +76,30 @@ export default {
     [
       "galaxy",
       "Tilt to dodge (IMU)"
+    ],
+    [
+      "snake",
+      "Grow the snake, avoid yourself"
+    ],
+    [
+      "reflex",
+      "Test your reaction speed"
+    ],
+    [
+      "breakout",
+      "Clear the bricks"
+    ],
+    [
+      "balance",
+      "Keep the ball on the beam"
+    ],
+    [
+      "hush",
+      "Stay quiet to sneak by"
+    ],
+    [
+      "climb",
+      "Bounce up, tilt to steer"
     ]
   ],
   "apps": [
@@ -110,6 +134,42 @@ export default {
     [
       "about",
       "Device info"
+    ],
+    [
+      "timer",
+      "Countdown timer"
+    ],
+    [
+      "dice",
+      "Roll the dice"
+    ],
+    [
+      "coin",
+      "Flip a coin"
+    ],
+    [
+      "sound",
+      "Noise level meter"
+    ],
+    [
+      "metronome",
+      "Tick at your tempo"
+    ],
+    [
+      "media",
+      "BLE media remote"
+    ],
+    [
+      "clicker",
+      "BLE presentation clicker"
+    ],
+    [
+      "jiggler",
+      "Keep the host awake"
+    ],
+    [
+      "volume",
+      "BLE volume knob"
     ]
   ],
   "agents": [
@@ -198,6 +258,29 @@ export default {
       ]
     }
   },
+  "hid_modes": [
+    [
+      "gamepad",
+      "Gamepad",
+      [
+        "gamepad"
+      ]
+    ],
+    [
+      "desk",
+      "Desk",
+      [
+        "media",
+        "keyboard",
+        "mouse"
+      ]
+    ],
+    [
+      "off",
+      "Off",
+      []
+    ]
+  ],
   "logo": {
     "w": 24,
     "h": 24,

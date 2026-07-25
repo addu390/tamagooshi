@@ -8,7 +8,7 @@
 
 namespace tama {
 
-class M5Config : public config::ISource {
+class PartitionConfigSource : public config::ISource {
  public:
   std::string read() override {
     const esp_partition_t* part = esp_partition_find_first(

@@ -11,6 +11,7 @@ REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "firmware" / "tools"))
 
 from gen import manifest as gen_manifest
+from gen import registry
 from gen.emit import blob as gen_blob
 from gen.emit.mirror import stale
 from gen.network.transports import DEFAULT_PROTOCOL, LINKS, PROTOCOLS
@@ -54,6 +55,13 @@ def test_transport_keys_parity():
 
 def test_release_prefix_parity():
     assert RELEASE_PREFIX == RELEASE_BASE == _catalog()["release"]
+
+
+def test_hid_modes_parity():
+    from src.api.routes.connection import HID_MODES
+
+    catalog_modes = [row[0] for row in _catalog()["hid_modes"]]
+    assert list(HID_MODES) == catalog_modes == list(registry.HID_MODES)
 
 
 def test_docs_wire_mirror_fresh():

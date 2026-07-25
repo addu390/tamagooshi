@@ -1,6 +1,8 @@
+import catalog from "../../catalog.gen.js";
 import { api, mutate } from "../../core/api.js";
 import { $, el, showResult } from "../../core/dom.js";
-import { formActions, panelHead } from "../../components/rows.js";
+import { segControl } from "../../components/controls.js";
+import { formActions, panelHead, settingRow } from "../../components/rows.js";
 
 const LINKS = { ble: "Bluetooth", wifi: "Wi-Fi (MQTT)" };
 
@@ -15,6 +17,8 @@ const STATES = {
   reconnecting: { dot: "warn", text: () => "Link lost, reconnecting…" },
   scanning: { dot: "warn", text: (name) => `Scanning for ${name || "a device"} nearby…` },
 };
+
+const HID_HINT = "Reboot, then forget and re-pair on the host.";
 
 function connect(device) {
   $("scan-panel").classList.add("hide");
@@ -76,6 +80,22 @@ function openScan() {
   runScan(list, note);
 }
 
+function setHidMode(mode) {
+  return mutate(() => api("PUT", "/api/connection/hid", { mode }), "devices-note");
+}
+
+function hidModeRow(conn) {
+  const modes = (catalog.hid_modes || []).map(([id]) => id);
+  const labels = Object.fromEntries((catalog.hid_modes || []).map(([id, label]) => [id, label]));
+  const active = modes.includes(conn.hid_mode) ? conn.hid_mode : modes[0];
+
+  return settingRow(
+    "HID mode",
+    HID_HINT,
+    segControl(modes, active, (id) => labels[id] || id, setHidMode),
+  );
+}
+
 export function connectionCard(conn) {
   const card = $("connection");
   card.replaceChildren();
@@ -114,4 +134,6 @@ export function connectionCard(conn) {
 
   row.append(buttons);
   card.append(row);
+
+  if (catalog.hid_modes?.length) card.append(hidModeRow(conn));
 }

@@ -1,5 +1,5 @@
 #pragma once
-#if defined(TAMA_ENABLE_BLE)
+#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
 
 #include <NimBLEDevice.h>
 #include <NimBLEHIDDevice.h>
@@ -7,21 +7,23 @@
 #include <cstdint>
 #include <string>
 
+#include <hid.h>
+
 #include "ble/ble.h"
-#include "gamepad.h"
 
 namespace tama {
 
-class GamepadEndpoint : public IGamepadLink,
-                        public IBleService,
-                        public NimBLECharacteristicCallbacks {
+class HidEndpoint : public IHidLink, public IBleService, public NimBLECharacteristicCallbacks {
  public:
-  explicit GamepadEndpoint(std::string manufacturer);
+  HidEndpoint(std::string manufacturer, IHidProfileRepository& profiles);
 
   void activate() override;
   void deactivate() override;
-  bool ready() const override;
+  bool ready(HidCapability capability) const override;
   void send(const GamepadFrame& frame) override;
+  void tap(MediaKey key) override;
+  void tap(KeyboardKey key) override;
+  void nudge(int8_t dx, int8_t dy) override;
 
   void setup(BleBearer& bearer, NimBLEServer* nim) override;
   const char* serviceUuid() const override;
@@ -33,11 +35,14 @@ class GamepadEndpoint : public IGamepadLink,
 
  private:
   void push(const GamepadFrame& frame);
+  void notify(HidCapability capability, const uint8_t* data, size_t len);
 
   std::string manufacturer_;
+  IHidProfileRepository& profiles_;
+  HidCapabilitySet profile_;
   NimBLEHIDDevice* hid_ = nullptr;
-  NimBLECharacteristic* input_ = nullptr;
-  bool subscribed_ = false;
+  NimBLECharacteristic* reports_[kHidCapabilityCount] = {};
+  HidCapabilitySet subscribed_;
   bool active_ = false;
   GamepadFrame last_;
 };

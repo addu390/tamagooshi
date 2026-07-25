@@ -170,6 +170,8 @@ class ArcadeGameScreen : public AppScreen {
   virtual const char* deadTitle() const { return "GAME OVER"; }
   virtual const char* hintA() const { return st_ == St::Dead ? "RETRY" : runHint(); }
   virtual const char* hintB() const { return nullptr; }
+  virtual int bannerCenterY() const { return h_ / 2; }
+  virtual const lgfx::IFont* bannerHeadFont() const { return typeface::title(); }
 
   void begin() {
     onReset();
@@ -192,9 +194,7 @@ class ArcadeGameScreen : public AppScreen {
     ctx.character->draw(g, x, y, size, MascotState{e, 0, true, liftPx, shadow}, now_);
   }
 
-  void cue(ShellContext& ctx, ExpressionKind kind) {
-    if (ctx.expression && !ctx.state.muted) ctx.expression->play({kind, 100, 0});
-  }
+  void cue(ShellContext& ctx, ExpressionKind kind) { tama::cue(ctx, kind); }
 
   float elapsedSec() const { return start_ == 0 ? 0.0f : (now_ - start_) / 1000.0f; }
 
@@ -224,8 +224,9 @@ class ArcadeGameScreen : public AppScreen {
 
   void banner(Gfx& g, const char* head, const char* sub) {
     const int cx = w_ / 2;
-    g.str(head, cx, h_ / 2 - 14, theme::kHi, typeface::title(), textdatum_t::middle_center);
-    g.str(sub, cx, h_ / 2 + 10, theme::kDim, typeface::body(), textdatum_t::middle_center);
+    const int cy = bannerCenterY();
+    g.str(head, cx, cy - 14, theme::kHi, bannerHeadFont(), textdatum_t::middle_center);
+    g.str(sub, cx, cy + 10, theme::kDim, typeface::body(), textdatum_t::middle_center);
   }
 
   void toReady() {

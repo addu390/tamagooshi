@@ -29,8 +29,9 @@ class Navigator {
   void setButtons(IButtonSource& buttons);
   void setVoice(IVoiceUplink* voice);
   void setExpression(IExpressionSink& expression);
-  void setIr(IIrTransceiver* ir, IIrStore* store);
-  void setGamepad(IGamepadLink* gamepad);
+  void setIr(IIrTransceiver* ir, IIrCodeRepository* codes);
+  void setHid(IHidLink* hid);
+  void setHidProfile(HidCapabilitySet profile);
   void setResolver(PromptResolver resolver);
 
   void start(const char* firstId);
@@ -68,8 +69,9 @@ class Navigator {
   IVoiceUplink* voice_ = nullptr;
   IExpressionSink* expression_ = nullptr;
   IIrTransceiver* ir_ = nullptr;
-  IIrStore* irStore_ = nullptr;
-  IGamepadLink* gamepad_ = nullptr;
+  IIrCodeRepository* irCodes_ = nullptr;
+  IHidLink* hid_ = nullptr;
+  HidCapabilitySet hidProfile_;
   std::vector<AppScreen*> screens_;
   std::vector<AppScreen*> stack_;
   PromptOverlay* prompt_ = nullptr;

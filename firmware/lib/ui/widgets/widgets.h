@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
 
 #include "anim.h"
 #include "gfx.h"
@@ -94,6 +95,29 @@ void sectionLabel(Gfx& g, const char* text);
 std::string upper(const char* s);
 void title(Gfx& g, const char* s, int x, int y, int maxWidth, uint16_t color, textdatum_t datum);
 void confirmPrompt(Gfx& g, const Layout& L, const char* title, const char* sub = nullptr);
+
+class ConfirmFlow {
+ public:
+  bool active() const { return active_; }
+
+  void arm(const char* title, std::string body) {
+    active_ = true;
+    title_ = title;
+    body_ = std::move(body);
+  }
+
+  void cancel() { active_ = false; }
+
+  void render(Gfx& g, const Layout& L) const {
+    confirmPrompt(g, L, title_, body_.c_str());
+    hints(g, "CONFIRM", "CANCEL");
+  }
+
+ private:
+  bool active_ = false;
+  const char* title_ = "";
+  std::string body_;
+};
 void trend(Gfx& g, int cx, int cy, char dir);
 void pill(Gfx& g, int cx, int y, const char* text, const lgfx::IFont* font, uint16_t color = theme::kFg);
 void heroValue(Gfx& g, int cx, int cy, const char* label, const char* value,

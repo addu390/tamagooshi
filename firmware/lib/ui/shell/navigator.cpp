@@ -33,12 +33,14 @@ void Navigator::setVoice(IVoiceUplink* voice) { voice_ = voice; }
 
 void Navigator::setExpression(IExpressionSink& expression) { expression_ = &expression; }
 
-void Navigator::setIr(IIrTransceiver* ir, IIrStore* store) {
+void Navigator::setIr(IIrTransceiver* ir, IIrCodeRepository* codes) {
   ir_ = ir;
-  irStore_ = store;
+  irCodes_ = codes;
 }
 
-void Navigator::setGamepad(IGamepadLink* gamepad) { gamepad_ = gamepad; }
+void Navigator::setHid(IHidLink* hid) { hid_ = hid; }
+
+void Navigator::setHidProfile(HidCapabilitySet profile) { hidProfile_ = profile; }
 
 void Navigator::setResolver(PromptResolver resolver) { resolver_ = std::move(resolver); }
 
@@ -68,8 +70,9 @@ ShellContext Navigator::ctx() {
                       voice_,
                       expression_,
                       ir_,
-                      irStore_,
-                      gamepad_};
+                      irCodes_,
+                      hid_,
+                      hidProfile_};
 }
 
 void Navigator::start(const char* firstId) {

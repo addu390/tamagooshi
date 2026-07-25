@@ -31,9 +31,9 @@ class IIrTransceiver {
   virtual bool fetchLearned(IrFrame& out) = 0;
 };
 
-class IIrStore {
+class IIrCodeRepository {
  public:
-  virtual ~IIrStore() = default;
+  virtual ~IIrCodeRepository() = default;
   virtual int load(IrButton* out, int max) = 0;
   virtual void save(const IrButton* buttons, int count) = 0;
 };

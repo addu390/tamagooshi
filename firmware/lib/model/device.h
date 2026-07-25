@@ -111,6 +111,7 @@ struct ConfigPatch {
   std::optional<bool> buzzer_enabled;
   std::string theme;
   std::string character_id;
+  std::string hid_mode;
 };
 
 struct DeviceState {
@@ -141,8 +142,10 @@ struct DeviceState {
   bool hub_connected = false;
   bool agent_connected = false;
   bool dirty = false;
+  bool metrics_dirty = false;
 
   void upsertMetric(const Metric& m);
+  void removeMetric(const std::string& key);
   const Metric* starMetric() const;
   const Metric* metricByKey(const std::string& key) const;
 

@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from ...config.settings import load_connection, save_connection
 from ...network.transport.factory import resolve_spec, spec_locked, transport_spec
-from ..dependencies import transport
+from ..dependencies import publisher, transport
 from ..lifecycle import apply_change
 
 log = logging.getLogger("tamagooshi.api.connection")
@@ -16,6 +16,8 @@ log = logging.getLogger("tamagooshi.api.connection")
 router = APIRouter()
 
 SCAN_TIMEOUT = 6.0
+# Keep in sync with firmware/tools/gen/registry.py HID_MODES (parity-tested).
+HID_MODES = ("gamepad", "desk", "off")
 
 
 async def _apply_link_change(request: Request, mutation) -> dict:
@@ -29,11 +31,13 @@ async def _apply_link_change(request: Request, mutation) -> dict:
 @router.get("/api/connection")
 async def connection(request: Request):
     link, protocol, _ = resolve_spec(transport_spec())
+    saved = load_connection()
     return {
         "link": link,
         "protocol": protocol,
         "locked": spec_locked(),
-        "saved": load_connection().get("device"),
+        "saved": saved.get("device"),
+        "hid_mode": saved.get("hid_mode") or "gamepad",
         **asdict(transport(request).status()),
     }
 
@@ -63,9 +67,12 @@ async def put_connection(request: Request):
 
     def save():
         link, protocol, _ = resolve_spec(spec)
-        saved = {"transport": f"{link}:{protocol}"}
+        saved = load_connection()
+        saved["transport"] = f"{link}:{protocol}"
         if device:
             saved["device"] = {"name": device.get("name"), "address": device.get("address")}
+        else:
+            saved.pop("device", None)
         save_connection(saved)
 
     return await _apply_link_change(request, save)
@@ -79,3 +86,25 @@ async def forget_device(request: Request):
         save_connection(saved)
 
     return await _apply_link_change(request, forget)
+
+
+@router.put("/api/connection/hid")
+async def put_hid_mode(request: Request):
+    body = await request.json()
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="body must be an object")
+
+    mode = body.get("mode")
+    if mode not in HID_MODES:
+        raise HTTPException(status_code=400, detail=f"mode must be one of {list(HID_MODES)}")
+
+    saved = load_connection()
+    saved["hid_mode"] = mode
+    save_connection(saved)
+
+    try:
+        publisher(request).publish_hid_mode(mode)
+    except Exception as err:
+        raise HTTPException(status_code=503, detail=f"failed to publish hid mode: {err}") from err
+
+    return {"mode": mode}

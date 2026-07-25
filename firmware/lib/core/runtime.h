@@ -6,6 +6,7 @@
 #include "config.h"
 #include "expression.h"
 #include "gfx.h"
+#include "hid.h"
 #include "hub/handlers.h"
 #include "hub/router.h"
 #include "input.h"
@@ -24,7 +25,8 @@ class Runtime {
  public:
   Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressionSink& expression,
           ISystemControl& system, IButtonSource& buttons, IInputSource& input,
-          ISensorSource& sensor, ITelemetry& telemetry, IMicSource& mic, config::ISource& config);
+          ISensorSource& sensor, ITelemetry& telemetry, IMicSource& mic, config::ISource& config,
+          IMetricRepository& metrics, IHidProfileRepository& hidProfiles);
 
   void begin();
   void loop(uint32_t nowMs);
@@ -41,6 +43,7 @@ class Runtime {
   void onMotion(const MotionEvent& event);
   void syncPrompt();
   void syncPower(uint32_t nowMs);
+  void syncMetrics(uint32_t nowMs);
   void renderIfNeeded();
 
   DeviceState state_;
@@ -62,8 +65,11 @@ class Runtime {
   ITelemetry& telemetry_;
   IMicSource& mic_;
   config::ISource& config_;
+  IMetricRepository& metrics_;
+  IHidProfileRepository& hidProfiles_;
   uint8_t applied_brightness_ = 0;
   uint32_t next_power_poll_ms_ = 0;
+  uint32_t metrics_save_at_ = 0;
 };
 
 }  // namespace tama

@@ -34,6 +34,7 @@ inline constexpr const char* kQuietHours = "quiet_hours";
 inline constexpr const char* kBuzzer = "buzzer";
 inline constexpr const char* kTheme = "theme";
 inline constexpr const char* kCharacterId = "character_id";
+inline constexpr const char* kHidMode = "hid_mode";
 
 inline constexpr const char* kEpoch = "epoch";
 inline constexpr const char* kTzOffset = "tz_offset";

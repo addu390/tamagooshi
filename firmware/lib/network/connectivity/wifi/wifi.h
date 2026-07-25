@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "bearer.h"
+#include "radio.h"
 #include "wifi/control.h"
 #include "wifi/credentials.h"
 #include "wifi/provisioner.h"
@@ -13,7 +14,8 @@ namespace tama {
 
 class WifiBearer : public IBearer, public IWifiControl {
  public:
-  WifiBearer(ICredentialStore& store, IProvisioner& provisioner);
+  WifiBearer(INetworkRepository& networks, IProvisioner& provisioner,
+             IRadioStateRepository& state);
 
   void begin() override;
   void loop() override;
@@ -41,8 +43,9 @@ class WifiBearer : public IBearer, public IWifiControl {
   bool loadEnabled() const;
   void saveEnabled(bool on);
 
-  ICredentialStore& store_;
+  INetworkRepository& networks_;
   IProvisioner& provisioner_;
+  IRadioStateRepository& state_;
   std::string activeSsid_;
   bool enabled_ = false;
   bool provisioning_ = false;

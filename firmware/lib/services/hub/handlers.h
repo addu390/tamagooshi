@@ -2,6 +2,7 @@
 
 #include "codec.h"
 #include "expression.h"
+#include "hid.h"
 #include "model.h"
 #include "router.h"
 #include "system.h"
@@ -37,8 +38,12 @@ class MoodHandler : public StateHandler {
 
 class ConfigHandler : public StateHandler {
  public:
-  using StateHandler::StateHandler;
+  ConfigHandler(DeviceState& state, const ICodec& codec, IHidProfileRepository& hidProfiles)
+      : StateHandler(state, codec), hidProfiles_(hidProfiles) {}
   void handle(const Envelope& env) override;
+
+ private:
+  IHidProfileRepository& hidProfiles_;
 };
 
 class TimeHandler : public IMessageHandler {
@@ -119,11 +124,11 @@ class CommandHandler : public IMessageHandler {
 
 struct HandlerSet {
   HandlerSet(DeviceState& state, const ICodec& codec, IExpressionSink& sink,
-             ISystemControl& system)
+             ISystemControl& system, IHidProfileRepository& hidProfiles)
       : branding(state, codec),
         metric(state, codec),
         mood(state, codec),
-        config(state, codec),
+        config(state, codec, hidProfiles),
         time(state, system, codec),
         pageRaise(state, codec),
         pageClear(state, codec),

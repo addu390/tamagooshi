@@ -1,8 +1,16 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace tama {
+
+class IRadioStateRepository {
+ public:
+  virtual ~IRadioStateRepository() = default;
+  virtual std::optional<bool> enabled() const = 0;
+  virtual void setEnabled(bool on) = 0;
+};
 
 class IRadio {
  public:

@@ -1,5 +1,6 @@
 #include "handlers.h"
 
+#include "hid_modes.gen.h"
 #include "theme.h"
 #include "types.h"
 
@@ -42,6 +43,26 @@ void ConfigHandler::handle(const Envelope& env) {
   if (patch.buzzer_enabled) state_.buzzer_enabled = *patch.buzzer_enabled;
   if (!patch.theme.empty()) theme::setThemeByName(patch.theme.c_str());
   if (!patch.character_id.empty()) state_.character_id = patch.character_id;
+
+  if (!patch.hid_mode.empty() && hid::isMode(patch.hid_mode.c_str())) {
+    const HidCapabilitySet next = hid::profileFor(patch.hid_mode.c_str()) & hid::kAvailable;
+    const HidCapabilitySet current = hid::resolve(hidProfiles_.load());
+    if (next != current) {
+      hidProfiles_.save(next);
+      Page page;
+      page.id = "hid.reboot";
+      page.severity = Severity::Warning;
+      page.title = "REBOOT NEEDED";
+      page.body = "HID mode saved. Reboot, then forget and re-pair on the host.";
+      page.source = "device";
+      page.requires_ack = true;
+      page.actions[0] = {"REBOOT", PromptOutcome::Ack};
+      page.actions[1] = {"LATER", PromptOutcome::Snooze};
+      page.actionCount = 2;
+      state_.raisePrompt(page);
+    }
+  }
+
   state_.dirty = true;
 }
 

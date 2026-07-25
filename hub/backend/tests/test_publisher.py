@@ -63,3 +63,13 @@ def test_config_publishes_theme_and_mascot():
     assert topic == topics.config("sim")
     assert env["body"] == {"theme": "slate", "character_id": "cat"}
     assert retain is True
+
+
+def test_publish_hid_mode():
+    pub, fake = _publisher()
+    pub.publish_hid_mode("desk")
+    topic, env, _, retain = _last(fake)
+    assert topic == topics.config("sim")
+    assert env["type"] == "config.set"
+    assert env["body"] == {"hid_mode": "desk"}
+    assert retain is False

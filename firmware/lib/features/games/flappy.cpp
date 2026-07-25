@@ -57,12 +57,12 @@ class FlappyScreen : public ArcadeGameScreen {
   static constexpr int kBirdX = 34;
   static constexpr int kBirdR = 11;
   static constexpr int kFloorH = 20;
-  static constexpr float kGravity = 490.0f;
-  static constexpr float kFlap = -115.0f;
-  static constexpr float kPipeSpeed = 100.0f;
+  static constexpr float kGravity = 450.0f;
+  static constexpr float kFlap = -125.0f;
+  static constexpr float kPipeSpeed = 92.0f;
 
   Body1D body_;
-  GapChannel pipe_{18, 62, 18};
+  GapChannel pipe_{18, 72, 28};
   bool passed_ = false;
 };
 

@@ -19,11 +19,6 @@ class ISource {
   virtual std::string read() = 0;
 };
 
-class NullSource : public ISource {
- public:
-  std::string read() override { return {}; }
-};
-
 bool apply(const std::string& blob, DeviceState& state);
 
 }  // namespace tama::config

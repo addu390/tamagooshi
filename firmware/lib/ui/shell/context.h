@@ -5,7 +5,7 @@
 
 #include "mascots/character.h"
 #include "expression.h"
-#include "gamepad.h"
+#include "hid.h"
 #include "input.h"
 #include "ir.h"
 #include "mascots/registry.h"
@@ -35,8 +35,9 @@ struct ShellContext {
   IVoiceUplink* voice;
   IExpressionSink* expression;
   IIrTransceiver* ir;
-  IIrStore* irStore;
-  IGamepadLink* gamepad;
+  IIrCodeRepository* irCodes;
+  IHidLink* hid;
+  HidCapabilitySet hidProfile;
 };
 
 }  // namespace tama

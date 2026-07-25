@@ -24,7 +24,7 @@ class RemoteScreen : public screens::ListScreen {
     ListScreen::onEnter(ctx);
     learning_ = false;
     sentRow_ = -1;
-    count_ = ctx.irStore ? ctx.irStore->load(buttons_, kMaxButtons) : 0;
+    count_ = ctx.irCodes ? ctx.irCodes->load(buttons_, kMaxButtons) : 0;
   }
 
   void onExit() override {
@@ -66,14 +66,14 @@ class RemoteScreen : public screens::ListScreen {
     buttons_[count_].label = "BTN " + std::to_string(count_ + 1);
     buttons_[count_].frame = frame;
     ++count_;
-    if (ctx.irStore) ctx.irStore->save(buttons_, count_);
+    if (ctx.irCodes) ctx.irCodes->save(buttons_, count_);
     return Transition::redraw();
   }
 
  protected:
   const char* section() const override { return "REMOTE"; }
   const char* actionHint() const override { return "SEND"; }
-  bool available(ShellContext& ctx) const override { return ctx.ir && ctx.irStore; }
+  bool available(ShellContext& ctx) const override { return ctx.ir && ctx.irCodes; }
 
   int rows(ShellContext&, widgets::ListItem* out, int) override {
     int n = 0;
@@ -106,7 +106,7 @@ class RemoteScreen : public screens::ListScreen {
   Transition onConfirm(ShellContext& ctx) override {
     count_ = 0;
     sentRow_ = -1;
-    if (ctx.irStore) ctx.irStore->save(buttons_, 0);
+    if (ctx.irCodes) ctx.irCodes->save(buttons_, 0);
     return Transition::redraw();
   }
 

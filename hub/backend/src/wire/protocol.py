@@ -73,6 +73,7 @@ class ConfigSet(BaseModel):
     theme: str | None = None
     character_id: str | None = None
     carousel_secs: int | None = None
+    hid_mode: str | None = None
 
 
 class TimeSet(BaseModel):

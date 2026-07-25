@@ -111,6 +111,7 @@ bool ArduinoJsonCodec::parseConfig(const std::string& body, ConfigPatch& out) co
   if (!doc[fields::kBuzzer].isNull()) out.buzzer_enabled = doc[fields::kBuzzer].as<bool>();
   out.theme = str(doc[fields::kTheme]);
   out.character_id = str(doc[fields::kCharacterId]);
+  out.hid_mode = str(doc[fields::kHidMode]);
   return true;
 }
 

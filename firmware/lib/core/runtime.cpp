@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "brand.gen.h"
+#include "hid_modes.gen.h"
 #include "screens.h"
 
 namespace tama {
@@ -34,10 +35,11 @@ bool samePage(const Page& lhs, const Page& rhs) {
 Runtime::Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressionSink& expression,
                  ISystemControl& system, IButtonSource& buttons, IInputSource& input,
                  ISensorSource& sensor, ITelemetry& telemetry, IMicSource& mic,
-                 config::ISource& config)
+                 config::ISource& config, IMetricRepository& metrics,
+                 IHidProfileRepository& hidProfiles)
     : mapper_(buttons, input, caps),
       nav_(state_, pet_, caps, characters_),
-      handlers_(state_, codec, expression, system),
+      handlers_(state_, codec, expression, system, hidProfiles),
       expression_(expression),
       system_(system),
       buttons_(buttons),
@@ -45,7 +47,9 @@ Runtime::Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressio
       sensor_(sensor),
       telemetry_(telemetry),
       mic_(mic),
-      config_(config) {}
+      config_(config),
+      metrics_(metrics),
+      hidProfiles_(hidProfiles) {}
 
 void Runtime::bind(const ChannelBinding& binding) {
   channels_.bind(binding);
@@ -58,11 +62,14 @@ void Runtime::bind(const ChannelBinding& binding) {
 void Runtime::begin() {
   brand::apply(state_);
   config::apply(config_.read(), state_);
+  state_.metrics = metrics_.load();
+  state_.metrics_dirty = false;
   screens::install(nav_, characters_, prompt_);
   nav_.setMic(mic_);
   nav_.setSensor(sensor_);
   nav_.setButtons(buttons_);
   nav_.setExpression(expression_);
+  nav_.setHidProfile(hid::resolve(hidProfiles_.load()));
   handlers_.bind(router_);
 
   auto wire = [this](Channel& ch, bool isHub) {
@@ -117,8 +124,21 @@ void Runtime::loop(uint32_t nowMs) {
   sensor_.poll();
   syncPrompt();
   syncPower(nowMs);
+  syncMetrics(nowMs);
   nav_.tick(nowMs);
   renderIfNeeded();
+}
+
+void Runtime::syncMetrics(uint32_t nowMs) {
+  constexpr uint32_t kFlushDelayMs = 2000;
+  if (state_.metrics_dirty) {
+    state_.metrics_dirty = false;
+    metrics_save_at_ = nowMs + kFlushDelayMs;
+  }
+  if (metrics_save_at_ && nowMs >= metrics_save_at_) {
+    metrics_.save(state_.metrics);
+    metrics_save_at_ = 0;
+  }
 }
 
 void Runtime::onGesture(const GestureEvent& event) {

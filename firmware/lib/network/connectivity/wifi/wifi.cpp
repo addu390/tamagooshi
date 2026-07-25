@@ -1,7 +1,6 @@
 #include "wifi/wifi.h"
 #if defined(TAMA_ENABLE_WIFI)
 
-#include <Preferences.h>
 #include <WiFi.h>
 
 namespace tama {
@@ -9,15 +8,15 @@ namespace tama {
 namespace {
 constexpr uint32_t kRetryIntervalMs = 5000;
 constexpr int kFailuresBeforeAdvance = 3;
-constexpr char kNamespace[] = "wifinet";
 }  // namespace
 
-WifiBearer::WifiBearer(ICredentialStore& store, IProvisioner& provisioner)
-    : store_(store), provisioner_(provisioner) {}
+WifiBearer::WifiBearer(INetworkRepository& networks, IProvisioner& provisioner,
+                       IRadioStateRepository& state)
+    : networks_(networks), provisioner_(provisioner), state_(state) {}
 
 void WifiBearer::begin() {
   provisioner_.onCredentials([this](const WifiCredentials& creds) {
-    store_.remember(creds);
+    networks_.remember(creds);
     provisioner_.stop();
     provisioning_ = false;
     connect(creds);
@@ -28,7 +27,7 @@ void WifiBearer::begin() {
 }
 
 void WifiBearer::start() {
-  const std::vector<WifiCredentials> known = store_.all();
+  const std::vector<WifiCredentials> known = networks_.all();
   if (known.empty()) {
     provisioning_ = true;
     provisioner_.begin();
@@ -78,7 +77,7 @@ void WifiBearer::loop() {
 }
 
 void WifiBearer::advance() {
-  const std::vector<WifiCredentials> known = store_.all();
+  const std::vector<WifiCredentials> known = networks_.all();
   if (known.size() < 2) return;
   size_t idx = 0;
   for (size_t i = 0; i < known.size(); ++i) {
@@ -106,7 +105,7 @@ void WifiBearer::setEnabled(bool on) {
 
 std::vector<KnownNetwork> WifiBearer::known() const {
   std::vector<KnownNetwork> out;
-  for (const WifiCredentials& c : store_.all()) out.push_back({c.ssid, c.ssid == activeSsid_});
+  for (const WifiCredentials& c : networks_.all()) out.push_back({c.ssid, c.ssid == activeSsid_});
   return out;
 }
 
@@ -123,10 +122,10 @@ void WifiBearer::select(const std::string& ssid) {
 }
 
 void WifiBearer::forget(const std::string& ssid) {
-  store_.forget(ssid);
+  networks_.forget(ssid);
   if (ssid != activeSsid_) return;
   WifiCredentials next;
-  const std::vector<WifiCredentials> known = store_.all();
+  const std::vector<WifiCredentials> known = networks_.all();
   if (!known.empty()) {
     next = known.front();
     connect(next);
@@ -147,7 +146,7 @@ void WifiBearer::provision() {
 
 bool WifiBearer::credentialsFor(const std::string& ssid, WifiCredentials& out) const {
   if (ssid.empty()) return false;
-  for (const WifiCredentials& c : store_.all()) {
+  for (const WifiCredentials& c : networks_.all()) {
     if (c.ssid == ssid) {
       out = c;
       return true;
@@ -157,20 +156,10 @@ bool WifiBearer::credentialsFor(const std::string& ssid, WifiCredentials& out) c
 }
 
 bool WifiBearer::loadEnabled() const {
-  Preferences prefs;
-  if (!prefs.begin(kNamespace, true)) return !store_.all().empty();
-  const uint8_t v = prefs.getUChar("on", 0xFF);
-  prefs.end();
-  if (v == 0xFF) return !store_.all().empty();
-  return v != 0;
+  return state_.enabled().value_or(!networks_.all().empty());
 }
 
-void WifiBearer::saveEnabled(bool on) {
-  Preferences prefs;
-  if (!prefs.begin(kNamespace, false)) return;
-  prefs.putUChar("on", on ? 1 : 0);
-  prefs.end();
-}
+void WifiBearer::saveEnabled(bool on) { state_.setEnabled(on); }
 
 }  // namespace tama
 

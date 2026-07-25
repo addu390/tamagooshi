@@ -36,6 +36,10 @@ class Publisher:
         )
         self.publish_envelope(topics.config(self._device_id), "config.set", body)
 
+    def publish_hid_mode(self, mode: str) -> None:
+        body = protocol.ConfigSet(hid_mode=mode)
+        self.publish_envelope(topics.config(self._device_id), "config.set", body, retain=False)
+
     def publish_time(self, tz_offset: int) -> None:
         body = protocol.TimeSet(epoch=int(_time.time()), tz_offset=tz_offset)
         self.publish_envelope(topics.time(self._device_id), "time.set", body, retain=False)

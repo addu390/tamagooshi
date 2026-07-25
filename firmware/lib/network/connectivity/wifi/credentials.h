@@ -15,9 +15,9 @@ struct WifiCredentials {
   bool valid() const { return !ssid.empty(); }
 };
 
-class ICredentialStore {
+class INetworkRepository {
  public:
-  virtual ~ICredentialStore() = default;
+  virtual ~INetworkRepository() = default;
   virtual std::vector<WifiCredentials> all() const = 0;
   virtual void remember(const WifiCredentials& creds) = 0;
   virtual void forget(const std::string& ssid) = 0;

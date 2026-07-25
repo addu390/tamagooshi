@@ -1,6 +1,8 @@
 import os
 import re
 
+from gen import registry
+
 FLAGS = ("imu", "mic", "joystick", "ir")
 
 APP_TEMPLATE = """#include "brand.gen.h"
@@ -110,30 +112,34 @@ def _feature(kind, iid, desc, flags):
 
     parts = [f'"label": "{iid.upper()}"', f'"desc": "{desc}"']
     parts += [f'"{f}": True' for f in FLAGS if f in flags]
-    registry = os.path.join(firmware, "tools", "gen", "features", f"{kind}s.py")
-    _insert_entry(registry, iid, f'    "{iid}": {{{", ".join(parts)}}},')
+    for hid in registry.HID_KINDS:
+        if f"hid={hid}" in flags:
+            parts.append(f'"hid": "{hid}"')
+    entries = os.path.join(firmware, "tools", "gen", "features", f"{kind}s.py")
+    _insert_entry(entries, iid, f'    "{iid}": {{{", ".join(parts)}}},')
 
     cls = "".join(p.capitalize() for p in iid.split("_"))
     stub = os.path.join(firmware, "lib", "features", f"{kind}s", f"{iid}.cpp")
     _write_new(stub, template.format(iid=iid, cls=cls, macro=iid.upper(), label=iid.upper()))
 
-    return [registry, stub]
+    return [entries, stub]
 
 
 def _theme(iid, surface, ink, accent):
     firmware = _firmware_dir()
-    registry = os.path.join(firmware, "tools", "gen", "ui", "themes.py")
+    entries = os.path.join(firmware, "tools", "gen", "ui", "themes.py")
     accent_part = f', "accent": "{accent}"' if accent else ""
     entry = f'    "{iid}": _derived({{"surface": "{surface}", "ink": "{ink}"{accent_part}}}),'
-    _insert_entry(registry, iid, entry)
-    return [registry]
+    _insert_entry(entries, iid, entry)
+    return [entries]
 
 
 def new(args):
     kinds = ("app", "game", "theme")
     if len(args) < 2 or args[0] not in kinds:
         raise SystemExit(
-            "usage: python3 -m gen new app|game <id> <description> [imu] [mic] [joystick] [ir]\n"
+            "usage: python3 -m gen new app|game <id> <description> "
+            "[imu] [mic] [joystick] [ir] [hid=gamepad|media|keyboard|mouse]\n"
             "       python3 -m gen new theme <id> <surface-hex> <ink-hex> [accent-hex]")
     kind, iid = args[0], args[1]
     _check_id(iid)
@@ -146,7 +152,8 @@ def new(args):
     else:
         if len(args) < 3:
             raise SystemExit(f"usage: python3 -m gen new {kind} <id> <description> "
-                             "[imu] [mic] [joystick] [ir]")
+                             "[imu] [mic] [joystick] [ir] "
+                             "[hid=gamepad|media|keyboard|mouse]")
         touched = _feature(kind, iid, args[2], set(args[3:]))
 
     for path in touched:

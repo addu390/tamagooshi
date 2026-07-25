@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
-from src.api.routes.connection import connection, forget_device, put_connection
+from src.api.routes.connection import connection, forget_device, put_connection, put_hid_mode
 from src.config.settings import load_connection
 from src.network.transport.base import LinkStatus
 from src.network.transport.factory import transport_spec
@@ -21,11 +21,19 @@ class StubTransport:
         self.closed = True
 
 
-def _request(body=None, transport=None):
+class StubPublisher:
+    def __init__(self):
+        self.modes = []
+
+    def publish_hid_mode(self, mode):
+        self.modes.append(mode)
+
+
+def _request(body=None, transport=None, publisher=None):
     async def json_body():
         return json.loads(json.dumps(body))
 
-    state = SimpleNamespace(transport=transport)
+    state = SimpleNamespace(transport=transport, publisher=publisher)
     return SimpleNamespace(app=SimpleNamespace(state=state), json=json_body)
 
 
@@ -48,6 +56,17 @@ def test_put_connection_saves_device(data_dir):
     assert load_connection() == {"transport": "ble:gatt",
                                  "device": {"name": "GOOSHI-1", "address": "AA:BB"}}
     assert transport_spec() == "ble:gatt"
+
+
+def test_put_connection_keeps_hid_mode(data_dir):
+    from src.config.settings import save_connection
+
+    save_connection({"transport": "ble:gatt", "hid_mode": "desk"})
+    asyncio.run(put_connection(_request(
+        {"transport": "ble", "device": {"name": "G", "address": "AA:BB"}},
+        transport=StubTransport())))
+
+    assert load_connection()["hid_mode"] == "desk"
 
 
 def test_put_connection_unknown_link_400(data_dir):
@@ -80,6 +99,22 @@ def test_get_connection_reports_transport(data_dir):
     assert body["locked"] is False
     assert body["state"] == "connected"
     assert body["device"]["name"] == "GOOSHI-1"
+    assert body["hid_mode"] == "gamepad"
+
+
+def test_put_hid_mode_publishes_and_saves(data_dir):
+    pub = StubPublisher()
+    result = asyncio.run(put_hid_mode(_request({"mode": "desk"}, publisher=pub)))
+
+    assert result == {"mode": "desk"}
+    assert pub.modes == ["desk"]
+    assert load_connection()["hid_mode"] == "desk"
+
+
+def test_put_hid_mode_rejects_unknown(data_dir):
+    with pytest.raises(HTTPException) as err:
+        asyncio.run(put_hid_mode(_request({"mode": "laser"})))
+    assert err.value.status_code == 400
 
 
 def test_env_overrides_saved_transport(data_dir, monkeypatch):

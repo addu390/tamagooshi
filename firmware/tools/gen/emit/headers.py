@@ -52,6 +52,13 @@ def emit_mascots(out_dir, ids, customs, base_dir):
     write(os.path.join(out_dir, "mascots.gen.h"), "\n".join(lines))
 
 
+def _hid_capability(meta):
+    kind = meta.get("hid")
+    if not kind:
+        return "false, HidCapability::Gamepad"
+    return f"true, HidCapability::{kind.capitalize()}"
+
+
 def emit_features(out_dir, category, enabled):
     chosen = set(enabled)
     ordered = [i for i in category.items if i in chosen]
@@ -65,7 +72,7 @@ def emit_features(out_dir, category, enabled):
                           for f in ("joystick", "imu", "mic", "ir"))
         note = cstr("soon") if meta.get("soon") else "nullptr"
         rows.append(f'    {{{cstr(iid)}, {cstr(category.label(iid))}, {screen}, {needs}, '
-                    f'{note}}},')
+                    f'{_hid_capability(meta)}, {note}}},')
 
     lines = ['#pragma once', '', f'#include "{category.id}/{category.id}.h"', '',
              f'namespace tama::{category.id} {{', '']
@@ -204,6 +211,49 @@ def emit_boards(out_dir):
     ]
 
     write(os.path.join(out_dir, "board.gen.h"), "\n".join(lines))
+
+
+def emit_hid_modes(out_dir, available_kinds):
+    rows = []
+    for mode_id, meta in registry.HID_MODES.items():
+        bits = registry.hid_bits(meta["capabilities"])
+        rows.append(f'    {{{cstr(mode_id)}, {cstr(meta["label"])}, {bits}}},')
+    available = registry.hid_bits(available_kinds)
+    default_bits = registry.hid_bits(registry.HID_MODES["gamepad"]["capabilities"]) & available
+    if default_bits == 0:
+        default_bits = available
+    lines = [
+        '#pragma once', '', '#include <cstring>', '#include <optional>', '', '#include "hid.h"', '',
+        'namespace tama::hid {', '',
+        f'inline constexpr HidCapabilitySet kAvailable{{{available}}};',
+        f'inline constexpr HidCapabilitySet kDefault{{{default_bits}}};', '',
+        'struct Mode {',
+        '  const char* id;',
+        '  const char* label;',
+        '  uint8_t bits;',
+        '};', '',
+        'inline constexpr Mode kModes[] = {', *rows, '};',
+        'inline constexpr int kModeCount = sizeof(kModes) / sizeof(kModes[0]);', '',
+        'inline HidCapabilitySet profileFor(const char* id) {',
+        '  if (!id) return {};',
+        '  for (int i = 0; i < kModeCount; ++i) {',
+        '    if (std::strcmp(kModes[i].id, id) == 0) return HidCapabilitySet(kModes[i].bits);',
+        '  }',
+        '  return {};',
+        '}', '',
+        'inline bool isMode(const char* id) {',
+        '  if (!id) return false;',
+        '  for (int i = 0; i < kModeCount; ++i) {',
+        '    if (std::strcmp(kModes[i].id, id) == 0) return true;',
+        '  }',
+        '  return false;',
+        '}', '',
+        'inline HidCapabilitySet resolve(std::optional<HidCapabilitySet> stored) {',
+        '  return stored.value_or(kDefault) & kAvailable;',
+        '}', '',
+        '}  // namespace tama::hid', '',
+    ]
+    write(os.path.join(out_dir, "hid_modes.gen.h"), "\n".join(lines))
 
 
 def emit_portal(out_dir):

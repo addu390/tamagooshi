@@ -1,11 +1,12 @@
 #pragma once
+
 #if defined(TAMA_ENABLE_WIFI)
 
 #include "wifi/credentials.h"
 
 namespace tama {
 
-class NvsCredentialStore : public ICredentialStore {
+class NvsNetworkRepository : public INetworkRepository {
  public:
   std::vector<WifiCredentials> all() const override;
   void remember(const WifiCredentials& creds) override;
@@ -18,4 +19,4 @@ class NvsCredentialStore : public ICredentialStore {
 
 }  // namespace tama
 
-#endif
+#endif  // TAMA_ENABLE_WIFI

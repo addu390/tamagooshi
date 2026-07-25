@@ -9,6 +9,7 @@
 
 #include "bearer.h"
 #include "link.h"
+#include "radio.h"
 
 namespace tama {
 
@@ -26,7 +27,8 @@ class IBleService {
 
 class BleBearer : public IBearer, public ILink, public NimBLEServerCallbacks {
  public:
-  BleBearer(std::string brand, std::string fwVersion);
+  BleBearer(std::string brand, std::string fwVersion, std::string deviceId,
+            IRadioStateRepository& state);
 
   void add(IBleService& service);
 
@@ -55,6 +57,7 @@ class BleBearer : public IBearer, public ILink, public NimBLEServerCallbacks {
   void onAuthenticationComplete(NimBLEConnInfo& connInfo) override;
 
  private:
+  IRadioStateRepository& state_;
   std::string brand_;
   std::string fw_;
   std::string id_;

@@ -4,6 +4,7 @@ from fastapi import Request
 
 from ..config.models import HubConfig
 from ..config.service import BrandService
+from ..network import Publisher
 from ..network.transport.base import Transport
 from ..services.flash import Flasher
 from ..services.worker import Worker
@@ -15,6 +16,10 @@ def worker(request: Request) -> Worker:
 
 def transport(request: Request) -> Transport:
     return request.app.state.transport
+
+
+def publisher(request: Request) -> Publisher:
+    return request.app.state.publisher
 
 
 def flasher(request: Request) -> Flasher:

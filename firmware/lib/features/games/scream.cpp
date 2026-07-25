@@ -2,6 +2,7 @@
 #if TAMA_GAME_SCREAM
 
 #include "arcade.h"
+#include "audio.h"
 #include "games.h"
 #include "input.h"
 
@@ -28,7 +29,7 @@ class ScreamScreen : public ArcadeGameScreen {
   }
 
   Transition tick(ShellContext& ctx, uint32_t nowMs) override {
-    if (st_ != St::Run && idle_.due(nowMs, kIdleSampleMs)) sample();
+    if (st_ != St::Run && idle_.due(nowMs, kIdleSampleMs)) meter_.sample(mic_);
     return ArcadeGameScreen::tick(ctx, nowMs);
   }
 
@@ -41,20 +42,19 @@ class ScreamScreen : public ArcadeGameScreen {
     wall_.draw(g.c(), h_);
     drawMeter(g);
 
-    const Expr e = loud_ ? Expr::Happy : Expr::Neutral;
+    const Expr e = meter_.loud() ? Expr::Happy : Expr::Neutral;
     player(g, ctx, kHeroX, static_cast<int>(y_), 28, e, 0, false);
   }
 
   void onReset() override {
     y_ = h_ / 2.0f;
     wall_.reset(rng_, w_, h_);
-    loud_ = false;
   }
 
   void step(ShellContext&) override {
-    sample();
+    meter_.sample(mic_);
 
-    y_ += loud_ ? -kRiseRate * kStepSec : kFallRate * kStepSec;
+    y_ += meter_.loud() ? -kRiseRate * kStepSec : kFallRate * kStepSec;
     if (y_ < kHeroR) y_ = kHeroR;
 
     if (wall_.advance(kWallRate * kStepSec, rng_, w_, h_)) ++score_;
@@ -64,24 +64,13 @@ class ScreamScreen : public ArcadeGameScreen {
   }
 
  private:
-  void sample() {
-    level_ = mic_ ? mic_->level() : 0;
-    if (baseline_ < 0) {
-      baseline_ = level_;
-    } else {
-      baseline_ += (level_ - baseline_) / (level_ < baseline_ ? 4 : 128);
-    }
-    threshold_ = baseline_ * 2 + kMinDelta;
-    loud_ = level_ > threshold_;
-  }
-
   void drawMeter(Gfx& g) {
     auto& c = g.c();
     const int y = h_ - kMeterH;
-    int len = w_ * level_ / (threshold_ * 2);
+    int len = w_ * meter_.level() / (meter_.threshold() * 2);
     if (len > w_) len = w_;
     c.fillRect(0, y, w_, kMeterH, theme::kBg);
-    if (len > 0) c.fillRect(0, y, len, kMeterH, loud_ ? theme::kHi : theme::kDim);
+    if (len > 0) c.fillRect(0, y, len, kMeterH, meter_.loud() ? theme::kHi : theme::kDim);
     c.drawFastVLine(w_ / 2, y - 2, kMeterH + 2, theme::kFg);
   }
 
@@ -97,11 +86,8 @@ class ScreamScreen : public ArcadeGameScreen {
   IMicSource* mic_ = nullptr;
   GapChannel wall_{20, 66, 10};
   AnimClock idle_;
+  audio::LevelMeter meter_{kMinDelta};
   float y_ = 67;
-  int level_ = 0;
-  int baseline_ = -1;
-  int threshold_ = kMinDelta;
-  bool loud_ = false;
 };
 
 }  // namespace

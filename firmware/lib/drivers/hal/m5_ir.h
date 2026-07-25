@@ -41,12 +41,6 @@ class M5IrTransceiver : public IIrTransceiver {
   bool learning_ = false;
 };
 
-class NvsIrStore : public IIrStore {
- public:
-  int load(IrButton* out, int max) override;
-  void save(const IrButton* buttons, int count) override;
-};
-
 }  // namespace tama
 
 #endif  // TAMA_BOARD_HAS_IR

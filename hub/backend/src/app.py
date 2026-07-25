@@ -22,6 +22,7 @@ from .api import (
 )
 from .config import BrandService, HubConfig, default_catalog, load_config
 from .config.secrets import apply_secrets
+from .config.settings import load_connection
 from .features.buddy import create_bridge
 from .network import InboundRegistry, InboundRouter, Publisher
 from .network.transport import create_transport
@@ -31,6 +32,17 @@ from .services.metrics import Pipeline
 from .services.worker import Worker
 
 log = logging.getLogger("tamagooshi.app")
+
+
+def _publish_saved_hid_mode(publisher: Publisher) -> None:
+    mode = load_connection().get("hid_mode")
+    if mode:
+        publisher.publish_hid_mode(mode)
+
+
+def _on_device_hello(publisher: Publisher, pipeline: Pipeline) -> None:
+    _publish_saved_hid_mode(publisher)
+    pipeline.replay()
 
 
 def create_app(config: HubConfig | None = None) -> FastAPI:
@@ -53,7 +65,7 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
         pipeline = Pipeline(config, publisher, bus)
         worker = Worker(config, pipeline)
 
-        router.on("device.hello", lambda _topic, _env: pipeline.replay())
+        router.on("device.hello", lambda _topic, _env: _on_device_hello(publisher, pipeline))
         router.on("page.ack", lambda _topic, env: pipeline.acknowledge(env))
         publisher.on_inbound(router.handle)
 
@@ -63,6 +75,7 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
 
         publisher.connect()
         await worker.start()
+        _publish_saved_hid_mode(publisher)
 
         app.state.config = config
         app.state.bus = bus

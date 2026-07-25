@@ -15,7 +15,6 @@
 #endif
 #include "hal/identity.h"
 #include "hal/m5_buttons.h"
-#include "hal/m5_config.h"
 #include "hal/m5_expression.h"
 #include "hal/m5_imu.h"
 #if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
@@ -25,6 +24,17 @@
 #include "hal/m5_system.h"
 #include "hal/m5_telemetry.h"
 #include "hal/profile.h"
+#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+#include "nvs/hidprofile.h"
+#endif
+#if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
+#include "nvs/ircodes.h"
+#endif
+#include "nvs/metrics.h"
+#include "nvs/radiostate.h"
+#include "nvs/scope.h"
+#include "partition/provisioning.h"
+#include "hid.h"
 #include "hub/pipeline.h"
 #include "input.h"
 #include "json.h"
@@ -36,7 +46,7 @@
 #if defined(TAMA_ENABLE_BLE)
 #include "ble/ble.h"
 #endif
-#if defined(TAMA_ENABLE_BLE) && TAMA_APP_CONTROLLER
+#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
 #include "ble/hid.h"
 #endif
 #if defined(TAMA_ENABLE_BUDDY)
@@ -46,8 +56,8 @@
 #include "transport/gatt.h"
 #endif
 #if defined(TAMA_ENABLE_WIFI)
+#include "nvs/networks.h"
 #include "secrets.h"
-#include "wifi/nvs.h"
 #include "wifi/softap.h"
 #include "wifi/wifi.h"
 #endif
@@ -72,18 +82,25 @@ static M5Telemetry g_telemetry;
 static NullInputSource g_input;
 static M5Imu g_sensor;
 static M5Mic g_mic;
-static M5Config g_config;
+static PartitionConfigSource g_config;
+static NvsMetricRepository g_metrics;
+#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+static NvsHidProfileRepository g_hidProfile;
+#else
+static NullHidProfileRepository g_hidProfile;
+#endif
 #if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
 static M5IrTransceiver g_ir(board::kIrTxPin, board::kIrRxPin);
-static NvsIrStore g_irStore;
+static NvsIrCodeRepository g_irCodes;
 #endif
 static StaticBoardProfile g_board(board::capabilities());
 
 static Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_system, g_buttons, g_input,
-                         g_sensor, g_telemetry, g_mic, g_config);
+                         g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile);
 
 #if defined(TAMA_ENABLE_BLE)
-static BleBearer g_ble(TAMA_BRAND_ID, TAMA_FW_VERSION);
+static NvsRadioStateRepository g_bleRadio(nvs::kBleRadio);
+static BleBearer g_ble(TAMA_BRAND_ID, TAMA_FW_VERSION, g_deviceId, g_bleRadio);
 #else
 static NullLink g_nullLink;
 #endif
@@ -105,14 +122,15 @@ static AgentSession g_agentSession(g_nus, g_buddyController, g_agentCommands, g_
 static HubEndpoint g_hub(g_ble, TAMA_BRAND_ID, TAMA_FW_VERSION);
 #endif
 
-#if defined(TAMA_ENABLE_BLE) && TAMA_APP_CONTROLLER
-static GamepadEndpoint g_gamepad(TAMA_BRAND_ID);
+#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+static HidEndpoint g_hid(TAMA_BRAND_ID, g_hidProfile);
 #endif
 
 #if defined(TAMA_ENABLE_WIFI)
-static NvsCredentialStore g_wifiCreds;
+static NvsNetworkRepository g_networks;
+static NvsRadioStateRepository g_wifiRadio(nvs::kWifiRadio);
 static SoftApProvisioner g_wifiProvisioner(TAMA_BRAND_ID "-setup");
-static WifiBearer g_wifi(g_wifiCreds, g_wifiProvisioner);
+static WifiBearer g_wifi(g_networks, g_wifiProvisioner, g_wifiRadio);
 #endif
 #if defined(TAMA_PROTO_MQTT)
 static const std::string g_willTopic = topics::status(g_deviceId);
@@ -144,8 +162,8 @@ static void configureChannels() {
 #if defined(TAMA_PROTO_GATT)
   g_ble.add(g_hub);
 #endif
-#if TAMA_APP_CONTROLLER
-  g_ble.add(g_gamepad);
+#if TAMA_NEEDS_HID
+  g_ble.add(g_hid);
 #endif
   binding.link = &g_ble;
 #else
@@ -161,6 +179,10 @@ static void configureChannels() {
   auto voiceResolver = makeVoiceResolver(g_agentSession);
   binding.resolvePrompt = [hubResolver, agentResolver,
                            voiceResolver](const Page& page, PromptOutcome outcome) {
+    if (page.id == "hid.reboot") {
+      if (outcome == PromptOutcome::Ack) g_system.reboot();
+      return;
+    }
     if (page.source == "agent")
       agentResolver(page.id, outcome);
     else if (page.source == "voice")
@@ -170,6 +192,10 @@ static void configureChannels() {
   };
 #else
   binding.resolvePrompt = [hubResolver](const Page& page, PromptOutcome outcome) {
+    if (page.id == "hid.reboot") {
+      if (outcome == PromptOutcome::Ack) g_system.reboot();
+      return;
+    }
     hubResolver(page.id, outcome);
   };
 #endif
@@ -197,7 +223,7 @@ void setup() {
 
 #if defined(TAMA_ENABLE_WIFI)
   WifiCredentials seed{TAMA_WIFI_SSID, TAMA_WIFI_PASSWORD};
-  if (seed.valid() && g_wifiCreds.all().empty()) g_wifiCreds.remember(seed);
+  if (seed.valid() && g_networks.all().empty()) g_networks.remember(seed);
   g_wifi.begin();
 #endif
 #if defined(TAMA_ENABLE_BLE)
@@ -208,10 +234,10 @@ void setup() {
 
 #if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
   g_ir.begin();
-  g_runtime.nav().setIr(&g_ir, &g_irStore);
+  g_runtime.nav().setIr(&g_ir, &g_irCodes);
 #endif
-#if defined(TAMA_ENABLE_BLE) && TAMA_APP_CONTROLLER
-  g_runtime.nav().setGamepad(&g_gamepad);
+#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+  g_runtime.nav().setHid(&g_hid);
 #endif
 }
 

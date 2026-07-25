@@ -20,7 +20,8 @@ class PlayScreen : public CatalogScreen {
     int n = 0;
     for (int i = 0; i < total && n < max; ++i) {
       if (!ctx.state.enabled.game(items[i].id)) continue;
-      out[n++] = {items[i].label, items[i].screen, items[i].note, locked(items[i], ctx.caps)};
+      out[n++] = {items[i].label, items[i].screen, lockNote(items[i], ctx.caps, ctx.hidProfile),
+                  locked(items[i], ctx.caps, ctx.hidProfile)};
     }
     return n;
   }
