@@ -5,7 +5,7 @@ Firmware for the M5Stick family (`m5stickc-plus`, `m5stickc-plus-se`, `m5sticks3
 ## Simulator
 
 ```bash
-make sim TAMA_BRAND=demo TAMA_DEV=John
+make sim TAMA_BRAND=demo
 make sim-live   # against a broker
 ```
 
@@ -32,4 +32,4 @@ Transports are `link: protocol` pairs (`ble: gatt` is the base; add `wifi: mqtt`
 TAMA_BRAND=demo pio run -e m5sticks3 -t upload
 ```
 
-`TAMA_DEV` is optional. When set, the home status bar shows that name.
+Optional `device.persona` bakes a name into the home status bar and opens an about screen on long-press A from home.

@@ -86,8 +86,8 @@ window.TAMA_PAGE = {
             <button type="button" class="pickchip" data-theme="midnight" data-bg="#39436b" data-ink="#dbe2f7" data-hi="#9db6f2"><i style="background:#39436b"></i>midnight</button>
             <button type="button" class="pickchip" data-theme="lava (custom)" data-bg="#4a2a24" data-ink="#f5c0b2" data-hi="#f2704d"><i style="background:#4a2a24"></i>lava</button>
           </div>
-          <p class="refmock-cap">The same shape covers <code>typeface</code>, <code>mascot</code> packs, <code>games</code>, and <code>apps</code>. <code>buddy</code> turns on the on-device agent view, <code>timezone</code> sets the clock.</p>
-          <p class="refmock-cap refmock-split">Mascots can be custom too. <code>mascot.custom</code> takes any transparent PNG next to the config, and the <a href="mixer">mixer</a> builds one from parts. Try it.</p>
+          <p class="refmock-cap">The same shape covers <code>typeface</code>, <code>mascot</code> packs, <code>games</code>, and <code>apps</code>. <code>buddy</code> turns on the on-device agent view, <code>persona</code> bakes your name into the status bar and an about screen (long-press A on home), and <code>timezone</code> sets the clock.</p>
+          <p class="refmock-cap refmock-split">Mascots can be custom too. <code>mascot.custom</code> takes any transparent PNG next to the config, and the <a href="mixer">mixer</a> builds one from parts. <code>persona.avatar</code> uses the same 6-expression strip. Set <code>mascot: true</code> to also offer it in mascot selection.</p>
           <div class="pickrow" id="mascot-picks">
             <button type="button" class="pickchip on" data-mascot="gooshi">gooshi</button>
             <button type="button" class="pickchip" data-mascot="shapey">shapey (custom)</button>
@@ -119,6 +119,12 @@ window.TAMA_PAGE = {
     <span class="k">enabled:</span> <span class="p">[</span><span class="s">clock, stopwatch</span><span class="p">]</span>
   <span class="k">buddy:</span>
     <span class="k">enabled:</span> <span class="n">true</span>
+  <span class="k">persona:</span>
+    <span class="k">name:</span> <span class="s">Ada</span>
+    <span class="k">role:</span> <span class="s">engineer</span>
+    <span class="k">joined:</span> <span class="s">2024-03</span>
+    <span class="k">avatar:</span> <span class="s">persona.png</span>
+    <span class="k">mascot:</span> <span class="n">false</span>
   <span class="k">timezone:</span> <span class="s">"+05:30"</span></pre>
         <button class="expand-btn" aria-expanded="false">Expand</button>
       </div>

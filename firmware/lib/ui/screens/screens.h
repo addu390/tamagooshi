@@ -20,6 +20,7 @@ AppScreen& bluetooth();
 AppScreen& wifi();
 AppScreen& buddy();
 AppScreen& ask();
+AppScreen& persona();
 
 void addSettingsScreens(Navigator& nav);
 

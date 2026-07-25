@@ -133,7 +133,7 @@ void statusbar(Gfx& g, const DeviceState& state, bool showBrand) {
     rightEdge = linkLeft - 12;
   }
 
-  const std::string& label = showBrand ? state.branding.name : state.branding.dev_name;
+  const std::string& label = showBrand ? state.branding.name : state.branding.persona_name;
   if (!label.empty()) {
     const int maxW = rightEdge - 10;
     g.str(label.c_str(), 4, 2, theme::kFg,

@@ -172,7 +172,7 @@ function pixelCells(art, fill, factor) {
 }
 
 const SCREEN_SOFT = "#8a909c";
-const DEV_NAME = PRESET.deviceName || "GOOSHI";
+const PERSONA_NAME = PRESET.personaName || "GOOSHI";
 
 function screenChrome(name) {
   const x = SCREEN.x, y = SCREEN.y, w = SCREEN.w, h = SCREEN.h;
@@ -190,7 +190,7 @@ function stripCells() {
 function screenArt(opts) {
   if (opts && opts.highlight) return "";
   if (opts && opts.group === "controls") return stripCells();
-  return screenChrome(DEV_NAME) + `<g transform="translate(0,2.5)">${pixelCells(INVADER, "#3a3f47", 0.58)}</g>`;
+  return screenChrome(PERSONA_NAME) + `<g transform="translate(0,2.5)">${pixelCells(INVADER, "#3a3f47", 0.58)}</g>`;
 }
 
 function zLift(A, E, h) {
@@ -349,7 +349,7 @@ function alertScreen() {
 }
 
 const SCREEN_BG = "#ffffff", SCREEN_INK = "#1b1d23";
-const mascotScreen = (ink) => screenChrome(DEV_NAME) + `<g transform="translate(0,2.5)">${pixelCells(MASCOT_ART, ink, 0.56)}</g>`;
+const mascotScreen = (ink) => screenChrome(PERSONA_NAME) + `<g transform="translate(0,2.5)">${pixelCells(MASCOT_ART, ink, 0.56)}</g>`;
 const brandCalls = (label, sub) => (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, label, sub, A, E)
   + callout(anchorOf("top", SCREEN.x + 4, SCREEN.y + SCREEN.h - 4), -34, -70, "DEV NAME", "yours", A, E);
 

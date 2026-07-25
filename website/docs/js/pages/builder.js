@@ -46,6 +46,24 @@ const TZ = [
   "+13:00", "+14:00",
 ];
 
+const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTH_OPTS = MONTH_LABELS.map((label, i) => [String(i + 1).padStart(2, "0"), label]);
+const JOINED_YEARS = (() => {
+  const y = new Date().getFullYear();
+  const out = [];
+  for (let i = y; i >= 2015; i--) out.push([String(i), String(i)]);
+  return out;
+})();
+const joinedNow = () => {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+};
+const joinedParts = (joined) => {
+  const [year, month] = String(joined || joinedNow()).split("-");
+  return { year: year || String(new Date().getFullYear()), month: month || "01" };
+};
+
 const ids = (pairs) => pairs.map((p) => p[0]);
 const prefer = (list, want) => (list.includes(want) ? want : list[0] || "");
 const packMemberIds = () => Object.values(PACKS).flat().map((m) => m[0]);
@@ -74,6 +92,13 @@ const state = {
   buddy: true,
   agents: ids(AGENTS),
   agentDefault: prefer(ids(AGENTS), "cursor"),
+  persona: {
+    name: "Vindy",
+    role: "Software Engineer",
+    joined: "2024-03",
+    avatar: "vindy.png",
+    mascot: false,
+  },
 
   links: LINKS.reduce((m, [l]) => ((m[l] = l === "ble"), m), {}),
   linkProto: LINKS.reduce((m, [l]) => ((m[l] = protoIds(l)[0] || ""), m), {}),
@@ -401,6 +426,70 @@ function buddyField() {
   return el("div", { class: "cfg-field" }, [fieldLabel("Buddy"), el("div", { class: "cfg-sub" }, [row])]);
 }
 
+const personaWrap = el("div", { class: "cfg-sub" });
+function drawPersona() {
+  personaWrap.innerHTML = "";
+  if (!state.persona) {
+    personaWrap.appendChild(addBtn("custom persona", () => {
+      state.persona = {
+        name: "",
+        role: "",
+        joined: joinedNow(),
+        avatar: "persona.png",
+        mascot: false,
+      };
+      drawPersona();
+      render();
+    }));
+    return;
+  }
+
+  const p = state.persona;
+  const field = (label, key, ph) =>
+    el("div", { class: "cfg-field" }, [fieldLabel(label), boundInput(p, key, ph)]);
+  const setJoined = (part, val) => {
+    const cur = joinedParts(p.joined);
+    cur[part] = val;
+    p.joined = cur.year + "-" + cur.month;
+    render();
+  };
+  const joinedField = el("div", { class: "cfg-field" }, [
+    fieldLabel("Joined"),
+    el("div", { class: "cfg-duo" }, [
+      singleSelect(() => MONTH_OPTS, () => joinedParts(p.joined).month, (v) => setJoined("month", v)),
+      singleSelect(() => JOINED_YEARS, () => joinedParts(p.joined).year, (v) => setJoined("year", v)),
+    ]),
+  ]);
+
+  personaWrap.appendChild(duo(field("Name", "name", "your name"), field("Role", "role", "your role")));
+  personaWrap.appendChild(duo(joinedField, field("Avatar", "avatar", "persona.png")));
+
+  const mascotCb = el("input", { type: "checkbox" });
+  mascotCb.checked = !!p.mascot;
+  mascotCb.addEventListener("change", () => { p.mascot = mascotCb.checked; render(); });
+  personaWrap.appendChild(el("div", { class: "cfg-field" }, [
+    fieldLabel("Mascot"),
+    el("div", { class: "cfg-sub" }, [
+      el("div", { class: "cfg-transport" }, [
+        mascotCb,
+        el("span", { class: "cfg-transport-name", text: "ENABLED" }),
+        el("small", { text: "also offer in mascot selection" }),
+        el("div", { class: "cfg-spacer" }),
+        delBtn(() => { state.persona = null; drawPersona(); render(); }),
+      ]),
+    ]),
+  ]));
+
+  personaWrap.appendChild(el("div", { class: "cfg-field" }, [
+    fieldLabel("Custom avatar"),
+    el("a", { class: "btn ghost", href: "mixer", target: "_blank", rel: "noopener",
+              text: "Open the mixer \u2197" }),
+    el("small", { class: "cfg-hint",
+                  text: "Save the downloaded 6-expression strip next to your config as the avatar filename." }),
+  ]));
+}
+drawPersona();
+
 function metricRow(src, m, onRemove) {
   const cells = [cell("key", boundInput(m, "key", "mrr")), cell("label", boundInput(m, "label", "MRR"))];
   if (src.type === "demo") {
@@ -593,6 +682,17 @@ function yaml() {
   o += "    enabled: " + list(orderBy(APPS.map((a) => a[0]), state.apps)) + "\n";
   o += "  buddy:\n";
   o += "    enabled: " + (state.buddy ? "true" : "false") + "\n";
+  if (state.persona) {
+    const p = state.persona;
+    if (bare(p.name) && bare(p.role) && bare(p.joined) && bare(p.avatar || "persona.png")) {
+      o += "  persona:\n";
+      o += "    name: " + bare(p.name) + "\n";
+      o += "    role: " + bare(p.role) + "\n";
+      o += "    joined: " + bare(p.joined) + "\n";
+      o += "    avatar: " + bare(p.avatar || "persona.png") + "\n";
+      o += "    mascot: " + (p.mascot ? "true" : "false") + "\n";
+    }
+  }
   if (state.timezone.trim()) o += '  timezone: "' + state.timezone.trim() + '"\n';
 
   const agentSection = state.buddy && state.agents.length;
@@ -720,6 +820,8 @@ const form = el("div", { class: "cfg-form" }, [
     agentDefault,
     el("div", { class: "cfg-field" }, [fieldLabel("Agents"), multiselect(AGENTS, "agents", reconcile)]),
   ]),
+
+  group("Persona", [personaWrap]),
 
   group("Device", [transportsField(), tzField]),
   group("Sources & metrics", [sourcesRep]),

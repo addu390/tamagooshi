@@ -4,7 +4,8 @@ import { editHold } from "../../core/hold.js";
 import { fieldInput } from "../../components/controls.js";
 import { formActions, panelHead, settingRow } from "../../components/rows.js";
 import { identityCard } from "./identity.js";
-import { deviceCard } from "./device.js";
+import { appearanceCard, featuresCard, linkCard, mascotCard } from "./device.js";
+import { personaCard } from "./persona.js";
 import { DESC } from "./fields.js";
 
 const guard = editHold();
@@ -102,7 +103,11 @@ function render({ brands, manifest, moods }) {
   if (guard.isHeld()) return;
 
   $("brand-identity").replaceChildren(identityCard(manifest, guard.hold));
-  $("brand-device").replaceChildren(deviceCard(manifest, moods, guard.hold));
+  $("brand-appearance").replaceChildren(appearanceCard(manifest, guard.hold));
+  $("brand-mascot").replaceChildren(mascotCard(manifest, moods, guard.hold));
+  $("brand-features").replaceChildren(featuresCard(manifest, guard.hold));
+  $("brand-link").replaceChildren(linkCard(manifest, guard.hold));
+  $("brand-persona").replaceChildren(personaCard(manifest, guard.hold));
 }
 
 async function load() {

@@ -52,6 +52,24 @@ def emit_mascots(out_dir, ids, customs, base_dir):
     write(os.path.join(out_dir, "mascots.gen.h"), "\n".join(lines))
 
 
+def emit_persona(out_dir, persona, base_dir):
+    if not persona:
+        write(os.path.join(out_dir, "persona.gen.h"), "#pragma once\n")
+        return
+    if not persona.get("mascot"):
+        write(os.path.join(out_dir, "mascots", "persona.h"),
+              sprite_header(persona, base_dir))
+    write(os.path.join(out_dir, "persona.gen.h"), "\n".join([
+        '#pragma once', '',
+        '#include "mascots/persona.h"', '',
+        'namespace tama::persona {', '',
+        f'inline constexpr const char* kRole = {cstr(persona["role"])};',
+        f'inline constexpr const char* kJoined = {cstr(persona["joined"])};',
+        '',
+        '}  // namespace tama::persona', '',
+    ]))
+
+
 def _hid_capability(meta):
     kind = meta.get("hid")
     if not kind:
@@ -272,11 +290,12 @@ def emit_portal(out_dir):
 
 
 def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_typeface,
-               default_mood, tz_offset_min, games, apps, logo_id, dev_name, buddy):
+               default_mood, tz_offset_min, games, apps, logo_id, buddy, persona=None):
     ident = data.get("brand") or {}
     agent = (data.get("hub") or {}).get("agent") or {}
     agents = agent.get("enabled") or []
     agent_default = agent.get("default") or (agents[0] if agents else "")
+    persona_name = persona["name"] if persona else ""
 
     lines = ['#pragma once', '',
              f'#define TAMA_BRAND_ID {cstr(ident.get("id", brand_id))}',
@@ -285,7 +304,7 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
              f'#define TAMA_WEBSITE {cstr(hostname(ident.get("website", "")))}',
              f'#define TAMA_MASCOT_NAME {cstr(ident.get("mascot", ""))}',
              f'#define TAMA_LOGO_ID {cstr(logo_id)}',
-             f'#define TAMA_DEV_NAME {cstr(dev_name)}',
+             f'#define TAMA_PERSONA_NAME {cstr(persona_name)}',
              f'#define TAMA_DEFAULT_MASCOT {cstr(default_mascot)}',
              f'#define TAMA_DEFAULT_THEME {cstr(default_theme)}',
              f'#define TAMA_DEFAULT_TYPEFACE {cstr(default_typeface)}',
@@ -298,6 +317,8 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
     lines += [f'#define {registry.apps.macro(a)} 1' for a in apps]
     if buddy:
         lines += ['#define TAMA_ENABLE_BUDDY 1']
+    if persona:
+        lines += ['#define TAMA_ENABLE_PERSONA 1']
 
     lines += ['',
               '#include "model.h"', '#include "theme.h"', '#include "typeface.h"', '',
@@ -308,7 +329,7 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
               '  state.branding.website = TAMA_WEBSITE;',
               '  state.branding.logo_id = TAMA_LOGO_ID;',
               '  state.branding.mascot_name = TAMA_MASCOT_NAME;',
-              '  state.branding.dev_name = TAMA_DEV_NAME;',
+              '  state.branding.persona_name = TAMA_PERSONA_NAME;',
               '  state.character_id = TAMA_DEFAULT_MASCOT;',
               '  state.mood = moodFromString(TAMA_DEFAULT_MOOD);',
               '  state.tz_offset_min = TAMA_TZ_OFFSET_MIN;',

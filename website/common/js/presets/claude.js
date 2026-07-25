@@ -17,7 +17,7 @@
       footer: "An independent, fan-made project. Claude and Clawd belong to Anthropic PBC.",
     },
 
-    deviceName: "CLAWD",
+    personaName: "CLAWD",
     deviceColors: {
       sil: "#221d1a", det: "#c4bcae", mark: "#a29a89", grid: "#efece3",
       dimline: "#d8d2c4", dimtext: "#a2988a", call: "#b6ad9e",
@@ -76,6 +76,7 @@
       customThemes: [{ name: "clay", surface: "#262624", ink: "#F0EEE6", accent: "#D97757" }],
       agents: ["claude"],
       agentDefault: "claude",
+      persona: null,
     },
 
     demo: {

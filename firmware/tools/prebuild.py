@@ -36,8 +36,7 @@ except ImportError:
 sys.path.insert(0, tools)
 from gen.pipeline import generate
 
-macros = generate(brand, brands, out, os.environ.get("TAMA_DEV", ""),
-                  os.environ.get("TAMA_TRANSPORTS"))
+macros = generate(brand, brands, out, os.environ.get("TAMA_TRANSPORTS"))
 env.Append(CPPPATH=[out])
 
 if env["PIOPLATFORM"] != "native":

@@ -2,7 +2,6 @@
 
 BROKER ?= localhost:1883
 export TAMA_BRAND ?= gooshi
-export TAMA_DEV ?=
 
 help:
 	@echo "Run it (a flashed device and a Mac is all you need):"
@@ -12,7 +11,7 @@ help:
 	@echo ""
 	@echo "Develop (simulator, MQTT stack, tests):"
 	@echo "  make sim       # desktop simulator, no board or data needed"
-	@echo "                 #   TAMA_BRAND=<id> picks a brand, TAMA_DEV=<id> bakes in a developer name"
+	@echo "                 #   TAMA_BRAND=<id> picks a brand"
 	@echo "  make sim-live  # simulator against the dev stack's broker"
 	@echo "  make down      # stop the dev stack"
 	@echo "  make logs      # tail dev stack hub logs"

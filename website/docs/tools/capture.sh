@@ -6,7 +6,6 @@ case "$SCENE" in
   claude-*) BRAND="${BRAND:-claude}" ;;
   *)        BRAND="${BRAND:-demo}" ;;
 esac
-DEV="${DEV:-John}"
 BROKER="${BROKER:-localhost:1883}"
 FPS="${FPS:-15}"
 STRIDE="${STRIDE:-8}"
@@ -64,7 +63,7 @@ FRAMES="$(mktemp -d)"
 trap 'rm -rf "$FRAMES"' EXIT
 
 cd "$ROOT/firmware"
-TAMA_BRAND="$BRAND" TAMA_DEV="$DEV" pio run -e native_sim >/dev/null
+TAMA_BRAND="$BRAND" pio run -e native_sim >/dev/null
 
 if [ "$HUB" = "1" ]; then
   cd "$ROOT"

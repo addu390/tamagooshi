@@ -147,6 +147,10 @@ void Navigator::dispatch(Intent intent) {
     return;
   }
   if (intent == Intent::Home) {
+    if (auto* t = top(); t && std::strcmp(t->id(), "home") == 0 && find("persona")) {
+      go("persona");
+      return;
+    }
     home();
     return;
   }

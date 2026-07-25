@@ -55,8 +55,8 @@ export function pollingControl(values) {
   return group;
 }
 
-export function selectField(name, options, value, { ctl = false } = {}) {
-  const select = el("select", "field" + (ctl ? " ctl" : ""));
+export function selectField(name, options, value, { ctl = false, slim = false } = {}) {
+  const select = el("select", "field" + (ctl ? " ctl" : "") + (slim ? " slim" : ""));
   select.dataset.name = name;
   select.dataset.kind = "text";
 

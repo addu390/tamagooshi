@@ -25,6 +25,12 @@ device:
     enabled: all
   buddy:
     enabled: true
+  persona:
+    name: Vindy
+    role: software engineer
+    joined: 2024-03
+    avatar: vindy.png
+    mascot: true
 
 hub:
   agent:

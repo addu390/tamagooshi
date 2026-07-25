@@ -491,9 +491,10 @@ select.field { appearance: none; -webkit-appearance: none; cursor: pointer; padd
   background-size: 4px 4px;
   background-repeat: no-repeat; }
 
-.ctl-group { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+.ctl-group { display: inline-flex; align-items: center; gap: 8px; flex: none; max-width: 100%; }
 .field.ctl { flex: none; width: 220px; }
-.field.ctl.slim { width: 72px; text-align: center; }
+.field.ctl.slim { width: 88px; text-align: center; }
+.ctl-group .field.ctl { width: 88px; }
 
 .field-wrap { display: flex; align-items: center; gap: 12px; }
 .field-label { flex: none; width: 130px; font-size: 12.5px; color: var(--text-soft); text-transform: capitalize; }

@@ -57,7 +57,7 @@ struct Branding {
   std::string website;
   std::string logo_id;
   std::string mascot_name;
-  std::string dev_name;
+  std::string persona_name;
 };
 
 struct Enabled {

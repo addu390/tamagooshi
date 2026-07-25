@@ -210,7 +210,7 @@ make sim-live TAMA_BRAND=demo <span class="c"># run it against the Docker stack'
         <div class="setup-pane" data-pane="firmware" hidden>
           <p>The firmware is a PlatformIO project under <code>firmware/</code>. Set the brand, then build and flash over USB. The build regenerates that brand's headers on its own. A brand id is a folder under <code>brands/</code>, and its <code>config.yaml</code> defines what the build includes.</p>
           <h3>Build and flash locally</h3>
-          <p>The pre-built images carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand config lists. Pass <code>TAMA_DEV=&lt;id&gt;</code> to bake in a developer name.</p>
+          <p>The pre-built images carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand config lists. Optional <code>device.persona</code> bakes a name into the status bar. Long-press <code>A</code> on home opens its about screen.</p>
           <pre data-lang="bash">cd firmware && TAMA_BRAND=&lt;id&gt; pio run -e m5sticks3 -t upload    <span class="c"># build and flash that brand (swap the env for your board)</span>
 make brand TAMA_BRAND=&lt;id&gt;                                     <span class="c"># optional: just generate headers into firmware/.gen/current</span></pre>
           <h3>Build-time environment</h3>
@@ -218,7 +218,6 @@ make brand TAMA_BRAND=&lt;id&gt;                                     <span class
             <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
             <tbody>
               <tr><td><code>TAMA_BRAND</code></td><td>Which brand config to build (default <code>gooshi</code>).</td></tr>
-              <tr><td><code>TAMA_DEV</code></td><td>Developer name/persona baked into the build.</td></tr>
               <tr><td><code>TAMA_TRANSPORTS</code></td><td>The set of <code>link:protocol</code> channels compiled into the firmware, e.g. <code>ble:gatt</code> or <code>ble:gatt,wifi:mqtt</code>. Overrides the brand's <code>device.transports</code>.</td></tr>
             </tbody>
           </table>

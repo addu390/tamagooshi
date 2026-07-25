@@ -24,6 +24,12 @@ device:
     enabled: [clock, stopwatch, flashlight, level, pomodoro, remote, controller, about]
   buddy:
     enabled: true
+  persona:
+    name: your name
+    role: your role
+    joined: 2024-03
+    avatar: persona.png
+    mascot: false
 
 hub:
   agent:

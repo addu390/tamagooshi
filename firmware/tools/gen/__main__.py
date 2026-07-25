@@ -16,7 +16,7 @@ def _brand(args):
     firmware, repo = _paths()
     brand = args[0] if args else os.environ.get("TAMA_BRAND", "gooshi")
     out = args[1] if len(args) > 1 else os.path.join(firmware, ".gen", "current")
-    generate(brand, os.path.join(repo, "brands"), out, os.environ.get("TAMA_DEV", ""))
+    generate(brand, os.path.join(repo, "brands"), out)
     print(f"generated {brand} -> {out}")
 
 
