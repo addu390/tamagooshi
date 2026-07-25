@@ -91,6 +91,29 @@ make hub-test                     # hub unit tests
 
 <p align="left">
   <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/apps-games-dark.svg">
+    <img src="website/docs/assets/images/header/apps-games-light.svg" alt="Apps & Games" height="28">
+  </picture>
+</p>
+
+Apps and games ship in firmware (`device.apps`, `device.games`). Claude Desktop Buddy and Cursor both support voice conversations via the hub.
+
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/catalog-dark.svg">
+    <img src="website/docs/assets/images/catalog-light.svg" alt="Apps, games, and AI catalog" width="920">
+  </picture>
+</p>
+
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/rule-dark.svg">
+    <img src="website/docs/assets/images/header/rule-light.svg" alt="" width="920" height="1">
+  </picture>
+</p>
+
+<p align="left">
+  <picture>
     <source media="(prefers-color-scheme: dark)" srcset="website/docs/assets/images/header/license-dark.svg">
     <img src="website/docs/assets/images/header/license-light.svg" alt="License" height="28">
   </picture>
