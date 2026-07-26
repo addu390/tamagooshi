@@ -26,6 +26,7 @@ class Navigator {
   void setWifi(IWifiControl* wifi);
   void setMic(IMicSource& mic);
   void setSensor(ISensorSource& sensor);
+  void setTelemetry(ITelemetry& telemetry);
   void setButtons(IButtonSource& buttons);
   void setVoice(IVoiceUplink* voice);
   void setExpression(IExpressionSink& expression);
@@ -65,6 +66,7 @@ class Navigator {
   IWifiControl* wifi_ = nullptr;
   IMicSource* mic_ = nullptr;
   ISensorSource* sensor_ = nullptr;
+  ITelemetry* telemetry_ = nullptr;
   IButtonSource* buttons_ = nullptr;
   IVoiceUplink* voice_ = nullptr;
   IExpressionSink* expression_ = nullptr;

@@ -100,6 +100,18 @@ export default {
     [
       "climb",
       "Bounce up, tilt to steer"
+    ],
+    [
+      "simon",
+      "Repeat the sequence"
+    ],
+    [
+      "twenty48",
+      "Slide tiles to 2048"
+    ],
+    [
+      "invaders",
+      "Shoot the descending grid"
     ]
   ],
   "apps": [
@@ -170,6 +182,14 @@ export default {
     [
       "volume",
       "BLE volume knob"
+    ],
+    [
+      "battery",
+      "Battery level and charge"
+    ],
+    [
+      "breath",
+      "Guided breath coach"
     ]
   ],
   "agents": [

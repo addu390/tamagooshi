@@ -17,4 +17,6 @@ APPS = {
     "clicker": {"label": "CLICKER", "desc": "BLE presentation clicker", "hid": "keyboard"},
     "jiggler": {"label": "JIGGLER", "desc": "Keep the host awake", "hid": "mouse"},
     "volume": {"label": "VOLUME", "desc": "BLE volume knob", "hid": "media"},
+    "battery": {"label": "BATTERY", "desc": "Battery level and charge"},
+    "breath": {"label": "BREATH", "desc": "Guided breath coach"},
 }

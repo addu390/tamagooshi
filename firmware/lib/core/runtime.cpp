@@ -67,6 +67,7 @@ void Runtime::begin() {
   screens::install(nav_, characters_, prompt_);
   nav_.setMic(mic_);
   nav_.setSensor(sensor_);
+  nav_.setTelemetry(telemetry_);
   nav_.setButtons(buttons_);
   nav_.setExpression(expression_);
   nav_.setHidProfile(hid::resolve(hidProfiles_.load()));

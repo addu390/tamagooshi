@@ -11,6 +11,7 @@
 #include "mascots/registry.h"
 #include "mascot.h"
 #include "model.h"
+#include "telemetry.h"
 #include "transport.h"
 #include "wifi/control.h"
 
@@ -31,6 +32,7 @@ struct ShellContext {
   IWifiControl* wifi;
   IMicSource& mic;
   ISensorSource& sensor;
+  ITelemetry& telemetry;
   IButtonSource& buttons;
   IVoiceUplink* voice;
   IExpressionSink* expression;

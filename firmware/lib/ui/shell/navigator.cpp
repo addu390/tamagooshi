@@ -4,16 +4,23 @@
 #include <utility>
 
 #include "prompt_overlay.h"
+#include "telemetry.h"
 
 namespace tama {
 
 namespace {
 NullLink g_nullLink;
+NullTelemetry g_nullTelemetry;
 }
 
 Navigator::Navigator(DeviceState& state, PetState& pet, const DeviceCapabilities& caps,
                      CharacterRegistry& characters)
-    : state_(state), pet_(pet), caps_(caps), characters_(characters), link_(&g_nullLink) {}
+    : state_(state),
+      pet_(pet),
+      caps_(caps),
+      characters_(characters),
+      link_(&g_nullLink),
+      telemetry_(&g_nullTelemetry) {}
 
 void Navigator::add(AppScreen& screen) { screens_.push_back(&screen); }
 
@@ -26,6 +33,8 @@ void Navigator::setWifi(IWifiControl* wifi) { wifi_ = wifi; }
 void Navigator::setMic(IMicSource& mic) { mic_ = &mic; }
 
 void Navigator::setSensor(ISensorSource& sensor) { sensor_ = &sensor; }
+
+void Navigator::setTelemetry(ITelemetry& telemetry) { telemetry_ = &telemetry; }
 
 void Navigator::setButtons(IButtonSource& buttons) { buttons_ = &buttons; }
 
@@ -66,6 +75,7 @@ ShellContext Navigator::ctx() {
                       wifi_,
                       *mic_,
                       *sensor_,
+                      *telemetry_,
                       *buttons_,
                       voice_,
                       expression_,

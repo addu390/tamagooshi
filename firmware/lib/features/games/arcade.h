@@ -172,6 +172,7 @@ class ArcadeGameScreen : public AppScreen {
   virtual const char* hintB() const { return nullptr; }
   virtual int bannerCenterY() const { return h_ / 2; }
   virtual const lgfx::IFont* bannerHeadFont() const { return typeface::title(); }
+  virtual bool showScore() const { return true; }
 
   void begin() {
     onReset();
@@ -212,8 +213,10 @@ class ArcadeGameScreen : public AppScreen {
 
  private:
   void chrome(Gfx& g) {
-    g.str(std::to_string(score_).c_str(), w_ / 2, 6, theme::kHi, typeface::title(),
-          textdatum_t::top_center);
+    if (showScore()) {
+      g.str(std::to_string(score_).c_str(), w_ / 2, 6, theme::kHi, typeface::title(),
+            textdatum_t::top_center);
+    }
     if (st_ == St::Ready) {
       banner(g, title(), readyHint());
     } else if (st_ == St::Dead) {

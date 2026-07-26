@@ -10,4 +10,7 @@ GAMES = {
     "balance": {"label": "BALANCE", "desc": "Keep the ball on the beam", "imu": True},
     "hush": {"label": "HUSH", "desc": "Stay quiet to sneak by", "mic": True},
     "climb": {"label": "CLIMB", "desc": "Bounce up, tilt to steer", "imu": True},
+    "simon": {"label": "SIMON", "desc": "Repeat the sequence"},
+    "twenty48": {"label": "2048", "desc": "Slide tiles to 2048"},
+    "invaders": {"label": "INVADERS", "desc": "Shoot the descending grid"},
 }

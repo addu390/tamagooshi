@@ -46,6 +46,9 @@ class SimTelemetry : public ITelemetry {
   Telemetry read() override {
     Telemetry t;
     t.batt_pct = 100;
+    t.mV = 4100;
+    t.mA = 0;
+    t.usb = false;
     return t;
   }
 };
