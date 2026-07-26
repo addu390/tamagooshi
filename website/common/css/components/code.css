@@ -6,10 +6,20 @@ pre .k { color: var(--syn-key); }
 pre .s { color: var(--syn-str); }
 pre .n { color: var(--syn-num); }
 pre .p { color: var(--syn-punct); }
-p code, li code, td code { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1px 6px; font-size: 12.5px; color: var(--code-ink); }
-.expandable { position: relative; }
+:is(p, li, td, .confmap-row span) code {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1px 6px;
+  font-size: 12.5px;
+  color: var(--code-ink);
+}
+.expandable { position: relative; --expand-fade: var(--code-bg); }
+.expandable:has(> .confmap) { --expand-fade: var(--panel); margin: 18px 0; }
+.expandable > .confmap { margin: 0; }
 .expandable[data-collapsed] pre { max-height: 300px; overflow: hidden; }
-.expandable[data-collapsed]::after { content: ""; position: absolute; left: 1px; right: 1px; bottom: 48px; height: 84px; background: linear-gradient(to bottom, transparent, var(--code-bg)); pointer-events: none; }
+.expandable[data-collapsed] > .confmap { max-height: 210px; overflow: hidden; }
+.expandable[data-collapsed]::after { content: ""; position: absolute; left: 1px; right: 1px; bottom: 48px; height: 84px; background: linear-gradient(to bottom, transparent, var(--expand-fade)); pointer-events: none; }
 .expand-btn { display: block; width: 100%; margin-top: 12px; padding: 9px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-soft); color: var(--muted); font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: .04em; cursor: pointer; transition: color .15s, background .15s; }
 .expand-btn:hover { color: var(--text); background: var(--code-bg); }
 
@@ -32,5 +42,5 @@ tr.ext code { color: var(--muted); border-style: dashed; background: transparent
 
 @media (max-width: 900px) {
   td:first-child { white-space: normal; }
-  td code, p code, li code { overflow-wrap: anywhere; }
+  :is(p, li, td, .confmap-row span) code { overflow-wrap: anywhere; }
 }

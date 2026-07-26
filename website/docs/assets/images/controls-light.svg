@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="490" height="310" viewBox="12 18 490 310" role="img" aria-label="Stick: Power button, Button A, Button B">
+  <style>
+    :root {
+      --ink: #18181b; --text: #18181b; --border: #18181b; --strong: #18181b;
+      --hole: #ffffff; --accent: #0e9f6e;
+    }
+    text { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    rect, path, line, circle { stroke-width: 1.15; }
+    .lbl { font-size: 16px; fill: var(--text); }
+    .box { fill: var(--hole); stroke: var(--border); }
+    .btn { fill: color-mix(in srgb, var(--accent) 74%, #fff); stroke: var(--border); }
+    .line { stroke: var(--strong); fill: none; }
+    .scr { fill: #18181b; stroke: var(--border); }
+    .px { fill: #e4e4e7; }
+    .pwr { fill: #c44f4f; stroke: var(--border); }
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0.5 0.5 L7.5 4 L0.5 7.5 Z" fill="#18181b" style="fill: var(--strong)"/>
+    </marker>
+  </defs>
+  <rect class="box" x="210.00" y="25.00" width="140.00" height="280.00" rx="17.50" style="fill:none"/>
+  <rect class="scr" x="231.00" y="46.00" width="98.00" height="168.00" rx="7.00"/>
+  <rect class="px" x="257.95" y="104.80" width="6.30" height="6.30"/>
+  <rect class="px" x="295.75" y="104.80" width="6.30" height="6.30"/>
+  <rect class="px" x="264.25" y="111.10" width="6.30" height="6.30"/>
+  <rect class="px" x="289.45" y="111.10" width="6.30" height="6.30"/>
+  <rect class="px" x="257.95" y="117.40" width="6.30" height="6.30"/>
+  <rect class="px" x="264.25" y="117.40" width="6.30" height="6.30"/>
+  <rect class="px" x="270.55" y="117.40" width="6.30" height="6.30"/>
+  <rect class="px" x="276.85" y="117.40" width="6.30" height="6.30"/>
+  <rect class="px" x="283.15" y="117.40" width="6.30" height="6.30"/>
+  <rect class="px" x="289.45" y="117.40" width="6.30" height="6.30"/>
+  <rect class="px" x="295.75" y="117.40" width="6.30" height="6.30"/>
+  <rect class="px" x="251.65" y="123.70" width="6.30" height="6.30"/>
+  <rect class="px" x="257.95" y="123.70" width="6.30" height="6.30"/>
+  <rect class="px" x="270.55" y="123.70" width="6.30" height="6.30"/>
+  <rect class="px" x="276.85" y="123.70" width="6.30" height="6.30"/>
+  <rect class="px" x="283.15" y="123.70" width="6.30" height="6.30"/>
+  <rect class="px" x="295.75" y="123.70" width="6.30" height="6.30"/>
+  <rect class="px" x="302.05" y="123.70" width="6.30" height="6.30"/>
+  <rect class="px" x="245.35" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="251.65" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="257.95" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="264.25" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="270.55" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="276.85" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="283.15" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="289.45" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="295.75" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="302.05" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="308.35" y="130.00" width="6.30" height="6.30"/>
+  <rect class="px" x="245.35" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="257.95" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="264.25" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="270.55" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="276.85" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="283.15" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="289.45" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="295.75" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="308.35" y="136.30" width="6.30" height="6.30"/>
+  <rect class="px" x="245.35" y="142.60" width="6.30" height="6.30"/>
+  <rect class="px" x="257.95" y="142.60" width="6.30" height="6.30"/>
+  <rect class="px" x="295.75" y="142.60" width="6.30" height="6.30"/>
+  <rect class="px" x="308.35" y="142.60" width="6.30" height="6.30"/>
+  <rect class="px" x="264.25" y="148.90" width="6.30" height="6.30"/>
+  <rect class="px" x="270.55" y="148.90" width="6.30" height="6.30"/>
+  <rect class="px" x="283.15" y="148.90" width="6.30" height="6.30"/>
+  <rect class="px" x="289.45" y="148.90" width="6.30" height="6.30"/>
+  <rect class="btn" x="245.00" y="243.75" width="70.00" height="15.75" rx="7.88"/>
+  <rect class="btn" x="339.50" y="109.00" width="17.50" height="42.00" rx="5.25"/>
+  <rect class="pwr" x="203.00" y="221.00" width="17.50" height="42.00" rx="5.25"/>
+  <path class="line" d="M405.0 130.0 H 361.0" marker-end="url(#ah)"/>
+  <text class="lbl" x="413.0" y="135.0">Button B</text>
+  <path class="line" d="M377.0 251.6 H 319.0" marker-end="url(#ah)"/>
+  <text class="lbl" x="385.0" y="256.6">Button A</text>
+  <path class="line" d="M147.0 242.0 H 199.0" marker-end="url(#ah)"/>
+  <text class="lbl" x="139.0" y="247.0" text-anchor="end">Power button</text>
+</svg>

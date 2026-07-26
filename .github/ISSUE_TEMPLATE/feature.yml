@@ -1,0 +1,45 @@
+name: Feature request
+description: Something to add or change on the stick or hub.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      description: Primary place it belongs.
+      options:
+        - Device (stick / firmware)
+        - Hub (backend / console)
+        - Both / unsure
+    validations:
+      required: true
+  - type: dropdown
+    id: about
+    attributes:
+      label: About
+      description: Closest match. Pick Other if none fit.
+      options:
+        - Flash / setup
+        - Connectivity / BLE
+        - HID mode
+        - Controls / on-device UI
+        - Brand / config / persona
+        - Console / hub APIs
+        - Apps / games
+        - Docs / website
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What to add or change. Short.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What it unlocks. Skip if obvious.

@@ -26,14 +26,42 @@
 .catitem-sensor svg { width: 18px; height: 18px; }
 
 .confmap { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; margin: 18px 0; box-shadow: var(--shadow-card); }
+.confmap[id] { scroll-margin-top: 84px; }
 .confmap-name { padding: 8px 14px; background: var(--code-chrome); border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--code-comment); }
 .confmap-row { display: flex; align-items: baseline; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-soft); transition: background .15s; }
 .confmap-row:last-child { border-bottom: 0; }
-.confmap-row code { flex: none; width: 132px; font-size: 12.5px; color: var(--text); }
-.confmap-row.in code { padding-left: 20px; width: 152px; }
+.confmap-row > code { flex: none; width: 132px; font-size: 12.5px; color: var(--text); }
+.confmap-row.in > code { padding-left: 20px; width: 152px; }
 .confmap-row em { font-style: normal; margin-left: auto; color: var(--muted); }
 a.confmap-row:hover { background: var(--bg-soft); }
 a.confmap-row:hover em { color: var(--text); }
+.confmap > .keymap { padding: 0; margin: 0; gap: 0; }
+.confmap > .keymap li {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 14px;
+}
+.confmap > .keymap li:last-child { border-bottom: 0; }
+
+#controls .demo-box { grid-template-columns: 340px minmax(0, 1fr); }
+#controls .demo-stage { container-type: normal; }
+#controls .demo-content { padding: 0; }
+#controls .demo-content > .confmap {
+  margin: 0;
+  width: 100%;
+  align-self: stretch;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+#controls .demo-stage > .doc-figure {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 10px 6px;
+  box-sizing: border-box;
+}
 
 @media (max-width: 900px) {
   .fgrid, .fgrid.cols-2 { grid-template-columns: 1fr; }

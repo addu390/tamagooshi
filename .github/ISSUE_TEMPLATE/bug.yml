@@ -1,0 +1,66 @@
+name: Bug report
+description: Something broke on the stick or hub.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      description: Primary place it fails.
+      options:
+        - Device (stick / firmware)
+        - Hub (backend / console)
+        - Both / unsure
+    validations:
+      required: true
+  - type: dropdown
+    id: about
+    attributes:
+      label: About
+      description: Closest match. Pick Other if none fit.
+      options:
+        - Flash / upload
+        - Hub start / console
+        - Bluetooth / pairing
+        - HID mode
+        - Controls / on-device UI
+        - Brand / config / persona
+        - Build / PlatformIO / sim
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: board
+    attributes:
+      label: Board
+      description: Skip if hub-only.
+      placeholder: m5sticks3 / m5stickc-plus / m5stickc-plus-se
+  - type: input
+    id: brand
+    attributes:
+      label: Brand
+      description: TAMA_BRAND or brand id.
+      placeholder: gooshi
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Short. Expected vs actual.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: Minimal reproduce path.
+      placeholder: |
+        1.
+        2.
+        3.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Serial monitor, hub stderr, or a screenshot note.
+      render: shell
