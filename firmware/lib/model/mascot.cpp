@@ -44,6 +44,8 @@ ExpressionKind expressionKindFromString(const std::string& s) {
   if (s == "celebrate") return ExpressionKind::Celebrate;
   if (s == "haptic") return ExpressionKind::Haptic;
   if (s == "blink") return ExpressionKind::Blink;
+  if (s == "tick") return ExpressionKind::Tick;
+  if (s == "warn") return ExpressionKind::Warn;
   return ExpressionKind::Unknown;
 }
 
@@ -53,6 +55,8 @@ const char* expressionKindToString(ExpressionKind k) {
     case ExpressionKind::Celebrate: return "celebrate";
     case ExpressionKind::Haptic: return "haptic";
     case ExpressionKind::Blink: return "blink";
+    case ExpressionKind::Tick: return "tick";
+    case ExpressionKind::Warn: return "warn";
     default: return "unknown";
   }
 }

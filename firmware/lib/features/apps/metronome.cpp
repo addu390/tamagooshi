@@ -74,7 +74,7 @@ class MetronomeScreen : public AppScreen {
       lastBeat_ += beatMs();
       ++beat_;
       const bool accent = beat_ % kBeatsPerBar == 0;
-      cue(ctx, ExpressionKind::Chirp, accent ? 100 : 55);
+      cue(ctx, ExpressionKind::Tick, accent ? 100 : 55);
     }
     return Transition::redraw();
   }

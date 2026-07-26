@@ -243,6 +243,18 @@ ExpressionState Navigator::expressionState() const {
     s.alertActive = true;
     s.buzzerActive = prompt_->buzzes() && state_.buzzer_enabled;
   }
+  switch (state_.voice.phase) {
+    case VoicePhase::Recording:
+      s.bed = ExpressionBed::Soft;
+      break;
+    case VoicePhase::Sending:
+    case VoicePhase::Confirming:
+    case VoicePhase::Thinking:
+      s.bed = ExpressionBed::Pulse;
+      break;
+    default:
+      break;
+  }
   return s;
 }
 

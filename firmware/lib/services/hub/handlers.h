@@ -81,10 +81,12 @@ class PageClearHandler : public PageHandler {
 
 class ExpressionHandler : public IMessageHandler {
  public:
-  ExpressionHandler(IExpressionSink& sink, const ICodec& codec) : sink_(sink), codec_(codec) {}
+  ExpressionHandler(DeviceState& state, IExpressionSink& sink, const ICodec& codec)
+      : state_(state), sink_(sink), codec_(codec) {}
   void handle(const Envelope& env) override;
 
  private:
+  DeviceState& state_;
   IExpressionSink& sink_;
   const ICodec& codec_;
 };
@@ -112,11 +114,13 @@ class VoiceStopHandler : public VoiceHandlerBase {
 
 class CommandHandler : public IMessageHandler {
  public:
-  CommandHandler(ISystemControl& system, IExpressionSink& sink, const ICodec& codec)
-      : system_(system), sink_(sink), codec_(codec) {}
+  CommandHandler(DeviceState& state, ISystemControl& system, IExpressionSink& sink,
+                 const ICodec& codec)
+      : state_(state), system_(system), sink_(sink), codec_(codec) {}
   void handle(const Envelope& env) override;
 
  private:
+  DeviceState& state_;
   ISystemControl& system_;
   IExpressionSink& sink_;
   const ICodec& codec_;
@@ -132,10 +136,10 @@ struct HandlerSet {
         time(state, system, codec),
         pageRaise(state, codec),
         pageClear(state, codec),
-        expression(sink, codec),
+        expression(state, sink, codec),
         voiceStart(state, sink),
         voiceStop(state, sink),
-        command(system, sink, codec) {}
+        command(state, system, sink, codec) {}
 
   void bind(MessageRouter& router);
 

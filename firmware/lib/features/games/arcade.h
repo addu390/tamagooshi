@@ -149,7 +149,7 @@ class ArcadeGameScreen : public AppScreen {
       acc_ -= kStepMs;
       step(ctx);
       if (st_ == St::Dead) {
-        cue(ctx, newBest_ ? ExpressionKind::Celebrate : ExpressionKind::Haptic);
+        cue(ctx, newBest_ ? ExpressionKind::Celebrate : ExpressionKind::Warn);
         break;
       }
     }

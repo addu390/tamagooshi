@@ -68,6 +68,7 @@ class SimonScreen : public ArcadeGameScreen {
     else return Transition::none();
 
     if (pad != seq_[inputAt_]) {
+      cue(ctx, ExpressionKind::Warn);
       die();
       return Transition::redraw();
     }
@@ -76,7 +77,7 @@ class SimonScreen : public ArcadeGameScreen {
     phase_ = Phase::Feedback;
     phaseMs_ = 0;
     ++inputAt_;
-    cue(ctx, ExpressionKind::Chirp);
+    cue(ctx, ExpressionKind::Tick);
 
     if (inputAt_ >= static_cast<int>(seq_.size())) {
       score_ = static_cast<int>(seq_.size());
@@ -126,6 +127,7 @@ class SimonScreen : public ArcadeGameScreen {
             phase_ = Phase::Show;
             flash_ = seq_[showAt_];
             phaseMs_ = 0;
+            cue(ctx, ExpressionKind::Tick);
           }
         }
         break;

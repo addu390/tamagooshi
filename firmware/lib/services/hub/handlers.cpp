@@ -6,6 +6,14 @@
 
 namespace tama {
 
+namespace {
+
+bool allowExpression(const DeviceState& state, ExpressionKind kind) {
+  return !state.muted || kind == ExpressionKind::Blink;
+}
+
+}  // namespace
+
 void HandlerSet::bind(MessageRouter& router) {
   router.on(mtype::kBrandingSet, branding);
   router.on(mtype::kMetricUpsert, metric);
@@ -99,12 +107,16 @@ void PageClearHandler::handle(const Envelope& env) {
 
 void ExpressionHandler::handle(const Envelope& env) {
   ExpressionCue cue;
-  if (codec_.parseExpression(env.body, cue)) sink_.play(cue);
+  if (!codec_.parseExpression(env.body, cue)) return;
+  if (!allowExpression(state_, cue.kind)) return;
+  sink_.play(cue);
 }
 
 void VoiceStartHandler::handle(const Envelope&) {
   state_.voice_active = true;
-  sink_.play(ExpressionCue{ExpressionKind::Chirp, 100, 0});
+  if (allowExpression(state_, ExpressionKind::Chirp)) {
+    sink_.play(ExpressionCue{ExpressionKind::Chirp, 100, 0});
+  }
   state_.dirty = true;
 }
 
@@ -119,7 +131,9 @@ void CommandHandler::handle(const Envelope& env) {
   if (cmd == "reboot") {
     system_.reboot();
   } else if (cmd == "identify") {
-    sink_.play(ExpressionCue{ExpressionKind::Blink, 100, 1500});
+    if (allowExpression(state_, ExpressionKind::Blink)) {
+      sink_.play(ExpressionCue{ExpressionKind::Blink, 100, 1500});
+    }
   }
 }
 

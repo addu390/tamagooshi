@@ -67,7 +67,7 @@ class InvadersScreen : public ArcadeGameScreen {
     shot_.active = true;
     shot_.x = playerX_;
     shot_.y = static_cast<float>(playerY() - 8);
-    cue(ctx, ExpressionKind::Chirp);
+    cue(ctx, ExpressionKind::Tick);
     return Transition::redraw();
   }
 

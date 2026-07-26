@@ -109,7 +109,7 @@ class TimerScreen : public AppScreen {
 
     if (phase_ == Phase::Done && pulses_ < kDonePulses && anim_.due(nowMs, kPulseGapMs)) {
       ++pulses_;
-      cue(ctx, ExpressionKind::Haptic);
+      cue(ctx, ExpressionKind::Tick);
       return Transition::redraw();
     }
     return Transition::none();

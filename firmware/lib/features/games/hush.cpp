@@ -95,7 +95,7 @@ class HushScreen : public ArcadeGameScreen {
       case Guard::Asleep:
         guard_ = Guard::Waking;
         guardSpan_ = 700;
-        cue(ctx, ExpressionKind::Haptic);
+        cue(ctx, ExpressionKind::Warn);
         break;
       case Guard::Waking:
         guard_ = Guard::Awake;

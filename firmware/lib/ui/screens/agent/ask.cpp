@@ -121,6 +121,14 @@ class AskScreen : public AppScreen {
       return anim_.due(nowMs, 90) ? Transition::redraw() : Transition::none();
     }
     const VoicePhase phase = ctx.state.voice.phase;
+    if (phase == VoicePhase::Reply && ctx.state.voice.reply_done) {
+      if (!celebratedReply_) {
+        celebratedReply_ = true;
+        cue(ctx, ExpressionKind::Celebrate);
+      }
+    } else if (phase != VoicePhase::Reply) {
+      celebratedReply_ = false;
+    }
     const bool animating = phase == VoicePhase::Sending || phase == VoicePhase::Thinking ||
                            (phase == VoicePhase::Reply && !ctx.state.voice.reply_done);
     if (animating) {
@@ -158,12 +166,15 @@ class AskScreen : public AppScreen {
     if (!mic_->startRecord()) {
       mic_->end();
       ctx.voice->cancel();
+      cue(ctx, ExpressionKind::Warn);
       return;
     }
     recording_ = true;
     samples_ = 0;
     level_ = 0;
+    celebratedReply_ = false;
     ctx.state.voice.phase = VoicePhase::Recording;
+    cue(ctx, ExpressionKind::Chirp);
   }
 
   void finishRecording(ShellContext& ctx) {
@@ -171,8 +182,10 @@ class AskScreen : public AppScreen {
     ctx.voice->finish(elapsedMs(ctx), ctx.state.agents.current());
     if (ctx.voice->sending()) {
       ctx.state.voice.phase = VoicePhase::Sending;
+      cue(ctx, ExpressionKind::Tick);
     } else {
       ctx.state.voice.reset();
+      cue(ctx, ExpressionKind::Warn);
     }
   }
 
@@ -180,6 +193,7 @@ class AskScreen : public AppScreen {
     stopMic();
     ctx.voice->cancel();
     ctx.state.voice.reset();
+    cue(ctx, ExpressionKind::Warn);
   }
 
   void stopMic() {
@@ -322,6 +336,7 @@ class AskScreen : public AppScreen {
 
   IMicSource* mic_ = nullptr;
   bool recording_ = false;
+  bool celebratedReply_ = false;
   uint64_t samples_ = 0;
   int level_ = 0;
   int scroll_ = 0;

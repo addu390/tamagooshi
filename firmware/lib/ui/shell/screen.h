@@ -12,8 +12,9 @@ namespace tama {
 
 enum class OrientationPref { Inherit, Portrait, Landscape, PortraitFlipped };
 
-inline void cue(ShellContext& ctx, ExpressionKind kind, uint8_t intensity = 100) {
-  if (ctx.expression && !ctx.state.muted) ctx.expression->play({kind, intensity, 0});
+inline void cue(ShellContext& ctx, ExpressionKind kind, uint8_t intensity = 100,
+                uint32_t durationMs = 0) {
+  if (ctx.expression && !ctx.state.muted) ctx.expression->play({kind, intensity, durationMs});
 }
 
 class AppScreen {

@@ -14,7 +14,7 @@ Mood moodFromString(const std::string& s);
 const char* moodToString(Mood m);
 const char* moodFace(Mood m);
 
-enum class ExpressionKind { Chirp, Celebrate, Haptic, Blink, Unknown };
+enum class ExpressionKind { Chirp, Celebrate, Haptic, Blink, Tick, Warn, Unknown };
 
 ExpressionKind expressionKindFromString(const std::string& s);
 const char* expressionKindToString(ExpressionKind k);
@@ -25,10 +25,13 @@ struct ExpressionCue {
   uint32_t durationMs = 0;
 };
 
+enum class ExpressionBed { None, Pulse, Soft };
+
 struct ExpressionState {
   bool alertActive = false;
   bool buzzerActive = false;
   bool muted = false;
+  ExpressionBed bed = ExpressionBed::None;
 };
 
 enum class Expr { Happy, Neutral, Sleepy, Think, Alert, Celebrate, Worried };
