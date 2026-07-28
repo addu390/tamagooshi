@@ -13,6 +13,7 @@ const ITEM_ICONS = {
   balance: "imu",
   climb: "imu",
   level: "imu",
+  mouse: "imu",
   pomodoro: "imu",
   dice: "imu",
   controller: "gamepad",
