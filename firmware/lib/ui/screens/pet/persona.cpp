@@ -20,7 +20,7 @@ class PersonaScreen : public AppScreen {
     const auto L = widgets::frame(g, ctx.state, "PERSONA");
     const auto& name = ctx.state.branding.persona_name;
 
-    const int size = 52;
+    const int size = 66;
     const int mascotY = L.top + 32 + size / 2;
     const bool happy = (now() / 2200u) & 1u;
     characters::persona().draw(

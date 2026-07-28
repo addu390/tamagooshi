@@ -180,6 +180,10 @@ export default {
       "Keep the host awake"
     ],
     [
+      "mouse",
+      "Tilt BLE mouse"
+    ],
+    [
       "volume",
       "BLE volume knob"
     ],

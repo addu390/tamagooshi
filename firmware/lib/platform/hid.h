@@ -84,6 +84,10 @@ enum class KeyboardKey : uint8_t {
   PageDown = 0x4E,
 };
 
+inline constexpr uint8_t kMouseBtnLeft = 0x01;
+inline constexpr uint8_t kMouseBtnRight = 0x02;
+inline constexpr uint8_t kMouseBtnMiddle = 0x04;
+
 class IHidLink {
  public:
   virtual ~IHidLink() = default;
@@ -93,7 +97,7 @@ class IHidLink {
   virtual void send(const GamepadFrame& frame) = 0;
   virtual void tap(MediaKey key) = 0;
   virtual void tap(KeyboardKey key) = 0;
-  virtual void nudge(int8_t dx, int8_t dy) = 0;
+  virtual void pointer(int8_t dx, int8_t dy, uint8_t buttons = 0) = 0;
 };
 
 }  // namespace tama

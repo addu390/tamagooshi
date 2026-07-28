@@ -67,8 +67,8 @@ class JigglerScreen : public AppScreen {
 
     if (nowMs >= nextAt_) {
       if (hid_.live()) {
-        hid_.nudge(kNudgePx, 0);
-        hid_.nudge(-kNudgePx, 0);
+        hid_.pointer(kNudgePx, 0);
+        hid_.pointer(-kNudgePx, 0);
         ++moves_;
       }
       nextAt_ = nowMs + kNudgeGapMs;

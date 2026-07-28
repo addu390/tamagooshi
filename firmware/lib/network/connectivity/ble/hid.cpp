@@ -219,9 +219,9 @@ void HidEndpoint::tap(KeyboardKey key) {
   notify(HidCapability::Keyboard, release, sizeof(release));
 }
 
-void HidEndpoint::nudge(int8_t dx, int8_t dy) {
+void HidEndpoint::pointer(int8_t dx, int8_t dy, uint8_t buttons) {
   if (!active_) return;
-  const uint8_t report[3] = {0, static_cast<uint8_t>(dx), static_cast<uint8_t>(dy)};
+  const uint8_t report[3] = {buttons, static_cast<uint8_t>(dx), static_cast<uint8_t>(dy)};
   notify(HidCapability::Mouse, report, sizeof(report));
 }
 

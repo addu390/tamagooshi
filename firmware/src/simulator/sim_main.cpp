@@ -252,7 +252,7 @@ class SimHid : public IHidLink {
   void send(const GamepadFrame& frame) override { last_ = frame; }
   void tap(MediaKey) override {}
   void tap(KeyboardKey) override {}
-  void nudge(int8_t, int8_t) override {}
+  void pointer(int8_t, int8_t, uint8_t) override {}
 
  private:
   bool active_ = false;

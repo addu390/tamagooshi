@@ -23,7 +23,7 @@ class HidEndpoint : public IHidLink, public IBleService, public NimBLECharacteri
   void send(const GamepadFrame& frame) override;
   void tap(MediaKey key) override;
   void tap(KeyboardKey key) override;
-  void nudge(int8_t dx, int8_t dy) override;
+  void pointer(int8_t dx, int8_t dy, uint8_t buttons = 0) override;
 
   void setup(BleBearer& bearer, NimBLEServer* nim) override;
   const char* serviceUuid() const override;

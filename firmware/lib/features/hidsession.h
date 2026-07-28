@@ -80,8 +80,8 @@ class MouseSession : public HidSession {
  public:
   MouseSession() : HidSession(HidCapability::Mouse) {}
 
-  void nudge(int8_t dx, int8_t dy) {
-    if (auto* link = this->link()) link->nudge(dx, dy);
+  void pointer(int8_t dx, int8_t dy, uint8_t buttons = 0) {
+    if (auto* link = this->link()) link->pointer(dx, dy, buttons);
   }
 };
 
