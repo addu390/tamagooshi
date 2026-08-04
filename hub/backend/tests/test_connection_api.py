@@ -9,7 +9,9 @@ from src.api.routes.connection import (
     forget_device,
     put_connection,
     put_hid_mode,
+    sync_time,
 )
+from src.config.models import BrandConfig, HubConfig
 from src.config.settings import load_connection
 from src.network.transport.base import LinkStatus
 from src.network.transport.factory import transport_spec
@@ -31,16 +33,20 @@ class StubTransport:
 class StubPublisher:
     def __init__(self):
         self.modes = []
+        self.times = []
 
     def publish_hid_mode(self, mode):
         self.modes.append(mode)
 
+    def publish_time(self, tz_offset):
+        self.times.append(tz_offset)
 
-def _request(body=None, transport=None, publisher=None):
+
+def _request(body=None, transport=None, publisher=None, config=None):
     async def json_body():
         return json.loads(json.dumps(body))
 
-    state = SimpleNamespace(transport=transport, publisher=publisher)
+    state = SimpleNamespace(transport=transport, publisher=publisher, config=config)
     return SimpleNamespace(app=SimpleNamespace(state=state), json=json_body)
 
 
@@ -142,6 +148,16 @@ def test_put_hid_mode_rejects_unknown(data_dir):
     with pytest.raises(HTTPException) as err:
         asyncio.run(put_hid_mode(_request({"mode": "laser"})))
     assert err.value.status_code == 400
+
+
+def test_sync_time_publishes(data_dir):
+    pub = StubPublisher()
+    cfg = HubConfig(brand=BrandConfig(tz_offset=-300))
+    result = asyncio.run(sync_time(_request(publisher=pub, config=cfg)))
+
+    assert result["tz_offset"] == -300
+    assert isinstance(result["epoch"], int)
+    assert pub.times == [-300]
 
 
 def test_env_overrides_saved_transport(data_dir, monkeypatch):

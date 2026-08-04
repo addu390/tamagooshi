@@ -20,4 +20,5 @@ APPS = {
     "volume": {"label": "VOLUME", "desc": "BLE volume knob", "hid": "media"},
     "battery": {"label": "BATTERY", "desc": "Battery level and charge"},
     "breath": {"label": "BREATH", "desc": "Guided breath coach"},
+    "alarm": {"label": "ALARM", "desc": "Wake at a set time"},
 }

@@ -13,4 +13,6 @@ GAMES = {
     "simon": {"label": "SIMON", "desc": "Repeat the sequence"},
     "twenty48": {"label": "2048", "desc": "Slide tiles to 2048"},
     "invaders": {"label": "INVADERS", "desc": "Shoot the descending grid"},
+    "tetris": {"label": "TETRIS", "desc": "Clear lines with falling pieces"},
+    "pong": {"label": "PONG", "desc": "Bounce the ball past the foe"},
 }

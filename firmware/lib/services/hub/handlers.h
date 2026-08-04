@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clock.h"
 #include "codec.h"
 #include "expression.h"
 #include "hid.h"
@@ -48,13 +49,15 @@ class ConfigHandler : public StateHandler {
 
 class TimeHandler : public IMessageHandler {
  public:
-  TimeHandler(DeviceState& state, ISystemControl& system, const ICodec& codec)
-      : state_(state), system_(system), codec_(codec) {}
+  TimeHandler(DeviceState& state, ISystemControl& system, IClockRepository& clock,
+              const ICodec& codec)
+      : state_(state), system_(system), clock_(clock), codec_(codec) {}
   void handle(const Envelope& env) override;
 
  private:
   DeviceState& state_;
   ISystemControl& system_;
+  IClockRepository& clock_;
   const ICodec& codec_;
 };
 
@@ -128,12 +131,12 @@ class CommandHandler : public IMessageHandler {
 
 struct HandlerSet {
   HandlerSet(DeviceState& state, const ICodec& codec, IExpressionSink& sink,
-             ISystemControl& system, IHidProfileRepository& hidProfiles)
+             ISystemControl& system, IHidProfileRepository& hidProfiles, IClockRepository& clock)
       : branding(state, codec),
         metric(state, codec),
         mood(state, codec),
         config(state, codec, hidProfiles),
-        time(state, system, codec),
+        time(state, system, clock, codec),
         pageRaise(state, codec),
         pageClear(state, codec),
         expression(state, sink, codec),

@@ -12,6 +12,7 @@ constexpr char kIrCodes[] = "remote";
 constexpr char kNetworks[] = "wifi";
 constexpr char kWifiRadio[] = "wifinet";
 constexpr char kBleRadio[] = "blenet";
+constexpr char kClocks[] = "clocks";
 
 enum class Access { Read, Write };
 

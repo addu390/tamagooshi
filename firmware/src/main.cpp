@@ -30,6 +30,7 @@
 #if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
 #include "nvs/ircodes.h"
 #endif
+#include "nvs/clocks.h"
 #include "nvs/metrics.h"
 #include "nvs/radiostate.h"
 #include "nvs/scope.h"
@@ -84,6 +85,7 @@ static M5Imu g_sensor;
 static M5Mic g_mic;
 static PartitionConfigSource g_config;
 static NvsMetricRepository g_metrics;
+static NvsClockRepository g_clock;
 #if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
 static NvsHidProfileRepository g_hidProfile;
 #else
@@ -96,7 +98,7 @@ static NvsIrCodeRepository g_irCodes;
 static StaticBoardProfile g_board(board::capabilities());
 
 static Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_system, g_buttons, g_input,
-                         g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile);
+                         g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile, g_clock);
 
 #if defined(TAMA_ENABLE_BLE)
 static NvsRadioStateRepository g_bleRadio(nvs::kBleRadio);

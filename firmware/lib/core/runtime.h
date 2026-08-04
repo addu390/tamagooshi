@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <optional>
 
+#include "clock.h"
 #include "config.h"
 #include "expression.h"
 #include "gfx.h"
@@ -26,7 +27,7 @@ class Runtime {
   Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressionSink& expression,
           ISystemControl& system, IButtonSource& buttons, IInputSource& input,
           ISensorSource& sensor, ITelemetry& telemetry, IMicSource& mic, config::ISource& config,
-          IMetricRepository& metrics, IHidProfileRepository& hidProfiles);
+          IMetricRepository& metrics, IHidProfileRepository& hidProfiles, IClockRepository& clock);
 
   void begin();
   void loop(uint32_t nowMs);
@@ -67,6 +68,8 @@ class Runtime {
   config::ISource& config_;
   IMetricRepository& metrics_;
   IHidProfileRepository& hidProfiles_;
+  IClockRepository& clock_;
+
   uint8_t applied_brightness_ = 0;
   uint32_t next_power_poll_ms_ = 0;
   uint32_t metrics_save_at_ = 0;

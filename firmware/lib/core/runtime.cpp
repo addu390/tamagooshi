@@ -1,5 +1,6 @@
 #include "runtime.h"
 
+#include <ctime>
 #include <cstring>
 
 #include "brand.gen.h"
@@ -36,10 +37,10 @@ Runtime::Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressio
                  ISystemControl& system, IButtonSource& buttons, IInputSource& input,
                  ISensorSource& sensor, ITelemetry& telemetry, IMicSource& mic,
                  config::ISource& config, IMetricRepository& metrics,
-                 IHidProfileRepository& hidProfiles)
+                 IHidProfileRepository& hidProfiles, IClockRepository& clock)
     : mapper_(buttons, input, caps),
       nav_(state_, pet_, caps, characters_),
-      handlers_(state_, codec, expression, system, hidProfiles),
+      handlers_(state_, codec, expression, system, hidProfiles, clock),
       expression_(expression),
       system_(system),
       buttons_(buttons),
@@ -49,7 +50,8 @@ Runtime::Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressio
       mic_(mic),
       config_(config),
       metrics_(metrics),
-      hidProfiles_(hidProfiles) {}
+      hidProfiles_(hidProfiles),
+      clock_(clock) {}
 
 void Runtime::bind(const ChannelBinding& binding) {
   channels_.bind(binding);
@@ -62,8 +64,16 @@ void Runtime::bind(const ChannelBinding& binding) {
 void Runtime::begin() {
   brand::apply(state_);
   config::apply(config_.read(), state_);
+
   state_.metrics = metrics_.load();
   state_.metrics_dirty = false;
+
+  if (const auto clock = clock_.load()) {
+    constexpr int64_t kMinSaneEpoch = 1577836800;  // 2020-01-01 UTC
+    if (std::time(nullptr) < kMinSaneEpoch) system_.setClock(clock->epoch);
+    state_.tz_offset_min = clock->tz_offset_min;
+  }
+
   screens::install(nav_, characters_, prompt_);
   nav_.setMic(mic_);
   nav_.setSensor(sensor_);

@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from dataclasses import asdict
 
 from fastapi import APIRouter, HTTPException, Request
 
 from ...config.settings import load_connection, save_connection
 from ...network.transport.factory import resolve_spec, spec_locked, transport_spec
-from ..dependencies import publisher, transport
+from ..dependencies import hub_config, publisher, transport
 from ..lifecycle import apply_change
 
 log = logging.getLogger("tamagooshi.api.connection")
@@ -108,3 +109,16 @@ async def put_hid_mode(request: Request):
         raise HTTPException(status_code=503, detail=f"failed to publish hid mode: {err}") from err
 
     return {"mode": mode}
+
+
+@router.post("/api/connection/time")
+async def sync_time(request: Request):
+    tz_offset = hub_config(request).brand.tz_offset
+    epoch = int(time.time())
+
+    try:
+        publisher(request).publish_time(tz_offset)
+    except Exception as err:
+        raise HTTPException(status_code=503, detail=f"failed to publish time: {err}") from err
+
+    return {"epoch": epoch, "tz_offset": tz_offset}

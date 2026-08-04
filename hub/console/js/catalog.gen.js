@@ -112,6 +112,14 @@ export default {
     [
       "invaders",
       "Shoot the descending grid"
+    ],
+    [
+      "tetris",
+      "Clear lines with falling pieces"
+    ],
+    [
+      "pong",
+      "Bounce the ball past the foe"
     ]
   ],
   "apps": [
@@ -194,6 +202,10 @@ export default {
     [
       "breath",
       "Guided breath coach"
+    ],
+    [
+      "alarm",
+      "Wake at a set time"
     ]
   ],
   "agents": [

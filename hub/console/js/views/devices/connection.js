@@ -19,6 +19,7 @@ const STATES = {
 };
 
 const HID_HINT = "Reboot, then forget and re-pair on the host.";
+const CLOCK_HINT = "Push the host time to the device.";
 
 function connect(device) {
   $("scan-panel").classList.add("hide");
@@ -84,6 +85,10 @@ function setHidMode(mode) {
   return mutate(() => api("PUT", "/api/connection/hid", { mode }), "devices-note");
 }
 
+function syncClock() {
+  return mutate(() => api("POST", "/api/connection/time"), "devices-note");
+}
+
 function hidModeRow(conn) {
   const modes = (catalog.hid_modes || []).map(([id]) => id);
   const labels = Object.fromEntries((catalog.hid_modes || []).map(([id, label]) => [id, label]));
@@ -94,6 +99,12 @@ function hidModeRow(conn) {
     HID_HINT,
     segControl(modes, active, (id) => labels[id] || id, setHidMode),
   );
+}
+
+function clockRow() {
+  const btn = el("button", "btn", "Sync clock");
+  btn.addEventListener("click", syncClock);
+  return settingRow("Clock", CLOCK_HINT, btn);
 }
 
 export function connectionCard(conn) {
@@ -136,4 +147,5 @@ export function connectionCard(conn) {
   card.append(row);
 
   if (catalog.hid_modes?.length) card.append(hidModeRow(conn));
+  card.append(clockRow());
 }

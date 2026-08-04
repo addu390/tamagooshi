@@ -368,13 +368,14 @@ SimHid g_hid;
 SimConfig g_config;
 NullMetricRepository g_metrics;
 NullHidProfileRepository g_hidProfile;
+NullClockRepository g_clock;
 StaticBoardProfile g_board(board::capabilities());
 IdFn g_idGen =
     ids::ulidGenerator([] { return nowMs(); }, [] { return static_cast<uint8_t>(rand()); });
 ArduinoJsonCodec g_codec(g_idGen, [] { return nowMs(); }, kSimId);
 SimSystemControl g_systemControl;
 Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_systemControl, g_buttons, g_input,
-                  g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile);
+                  g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile, g_clock);
 HubPipeline g_hubPipeline(g_transport, g_codec, g_runtime.router(), g_board, kSimId, "0.1.0-sim");
 #if defined(TAMA_ENABLE_BUDDY)
 BuddyController g_buddyController(g_runtime.state());

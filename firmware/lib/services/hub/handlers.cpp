@@ -78,8 +78,13 @@ void TimeHandler::handle(const Envelope& env) {
   int64_t epoch = 0;
   int tzOffsetMin = 0;
   if (!codec_.parseTime(env.body, epoch, tzOffsetMin)) return;
+
   state_.tz_offset_min = static_cast<int16_t>(tzOffsetMin);
-  if (epoch > 0) system_.setClock(epoch);
+  if (epoch > 0) {
+    system_.setClock(epoch);
+    clock_.save({epoch, state_.tz_offset_min});
+  }
+
   state_.dirty = true;
 }
 
