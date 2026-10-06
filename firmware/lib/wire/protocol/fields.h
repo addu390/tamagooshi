@@ -16,6 +16,7 @@ inline constexpr const char* kLabel = "label";
 inline constexpr const char* kValue = "value";
 inline constexpr const char* kTrend = "trend";
 inline constexpr const char* kKind = "kind";
+inline constexpr const char* kRaw = "raw";
 
 inline constexpr const char* kName = "name";
 inline constexpr const char* kTagline = "tagline";

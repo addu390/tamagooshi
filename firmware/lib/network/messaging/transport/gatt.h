@@ -24,8 +24,7 @@ class HubEndpoint : public ITransport, public IBleService, public NimBLECharacte
 
   void begin() override {}
   void loop() override {}
-  void publish(const std::string& topic, const std::string& payload, uint8_t qos,
-               bool retain) override;
+  void publish(const std::string& topic, const std::string& payload) override;
   bool connected() const override;
   void onMessage(MessageHandler handler) override;
   void onConnection(ConnectionHandler handler) override;

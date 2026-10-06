@@ -11,7 +11,7 @@ class PlayScreen : public CatalogScreen {
   const char* id() const override { return "play"; }
 
  protected:
-  const char* section() const override { return "PLAY"; }
+  const char* section() const override { return "GAMES"; }
   const char* action() const override { return "GO"; }
 
   int entries(ShellContext& ctx, CatalogEntry* out, int max) const override {

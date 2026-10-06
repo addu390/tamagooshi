@@ -1,6 +1,9 @@
 import os
 
+import json
+
 from gen import registry
+from gen.emit.blob import rules as device_rules
 from gen.emit.sprites import sprite_header
 from gen.features.mascots import MASCOTS
 from gen.images import logo_mask
@@ -37,8 +40,9 @@ def _register_fn(registry_type, param, factories):
 
 def emit_mascots(out_dir, ids, customs, base_dir):
     for mid in ids:
-        write(os.path.join(out_dir, "mascots", f"{mid}.h"),
-              sprite_header(MASCOTS[mid], base_dir))
+        if not MASCOTS[mid].get("native"):
+            write(os.path.join(out_dir, "mascots", f"{mid}.h"),
+                  sprite_header(MASCOTS[mid], base_dir))
     for m in customs:
         write(os.path.join(out_dir, "mascots", f"{m['id']}.h"),
               sprite_header(m, base_dir))
@@ -290,12 +294,10 @@ def emit_portal(out_dir):
 
 
 def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_typeface,
-               default_mood, tz_offset_min, games, apps, logo_id, buddy, persona=None):
+               default_mood, tz_offset_min, games, apps, logo_id, persona=None):
     ident = data.get("brand") or {}
-    agent = (data.get("hub") or {}).get("agent") or {}
-    agents = agent.get("enabled") or []
-    agent_default = agent.get("default") or (agents[0] if agents else "")
     persona_name = persona["name"] if persona else ""
+    rules = json.dumps(device_rules(data.get("device") or {}), separators=(",", ":"))
 
     lines = ['#pragma once', '',
              f'#define TAMA_BRAND_ID {cstr(ident.get("id", brand_id))}',
@@ -309,20 +311,17 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
              f'#define TAMA_DEFAULT_THEME {cstr(default_theme)}',
              f'#define TAMA_DEFAULT_TYPEFACE {cstr(default_typeface)}',
              f'#define TAMA_DEFAULT_MOOD {cstr(default_mood)}',
-             f'#define TAMA_TZ_OFFSET_MIN {int(tz_offset_min)}',
-             f'#define TAMA_HUB_AGENTS {cstr(",".join(agents))}',
-             f'#define TAMA_HUB_AGENT_DEFAULT {cstr(agent_default)}', '']
+             f'#define TAMA_TZ_OFFSET_MIN {int(tz_offset_min)}', '']
 
     lines += [f'#define {registry.games.macro(g)} 1' for g in games]
     lines += [f'#define {registry.apps.macro(a)} 1' for a in apps]
-    if buddy:
-        lines += ['#define TAMA_ENABLE_BUDDY 1']
     if persona:
         lines += ['#define TAMA_ENABLE_PERSONA 1']
 
     lines += ['',
               '#include "model.h"', '#include "theme.h"', '#include "typeface.h"', '',
               'namespace tama::brand {', '',
+              f'inline constexpr const char kRules[] = R"JSON({rules})JSON";', '',
               'inline void apply(DeviceState& state) {',
               '  state.branding.name = TAMA_PRODUCT_NAME;',
               '  state.branding.tagline = TAMA_TAGLINE;',
@@ -331,7 +330,8 @@ def emit_brand(out_dir, brand_id, data, default_mascot, default_theme, default_t
               '  state.branding.mascot_name = TAMA_MASCOT_NAME;',
               '  state.branding.persona_name = TAMA_PERSONA_NAME;',
               '  state.character_id = TAMA_DEFAULT_MASCOT;',
-              '  state.mood = moodFromString(TAMA_DEFAULT_MOOD);',
+              '  state.reactions.fallback = moodFromString(TAMA_DEFAULT_MOOD);',
+              '  state.setMood(state.reactions.fallback);',
               '  state.tz_offset_min = TAMA_TZ_OFFSET_MIN;',
               '  theme::setThemeByName(TAMA_DEFAULT_THEME);',
               '  typeface::setTypefaceByName(TAMA_DEFAULT_TYPEFACE);',

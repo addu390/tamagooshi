@@ -889,14 +889,14 @@ if (flashRoot) Promise.all([
     return wireBlob.encode(cfg);
   };
 
-  const image = (m) => ({ path: flasher.imageUrl(CATALOG.release, m, board()), offset: 0 });
+  const image = () => ({ path: flasher.imageUrl(CATALOG.release, board()), offset: 0 });
   const customManifest = () => {
     const m = manifest();
     return flasher.installerManifest(board().chipFamily, [
-      image(m), flasher.configPart(configBlob(m), board().configOffset),
+      image(), flasher.configPart(configBlob(m), board().configOffset),
     ]);
   };
-  const stockManifest = () => flasher.installerManifest(board().chipFamily, [image(manifest())]);
+  const stockManifest = () => flasher.installerManifest(board().chipFamily, [image()]);
 
   const customBtn = flasher.installButton("Flash my config", "btn", customManifest());
   const stockBtn = flasher.installButton("Flash defaults", "btn ghost", stockManifest());

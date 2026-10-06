@@ -59,6 +59,47 @@ void applyThemes(JsonVariantConst themes) {
   }
 }
 
+bool readCondition(JsonVariantConst v, Condition& out) {
+  const char* metric = v["metric"].as<const char*>();
+  const char* op = v["op"].as<const char*>();
+  if (!metric || !*metric || !op || !ruleOpFromString(op, out.op) || !v["value"].is<double>())
+    return false;
+  out.metric = metric;
+  out.value = v["value"].as<double>();
+  return true;
+}
+
+void readRules(JsonVariantConst doc, Reactions& out) {
+  if (doc["moods"].is<JsonArrayConst>()) {
+    out.moods.clear();
+    for (JsonVariantConst r : doc["moods"].as<JsonArrayConst>()) {
+      MoodRule rule;
+      const char* mood = r["mood"].as<const char*>();
+      if (!mood || !readCondition(r["when"], rule.when)) continue;
+      rule.mood = moodFromString(mood);
+      rule.priority = r["priority"] | 0;
+      out.moods.push_back(std::move(rule));
+    }
+  }
+
+  if (doc["alerts"].is<JsonArrayConst>()) {
+    out.alerts.clear();
+    for (JsonVariantConst r : doc["alerts"].as<JsonArrayConst>()) {
+      AlertRule rule;
+      const char* id = r["id"].as<const char*>();
+      const char* title = r["title"].as<const char*>();
+      if (!id || !*id || !title || !readCondition(r["when"], rule.when)) continue;
+      rule.id = id;
+      rule.title = title;
+      assign(r["body"], rule.body);
+      assign(r["source"], rule.source);
+      if (const char* s = r["severity"].as<const char*>()) rule.severity = severityFromString(s);
+      rule.requires_ack = r["requires_ack"] | true;
+      out.alerts.push_back(std::move(rule));
+    }
+  }
+}
+
 void applyLogo(JsonVariantConst logo, DeviceState& state) {
   if (!logo.is<JsonObjectConst>()) return;
   const int w = logo["w"] | 0;
@@ -95,7 +136,10 @@ bool apply(const std::string& blob, DeviceState& state) {
   if (const char* t = defaults["theme"].as<const char*>()) theme::setThemeByName(t);
   if (const char* f = defaults["typeface"].as<const char*>()) typeface::setTypefaceByName(f);
   assign(defaults["mascot"], state.character_id);
-  if (const char* m = defaults["mood"].as<const char*>()) state.mood = moodFromString(m);
+  if (const char* m = defaults["mood"].as<const char*>()) {
+    state.reactions.fallback = moodFromString(m);
+    state.setMood(state.reactions.fallback);
+  }
   if (defaults["tz"].is<int>()) state.tz_offset_min = static_cast<int16_t>(defaults["tz"].as<int>());
 
   JsonVariantConst enabled = doc["enabled"];
@@ -105,8 +149,16 @@ bool apply(const std::string& blob, DeviceState& state) {
   readStrings(enabled["themes"], state.enabled.themes);
   readStrings(enabled["typefaces"], state.enabled.typefaces);
 
+  readRules(doc.as<JsonVariantConst>(), state.reactions);
   applyLogo(doc["logo"], state);
 
+  return true;
+}
+
+bool applyRules(const char* json, Reactions& out) {
+  JsonDocument doc;
+  if (!json || deserializeJson(doc, json) != DeserializationError::Ok) return false;
+  readRules(doc.as<JsonVariantConst>(), out);
   return true;
 }
 

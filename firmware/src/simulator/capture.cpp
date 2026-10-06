@@ -3,14 +3,11 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "buddy/agent/session.h"
 #include "runtime.h"
 
 namespace tama::sim {
 
 namespace {
-
-constexpr const char* kOwner = "{\"cmd\":\"owner\",\"name\":\"John\"}";
 
 int envInt(const char* key, int fallback) {
   const char* v = std::getenv(key);
@@ -27,14 +24,10 @@ Intent intentFromName(const std::string& s) {
 
 }  // namespace
 
-CaptureHarness::CaptureHarness(Runtime& runtime, AgentSession* session)
-    : runtime_(runtime), session_(session) {}
+CaptureHarness::CaptureHarness(Runtime& runtime) : runtime_(runtime) {}
 
 void CaptureHarness::init() {
   if (const char* spec = std::getenv("TAMA_INPUT")) parseScript(spec);
-  if (const char* mode = std::getenv("TAMA_BUDDY")) {
-    if (session_ != nullptr) loadBuddyArc(mode);
-  }
   if (const char* dir = std::getenv("TAMA_CAP_DIR")) {
     capDir_ = dir;
     warmup_ = envInt("TAMA_CAP_WARMUP", 24);
@@ -48,16 +41,6 @@ void CaptureHarness::beforeFrame(uint32_t nowMs) {
     if (!step.fired && nowMs >= step.at) {
       step.fired = true;
       runtime_.nav().dispatch(step.intent);
-    }
-  }
-
-  if (!buddy_.empty() && session_ != nullptr) {
-    session_->tick(nowMs);
-    for (auto& step : buddy_) {
-      if (!step.fired && nowMs >= step.at) {
-        step.fired = true;
-        session_->onInbound("", step.json);
-      }
     }
   }
 
@@ -96,60 +79,6 @@ void CaptureHarness::parseScript(const std::string& spec) {
     if (comma == std::string::npos) break;
     i = comma + 1;
   }
-}
-
-void CaptureHarness::loadBuddyArc(const std::string& mode) {
-  if (mode != "work" && mode != "approve") return;
-  session_->onInbound("", kOwner);
-  if (mode == "work") {
-    buddy_ = {
-        {0, "{\"total\":0,\"running\":0,\"waiting\":0,\"tokens\":0,\"tokens_today\":96000}", false},
-        {2200,
-         "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"reading repo\",\"entries\":[\"10:39 "
-         "scan project\"],\"tokens\":12400,\"tokens_today\":108400}",
-         false},
-        {5200,
-         "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"editing files\",\"entries\":[\"10:41 "
-         "edit home.cpp\",\"10:39 scan project\"],\"tokens\":24800,\"tokens_today\":120800}",
-         false},
-        {9200,
-         "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"running tests\",\"entries\":[\"10:43 "
-         "yarn test\",\"10:41 edit home.cpp\",\"10:39 scan project\"],\"tokens\":33600,\"tokens_"
-         "today\":129600}",
-         false},
-        {12200,
-         "{\"total\":3,\"running\":0,\"waiting\":0,\"msg\":\"task complete\",\"entries\":[\"10:44 "
-         "git push\",\"10:43 yarn test\",\"10:41 edit home.cpp\"],\"tokens\":41200,\"tokens_today\":"
-         "137200}",
-         false},
-    };
-    return;
-  }
-  buddy_ = {
-      {0,
-       "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"editing files\",\"entries\":[\"10:39 edit "
-       "auth.ts\"],\"tokens\":18200,\"tokens_today\":102000}",
-       false},
-      {2000,
-       "{\"total\":3,\"running\":1,\"waiting\":1,\"msg\":\"approve: Bash\",\"entries\":[\"10:39 edit "
-       "auth.ts\"],\"tokens\":21600,\"tokens_today\":105400,\"prompt\":{\"id\":\"req_push\",\"tool\":"
-       "\"Bash\",\"hint\":\"git push origin main\"}}",
-       false},
-      {5000,
-       "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"pushed to main\",\"entries\":[\"10:41 git "
-       "push\",\"10:39 edit auth.ts\"],\"tokens\":26400,\"tokens_today\":110200}",
-       false},
-      {6500,
-       "{\"total\":3,\"running\":1,\"waiting\":1,\"msg\":\"approve: Bash\",\"entries\":[\"10:41 git "
-       "push\",\"10:39 edit auth.ts\"],\"tokens\":28800,\"tokens_today\":112600,\"prompt\":{\"id\":"
-       "\"req_rm\",\"tool\":\"Bash\",\"hint\":\"rm -rf build/\"}}",
-       false},
-      {9800,
-       "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"skipped cleanup\",\"entries\":[\"10:43 "
-       "denied rm -rf\",\"10:41 git push\",\"10:39 edit auth.ts\"],\"tokens\":31200,\"tokens_today\":"
-       "115000}",
-       false},
-  };
 }
 
 void CaptureHarness::writePPM(const char* path) const {

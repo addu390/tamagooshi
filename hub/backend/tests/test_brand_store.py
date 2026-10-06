@@ -14,7 +14,7 @@ def _write_template(builtin):
     builtin.mkdir(parents=True, exist_ok=True)
     (builtin / "template.yaml").write_text(yaml.safe_dump({
         "brand": {"id": "template", "name": "YOUR PRODUCT", "mascot": "Buddy"},
-        "hub": {"sources": [], "moods": [], "alerts": []},
+        "device": {"moods": [], "alerts": []},
     }), encoding="utf-8")
 
 
@@ -75,7 +75,7 @@ def test_create_brand_clones_template(dirs, store):
     data = yaml.safe_load((user / "acme.yaml").read_text(encoding="utf-8"))
     assert data["brand"] == {"id": "acme", "name": "ACME", "tagline": "beep",
                              "mascot": "Buddy"}
-    assert data["hub"]["sources"] == []
+    assert data["device"] == {"moods": [], "alerts": []}
 
 
 def test_create_brand_rejects_bad_input(dirs, store):
@@ -121,3 +121,16 @@ def test_import_manifest_writes_user_copy(dirs, store):
 
     assert store.import_manifest({"brand": {"id": "acme", "name": "ACME"}}) == "acme"
     assert (user / "acme.yaml").exists()
+
+
+def test_store_copy_on_write_for_builtin_brand(tmp_path, monkeypatch):
+    monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
+    store = BrandService(default_catalog())
+
+    store.update_identity("demo", {"tagline": "edited"})
+
+    user_copy = tmp_path / "brands" / "demo.yaml"
+    assert user_copy.exists()
+    data = store.read_manifest("demo")
+    assert data["brand"]["tagline"] == "edited"
+    assert data["brand"]["id"] == "demo"

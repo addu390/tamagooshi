@@ -10,7 +10,7 @@ std::function<void(const std::string&, PromptOutcome)> makeHubResolver(ITranspor
                                                                        std::string deviceId) {
   return [&transport, &codec, deviceId](const std::string& pageId, PromptOutcome outcome) {
     if (outcome == PromptOutcome::Ack)
-      transport.publish(topics::acks(deviceId), codec.encodeAck(pageId), 1, false);
+      transport.publish(topics::acks(deviceId), codec.encodeAck(pageId));
   };
 }
 

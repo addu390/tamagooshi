@@ -96,7 +96,7 @@ make hub-test                     # hub unit tests
   </picture>
 </p>
 
-Apps and games ship in firmware (`device.apps`, `device.games`). Claude Desktop Buddy and Cursor both support voice conversations via the hub.
+Apps and games ship in firmware (`device.apps`, `device.games`). Claude and Cursor both support voice conversations via the hub.
 
 <p align="left">
   <picture>

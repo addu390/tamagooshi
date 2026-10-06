@@ -39,7 +39,7 @@ Runtime::Runtime(const DeviceCapabilities& caps, const ICodec& codec, IExpressio
                  config::ISource& config, IMetricRepository& metrics,
                  IHidProfileRepository& hidProfiles, IClockRepository& clock)
     : mapper_(buttons, input, caps),
-      nav_(state_, pet_, caps, characters_),
+      nav_(state_, caps, characters_),
       handlers_(state_, codec, expression, system, hidProfiles, clock),
       expression_(expression),
       system_(system),
@@ -58,14 +58,17 @@ void Runtime::bind(const ChannelBinding& binding) {
   if (binding.link) nav_.setLink(*binding.link);
   nav_.setWifi(binding.wifi);
   nav_.setVoice(binding.voice);
+  nav_.setAssistant(binding.assistant);
   nav_.setResolver(binding.resolvePrompt);
 }
 
 void Runtime::begin() {
   brand::apply(state_);
+  config::applyRules(brand::kRules, state_.reactions);
   config::apply(config_.read(), state_);
 
   state_.metrics = metrics_.load();
+  state_.react();
   state_.metrics_dirty = false;
 
   if (const auto clock = clock_.load()) {
@@ -136,6 +139,7 @@ void Runtime::loop(uint32_t nowMs) {
   syncPrompt();
   syncPower(nowMs);
   syncMetrics(nowMs);
+  state_.pet.tick(nowMs, state_.mood == Mood::Happy || state_.mood == Mood::Celebrate);
   nav_.tick(nowMs);
   renderIfNeeded();
 }

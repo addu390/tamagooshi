@@ -67,7 +67,7 @@ function browserPath(root, manifest) {
   ewt = ewt || import(EWT_URL);
   revokeUrls();
 
-  const image = { path: imageUrl(catalog.release, manifest, board()), offset: 0 };
+  const image = { path: imageUrl(catalog.release, board()), offset: 0 };
   const branded = installButton("Flash brand", "btn primary",
                                 installerManifest(board().chipFamily, [
                                   image, configPart(configBlob(manifest), board().configOffset),
@@ -135,7 +135,7 @@ function hubPath(root, status, manifest) {
   const payload = (withConfig) => ({
     port: select.value,
     board: boardId,
-    image_url: imageUrl(catalog.release, manifest, board()),
+    image_url: imageUrl(catalog.release, board()),
     ...(withConfig ? {
       config_offset: board().configOffset,
       config_b64: btoa(String.fromCharCode(...configBlob(manifest))),
@@ -183,7 +183,7 @@ export function flashSection(data) {
   const manifest = manifests.get(brandId) || activeManifest;
   root.append(boardRow(), brandRow(brands));
   root.append(settingRow("Image", "Latest release build for this board.",
-                         el("span", "dim", imageName(manifest, board()))));
+                         el("span", "dim", imageName(board()))));
 
   if (status.available && (status.ports.length || !navigator.serial)) {
     hubPath(root, status, manifest);

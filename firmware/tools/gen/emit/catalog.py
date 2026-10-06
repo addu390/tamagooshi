@@ -1,4 +1,3 @@
-import importlib.util
 import json
 import os
 
@@ -8,21 +7,13 @@ from gen.images import logo_mask, pack_mask
 from gen.network.transports import LINKS, PROTOCOLS
 from gen.platform.boards import RELEASE_BASE, flash_catalog
 
-LINK_DESC = {"ble": "Bluetooth LE, always on", "wifi": "Wi-Fi"}
-PROTOCOL_DESC = {"gatt": "GATT (native)", "mqtt": "MQTT"}
+LINK_DESC = {"ble": "Bluetooth LE, always on"}
+PROTOCOL_DESC = {"gatt": "GATT (native)"}
 
 
 def _repo():
     here = os.path.dirname(os.path.abspath(__file__))
     return os.path.abspath(os.path.join(here, "..", "..", "..", ".."))
-
-
-def _agents():
-    path = os.path.join(_repo(), "hub", "backend", "src", "features", "buddy", "agents", "catalog.py")
-    spec = importlib.util.spec_from_file_location("tama_agent_catalog", path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return [[aid, label] for aid, label in module.AGENTS.items()]
 
 
 def _default_logo(brand="gooshi"):
@@ -50,7 +41,6 @@ def catalog():
         "typefaces": registry.typefaces.rows(),
         "games": registry.games.rows(),
         "apps": registry.apps.rows(),
-        "agents": _agents(),
         "packs": {name: [[mid, registry.mascots.display(mid)] for mid in ids]
                   for name, ids in MASCOT_CATEGORIES.items()},
         "transports": {

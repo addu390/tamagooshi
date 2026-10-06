@@ -1,7 +1,7 @@
 #pragma once
 
 #include "navigator.h"
-#include "prompt_overlay.h"
+#include "prompt.h"
 #include "mascots/registry.h"
 #include "screen.h"
 
@@ -15,14 +15,14 @@ AppScreen& settings();
 AppScreen& mascots();
 AppScreen& play();
 AppScreen& apps();
-AppScreen& nook();
 AppScreen& bluetooth();
 AppScreen& wifi();
-AppScreen& buddy();
-AppScreen& ask();
+AppScreen& agent();
 AppScreen& persona();
 
 void addSettingsScreens(Navigator& nav);
+
+const char* agentStatus(AgentState state);
 
 void registerAll(Navigator& nav);
 

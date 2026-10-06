@@ -40,7 +40,7 @@ class ClimbScreen : public ArcadeGameScreen {
                       theme::kFg);
     }
     const Expr e = vy_ < 0 ? Expr::Happy : Expr::Neutral;
-    player(g, ctx, static_cast<int>(x_), static_cast<int>(y_), 24, e, 0, false);
+    player(g, ctx, static_cast<int>(x_), static_cast<int>(y_), 24, e);
   }
 
   void onReset() override {

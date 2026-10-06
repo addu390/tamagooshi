@@ -13,6 +13,7 @@ constexpr char kNetworks[] = "wifi";
 constexpr char kWifiRadio[] = "wifinet";
 constexpr char kBleRadio[] = "blenet";
 constexpr char kClocks[] = "clocks";
+constexpr char kAccounts[] = "accounts";
 
 enum class Access { Read, Write };
 

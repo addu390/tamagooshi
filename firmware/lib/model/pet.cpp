@@ -1,76 +1,39 @@
 #include "pet.h"
 
-#include <algorithm>
-
 namespace tama {
 
 namespace {
-constexpr uint32_t kDecayMs = 6000;
+constexpr uint32_t kStepMs = 33;
 }
 
-void Care::reset() {
-  particles_.clear();
-  reactUntil_ = 0;
-  autoNext_ = 0;
-}
-
-bool Care::decay(PetState& pet, uint32_t nowMs) {
-  if (pet.lastDecayMs == 0) pet.lastDecayMs = nowMs;
-  if (nowMs - pet.lastDecayMs <= kDecayMs) return false;
-
-  pet.lastDecayMs = nowMs;
-  pet.energy = std::max(0, pet.energy - 1);
-  pet.care = std::max(0, pet.care - 1);
-  pet.bond = std::max(0, pet.bond - 1);
-  return true;
-}
-
-bool Care::spontaneous(PetState& pet, uint32_t nowMs) {
-  if (autoNext_ == 0) autoNext_ = nowMs + 5000;
-  if (nowMs < autoNext_) return false;
-
-  autoNext_ = nowMs + 4000 + (rng_.next() % 4000u);
-  if (pet.care > 45 && !reacting(nowMs)) {
-    emote(Expr::Happy, nowMs, 1200);
-    spawnHearts(2);
-  }
-  return true;
-}
-
-void Care::doAction(PetState& pet, PetAction action, uint32_t nowMs) {
+void Pet::act(PetAction action, uint32_t nowMs) {
   switch (action) {
     case PetAction::Feed:
-      pet.energy = std::min(100, pet.energy + 16);
-      pet.care = std::min(100, pet.care + 3);
-      emote(Expr::Happy, nowMs, 1400);
+      emote(Expr::Celebrate, nowMs, 1400);
       spawnBerries(5);
       break;
     case PetAction::Play:
-      if (pet.energy < 10) {
-        emote(Expr::Worried, nowMs, 1200);
-        break;
-      }
-      pet.bond = std::min(100, pet.bond + 12);
-      pet.energy = std::max(0, pet.energy - 8);
-      pet.care = std::min(100, pet.care + 2);
       emote(Expr::Celebrate, nowMs, 1600);
       spawnStars(6);
       break;
     case PetAction::Love:
-      pet.care = std::min(100, pet.care + 14);
-      pet.bond = std::min(100, pet.bond + 6);
-      emote(Expr::Happy, nowMs, 1400);
+      emote(Expr::Celebrate, nowMs, 1400);
       spawnHearts(6);
       break;
   }
 }
 
-void Care::quickFeed(PetState& pet) {
-  pet.energy = std::min(100, pet.energy + 6);
-  pet.care = std::min(100, pet.care + 4);
-}
-
-void Care::stepParticles() {
+bool Pet::tick(uint32_t nowMs, bool content) {
+  if (nextCheer_ == 0) nextCheer_ = nowMs + 5000;
+  if (nowMs >= nextCheer_) {
+    nextCheer_ = nowMs + 4000 + (rng_.next() % 4000u);
+    if (content && !reacting(nowMs)) {
+      emote(Expr::Happy, nowMs, 1200);
+      spawnHearts(2);
+    }
+  }
+  if (particles_.empty() || nowMs < nextStep_) return false;
+  nextStep_ = nowMs + kStepMs;
   for (auto it = particles_.begin(); it != particles_.end();) {
     it->x += it->vx;
     it->y += it->vy;
@@ -81,14 +44,15 @@ void Care::stepParticles() {
       ++it;
     }
   }
+  return true;
 }
 
-void Care::emote(Expr e, uint32_t nowMs, uint32_t ms) {
+void Pet::emote(Expr e, uint32_t nowMs, uint32_t ms) {
   reactExpr_ = e;
   reactUntil_ = nowMs + ms;
 }
 
-void Care::spawnHearts(int n) {
+void Pet::spawnHearts(int n) {
   for (int i = 0; i < n; ++i) {
     Particle p;
     p.x = static_cast<float>(static_cast<int>(rng_.next() % 44u) - 22);
@@ -102,7 +66,7 @@ void Care::spawnHearts(int n) {
   }
 }
 
-void Care::spawnBerries(int n) {
+void Pet::spawnBerries(int n) {
   for (int i = 0; i < n; ++i) {
     Particle p;
     p.x = static_cast<float>(static_cast<int>(rng_.next() % 24u) - 12);
@@ -116,7 +80,7 @@ void Care::spawnBerries(int n) {
   }
 }
 
-void Care::spawnStars(int n) {
+void Pet::spawnStars(int n) {
   for (int i = 0; i < n; ++i) {
     Particle p;
     p.x = static_cast<float>(static_cast<int>(rng_.next() % 20u) - 10);

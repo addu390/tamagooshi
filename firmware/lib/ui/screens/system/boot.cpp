@@ -16,18 +16,22 @@ class BootScreen : public AppScreen {
   void render(Gfx& g, ShellContext& ctx) override {
     const auto& s = ctx.state;
     const int cx = g.w() / 2;
-    const int size = 60;
-    const int mascotY = g.h() / 2;
+    const bool landscape = g.w() > g.h();
+    const int size = landscape ? 44 : 66;
+    const int mascotX = landscape ? cx - 36 : cx;
+    const int mascotY = landscape ? g.h() / 2 + 8 : g.h() / 2 - 4;
+    const char* status = s.connected ? "ready" : "waiting for hub";
 
     widgets::brandLockup(g, s.branding, cx, 32, g.w() - 20, 26);
-    if (!s.branding.tagline.empty()) {
-      widgets::wrapText(g, s.branding.tagline.c_str(), cx, 48, g.w() - 12, typeface::micro(),
-                        theme::kDim, 10);
+    if (ctx.character) {
+      ctx.character->draw(g, mascotX, mascotY, size, MascotState{Expr::Sleepy}, now_);
     }
-    if (ctx.character) ctx.character->draw(g, cx, mascotY, size, MascotState{Expr::Sleepy}, now_);
-    widgets::mascotLabel(g, s.branding.mascot_name.c_str(), cx, mascotY, size);
-    g.str(s.connected ? "ready" : "waiting for hub", cx, widgets::mascotNameY(mascotY, size) + 16,
-          theme::kDim, typeface::body(), textdatum_t::top_center);
+    if (landscape) {
+      g.str(status, cx + 4, mascotY, theme::kDim, typeface::body(), textdatum_t::middle_left);
+    } else {
+      g.str(status, cx, widgets::mascotNameY(mascotY, size), theme::kDim, typeface::body(),
+            textdatum_t::top_center);
+    }
     widgets::hints(g, "START", nullptr);
   }
 

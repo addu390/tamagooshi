@@ -44,7 +44,7 @@ class RemoteScreen : public screens::ListScreen {
     g.str("point remote", L.cx, cy, theme::kFg, typeface::body(), textdatum_t::middle_center);
     g.str("press a button", L.cx, cy + 18, theme::kDim, typeface::micro(),
           textdatum_t::middle_center);
-    widgets::hints(g, "", "CANCEL");
+    widgets::hints(g, "", "BACK");
   }
 
   Transition handleInput(Intent intent, ShellContext& ctx) override {

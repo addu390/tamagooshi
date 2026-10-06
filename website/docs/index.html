@@ -93,11 +93,10 @@ window.TAMA_PAGE = {
 
     <section class="doc" id="build">
       <h2>Build &amp; flash</h2>
-      <p>The config gets onto a device three ways. Flash it in the browser, use the macOS app, or self-host the console with Docker. Same firmware, same result.</p>
+      <p>The config gets onto a device two ways. Flash it in the browser, or self-host the console with Docker. Same firmware, same result.</p>
       <div class="setup">
         <div class="tabbar" role="tablist" aria-label="Setup variants">
           <button class="tab active" data-setup="browser" role="tab" aria-selected="true">Browser</button>
-          <button class="tab" data-setup="macos" role="tab" aria-selected="false">macOS</button>
           <button class="tab" data-setup="docker" role="tab" aria-selected="false">Docker</button>
         </div>
         <div class="setup-pane" data-pane="browser">
@@ -118,44 +117,8 @@ window.TAMA_PAGE = {
 make hub                   <span class="c"># pairs with your device over BLE</span></pre>
           <p>Or skip the bare install. The <a href="#build" data-setup-link="docker">Docker tab</a> runs the same hub and serves the full console in the browser.</p>
         </div>
-        <div class="setup-pane" data-pane="macos" hidden>
-          <p>One download bundles the hub and its console. It lives in the menu bar and pairs over BLE. Sources, secrets, brand edits, and flashing all happen in the app.</p>
-          <div class="appmock-wrap">
-            <a class="appmock" href="https://github.com/addu390/tamagooshi/releases/latest" aria-label="Download Tamagooshi for macOS">
-              <span class="appmock-chrome"><i></i><i></i><i></i><b>Tamagooshi</b></span>
-              <span class="appmock-body">
-                <span class="appmock-side">
-                  <b>Monitor</b>
-                  <span class="on">Overview</span>
-                  <span>Devices</span>
-                  <b>Configure</b>
-                  <span>Brand</span>
-                  <span>Sources</span>
-                  <span>Rules</span>
-                  <b>App</b>
-                  <span>Settings</span>
-                </span>
-                <span class="appmock-main">
-                  <span class="appmock-title">Overview <em>mood: happy</em></span>
-                  <span class="appmock-row"><i class="mock-dot ok"></i>Bluetooth <em>connected</em></span>
-                  <span class="appmock-row"><i class="mock-dot"></i>signups <em>1,204</em></span>
-                  <span class="appmock-row"><i class="mock-dot"></i>p95 latency <em>212 ms</em></span>
-                  <span class="appmock-cta">Flash firmware</span>
-                </span>
-              </span>
-            </a>
-            <div class="appmock-copy">
-              <ul>
-                <li><b>Menu bar, not dock.</b> The hub runs in the background and the console opens in its own window.</li>
-                <li><b>BLE pairing.</b> Scan, pick your stick, done. No broker, no always-on machine.</li>
-                <li><b>Flash from Devices.</b> Pick a board and a brand. The app writes the image and config over USB.</li>
-              </ul>
-              <a class="btn" href="https://github.com/addu390/tamagooshi/releases/latest">Download for macOS</a>
-            </div>
-          </div>
-        </div>
         <div class="setup-pane" data-pane="docker" hidden>
-          <p>One command runs a broker plus the hub and serves the same console the macOS app wraps, on any OS. Open it in the browser and everything is there: sources, secrets, brand editing, and flashing over the hub's USB port.</p>
+          <p>One command runs a broker plus the hub and serves the console, on any OS. Open it in the browser and everything is there: sources, secrets, brand editing, and flashing over the hub's USB port.</p>
           <div class="hostmock">
             <span class="hostmock-term">
               <span class="appmock-chrome dark"><i></i><i></i><i></i><b>terminal</b></span>

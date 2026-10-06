@@ -1,5 +1,5 @@
 from src.network import InboundRegistry, InboundRouter
-from src.wire.protocol import PageAck, envelope
+from src.wire.protocol import TimeSet, envelope
 
 
 def make_router():
@@ -11,24 +11,24 @@ def make_router():
 def test_router_dispatches_typed_envelope():
     registry, router = make_router()
     seen = []
-    router.on("page.ack", lambda topic, env: seen.append((topic, env.body)))
+    router.on("time.set", lambda topic, env: seen.append((topic, env.body)))
 
-    payload = envelope("page.ack", PageAck(page_id="pg1"), src="dev1")
-    router.handle("tama/dev1/evt/ack", payload)
+    payload = envelope("time.set", TimeSet(epoch=1700000000), src="dev1")
+    router.handle("tama/dev1/evt/time", payload)
 
     assert len(seen) == 1
     topic, body = seen[0]
-    assert topic == "tama/dev1/evt/ack"
-    assert body["page_id"] == "pg1"
+    assert topic == "tama/dev1/evt/time"
+    assert body["epoch"] == 1700000000
     assert "dev1" in registry.snapshot()
 
 
 def test_router_ignores_unknown_types():
     _, router = make_router()
     seen = []
-    router.on("page.ack", lambda topic, env: seen.append(topic))
+    router.on("time.set", lambda topic, env: seen.append(topic))
 
-    payload = envelope("device.hello", PageAck(page_id="x"), src="dev1")
+    payload = envelope("device.hello", TimeSet(epoch=1), src="dev1")
     router.handle("tama/dev1/evt/hello", payload)
 
     assert seen == []

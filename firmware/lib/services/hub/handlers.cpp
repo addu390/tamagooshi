@@ -34,14 +34,14 @@ void BrandingHandler::handle(const Envelope& env) {
 
 void MetricHandler::handle(const Envelope& env) {
   Metric metric;
-  if (codec_.parseMetric(env.body, metric)) {
-    state_.upsertMetric(metric);
-    state_.dirty = true;
-  }
+  if (codec_.parseMetric(env.body, metric)) state_.publishMetric(metric);
 }
 
 void MoodHandler::handle(const Envelope& env) {
-  if (codec_.parseMood(env.body, state_.mood, state_.mood_reason)) state_.dirty = true;
+  Mood mood = Mood::Neutral;
+  if (!codec_.parseMood(env.body, mood, state_.mood_reason)) return;
+  state_.setMood(mood);
+  state_.dirty = true;
 }
 
 void ConfigHandler::handle(const Envelope& env) {

@@ -7,17 +7,13 @@ import threading
 
 from bleak import BleakClient, BleakScanner
 
-from .base import LineChannel, LineHandler, MessageHandler, Transport
+from .base import MessageHandler, Transport
 
 log = logging.getLogger("tamagooshi.transport.ble")
 
 SERVICE_UUID = "9e7b0001-8c9a-4f2b-8b7a-1e2d3c4b5a6f"
 INBOUND_UUID = "9e7b0002-8c9a-4f2b-8b7a-1e2d3c4b5a6f"
 OUTBOUND_UUID = "9e7b0003-8c9a-4f2b-8b7a-1e2d3c4b5a6f"
-INFO_UUID = "9e7b0004-8c9a-4f2b-8b7a-1e2d3c4b5a6f"
-
-NUS_RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
-NUS_TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 
 
 def _frame(topic: str, payload: bytes) -> bytes:
@@ -41,7 +37,7 @@ async def discover(timeout: float = 6.0) -> list[dict]:
     return devices
 
 
-class BleTransport(Transport, LineChannel):
+class BleTransport(Transport):
     QUEUE_LIMIT = 256
 
     def __init__(self, name: str | None = None, address: str | None = None,
@@ -51,28 +47,18 @@ class BleTransport(Transport, LineChannel):
         self._found_name = name
         self._scan_timeout = scan_timeout
         self._handler: MessageHandler | None = None
-        self._line_handler: LineHandler | None = None
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._loop.run_forever, daemon=True)
         self._client: BleakClient | None = None
         self._queue: asyncio.Queue = asyncio.Queue()
-        self._line_queue: asyncio.Queue = asyncio.Queue()
         self._rx = bytearray()
-        self._nus_rx = bytearray()
         self._closing = False
 
     def on_message(self, handler: MessageHandler) -> None:
         self._handler = handler
 
-    def on_line(self, handler: LineHandler) -> None:
-        self._line_handler = handler
-
-    def publish(self, topic: str, payload: bytes, qos: int = 1, retain: bool = False) -> None:
+    def publish(self, topic: str, payload: bytes) -> None:
         self._loop.call_soon_threadsafe(self._enqueue, _frame(topic, payload))
-
-    def send_line(self, line: str) -> None:
-        data = line.encode("utf-8") + b"\n"
-        self._loop.call_soon_threadsafe(self._line_queue.put_nowait, data)
 
     def connect(self) -> None:
         self._thread.start()
@@ -120,7 +106,6 @@ class BleTransport(Transport, LineChannel):
 
     async def _run(self) -> None:
         self._loop.create_task(self._drain())
-        self._loop.create_task(self._drain_lines())
         await self._retry(self._locate_and_attach, "no device yet", backoff=2.0)
 
     async def _locate_and_attach(self) -> None:
@@ -162,10 +147,6 @@ class BleTransport(Transport, LineChannel):
         await client.connect()
 
         await client.start_notify(OUTBOUND_UUID, self._on_notify)
-        try:
-            await client.start_notify(NUS_TX_UUID, self._on_nus_notify)
-        except Exception:  # noqa: BLE001
-            log.info("device has no agent channel (NUS); voice bridge disabled")
 
         self._client = client
         log.info("connected to %s", self._address)
@@ -201,26 +182,6 @@ class BleTransport(Transport, LineChannel):
                     log.exception("ble write failed; retrying")
                     await asyncio.sleep(1.0)
 
-    async def _drain_lines(self) -> None:
-        while True:
-            data = await self._line_queue.get()
-
-            while not self._closing:
-                client = self._client
-                if client is None or not client.is_connected:
-                    await asyncio.sleep(0.5)
-                    continue
-
-                try:
-                    await self._write(NUS_RX_UUID, data)
-                    break
-                except Exception as err:
-                    if _auth_error(err):
-                        await self._decline_pairing()
-                    else:
-                        log.exception("nus write failed; dropping line")
-                    break
-
     async def _write(self, char_uuid: str, data: bytes) -> None:
         assert self._client is not None
         mtu = getattr(self._client, "mtu_size", 23) or 23
@@ -254,17 +215,3 @@ class BleTransport(Transport, LineChannel):
                 self._handler(topic, payload)
             except Exception:
                 log.exception("inbound handler failed for %s", topic)
-
-    def _on_nus_notify(self, _char, data: bytearray) -> None:
-        self._nus_rx.extend(data)
-
-        while (nl := self._nus_rx.find(b"\n")) != -1:
-            line = self._nus_rx[:nl].decode("utf-8", "replace").rstrip("\r")
-            del self._nus_rx[:nl + 1]
-            if not line or self._line_handler is None:
-                continue
-
-            try:
-                self._line_handler(line)
-            except Exception:
-                log.exception("agent line handler failed")

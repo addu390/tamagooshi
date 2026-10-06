@@ -6,7 +6,6 @@
 |---|---|---|
 | `firmware/` | Device firmware and desktop simulator | PlatformIO, Arduino-ESP32, LVGL |
 | `hub/backend/` | Local hub, feeds the device over BLE or MQTT | Python 3.13, FastAPI |
-| `hub/macos/` | Mac menu bar app | Swift |
 | `website/` | Site at [gooshi.me](https://gooshi.me) with browser games, built with Eleventy | Node 22 |
 | `brands/` | Brand packs consumed by the firmware generator | YAML, assets |
 

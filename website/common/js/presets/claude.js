@@ -89,13 +89,10 @@
           markers: [] },
         { id: "claude-work", title: "Co-work with Claude", desc: "A Claude Code session starts, Clawd heads down to work and celebrates the landed task. Then you press A, speak, and Claude answers on the device.",
           markers: [{ a: 0.29, kind: "hi" }, { a: 0.45, kind: "hi" }, { a: 0.56, kind: "warn" }, { a: 0.70, kind: "hi" }] },
-        { id: "claude-approve", title: "Approve from the device", desc: "Claude asks before it acts: approve a push from the device, then deny a risky cleanup.",
-          markers: [{ a: 0.08, kind: "warn" }, { a: 0.33, kind: "crit" }] },
       ],
       legends: {
         "claude-home": { h: "OUT OF THE BOX", rows: [["Mascot", "Clawd"], ["Theme", "terra"], ["Mood", "live"]] },
         "claude-work": { h: "WORKS WITH", rows: [["Claude Code", "live"], ["Voice", "press A"]] },
-        "claude-approve": { h: "IN THE LOOP", rows: [["Approvals", "Claude"], ["Deny", "on device"]] },
       },
     },
   };

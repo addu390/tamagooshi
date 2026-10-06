@@ -5,7 +5,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 MessageHandler = Callable[[str, str], None]
-LineHandler = Callable[[str], None]
 StateHandler = Callable[["LinkStatus"], None]
 
 
@@ -23,7 +22,7 @@ class Transport(abc.ABC):
     def on_message(self, handler: MessageHandler) -> None: ...
 
     @abc.abstractmethod
-    def publish(self, topic: str, payload: bytes, qos: int = 1, retain: bool = False) -> None: ...
+    def publish(self, topic: str, payload: bytes) -> None: ...
 
     @abc.abstractmethod
     def connect(self) -> None: ...
@@ -47,13 +46,3 @@ class Transport(abc.ABC):
         self._state = state
         if self._state_handler is not None:
             self._state_handler(self.status())
-
-
-class LineChannel(abc.ABC):
-    """Newline-delimited JSON side channel carried on the same link as the transport."""
-
-    @abc.abstractmethod
-    def on_line(self, handler: LineHandler) -> None: ...
-
-    @abc.abstractmethod
-    def send_line(self, line: str) -> None: ...

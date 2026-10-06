@@ -28,6 +28,22 @@ def _custom_themes(theme):
             for c in theme.get("custom") or []]
 
 
+def _plain(value):
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, dict):
+        return {k: _plain(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_plain(v) for v in value]
+    return value
+
+
+# Integral floats are written as ints so the bytes match JSON.stringify in blob.js.
+def rules(device):
+    return {"moods": _plain(device.get("moods") or []),
+            "alerts": _plain(device.get("alerts") or [])}
+
+
 def _logo(data, base_dir):
     src = (data.get("brand") or {}).get("logo")
     if not src or not base_dir:
@@ -64,6 +80,7 @@ def from_brand(data, base_dir=None):
             "themes": _enabled(theme.get("enabled")),
             "typefaces": _enabled(typeface.get("enabled")),
         },
+        **rules(device),
     }
     customs = _custom_themes(theme)
     if customs:

@@ -21,4 +21,7 @@ class ISource {
 
 bool apply(const std::string& blob, DeviceState& state);
 
+// Rules JSON: {"moods": [...], "alerts": [...]} in the brand config's device.moods/alerts shape.
+bool applyRules(const char* json, Reactions& out);
+
 }  // namespace tama::config

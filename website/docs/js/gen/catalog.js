@@ -206,16 +206,10 @@ export default {
     [
       "alarm",
       "Wake at a set time"
-    ]
-  ],
-  "agents": [
-    [
-      "cursor",
-      "Cursor agent via cursor-sdk"
     ],
     [
-      "claude",
-      "Claude agent via claude-agent-sdk"
+      "talk",
+      "Push-to-talk with your agent"
     ]
   ],
   "packs": {
@@ -266,6 +260,12 @@ export default {
         "clawd",
         "clawd"
       ]
+    ],
+    "muse": [
+      [
+        "jolly",
+        "jolly"
+      ]
     ]
   },
   "transports": {
@@ -273,10 +273,6 @@ export default {
       [
         "ble",
         "Bluetooth LE, always on"
-      ],
-      [
-        "wifi",
-        "Wi-Fi"
       ]
     ],
     "protocols": {
@@ -284,12 +280,6 @@ export default {
         [
           "gatt",
           "GATT (native)"
-        ]
-      ],
-      "wifi": [
-        [
-          "mqtt",
-          "MQTT"
         ]
       ]
     }

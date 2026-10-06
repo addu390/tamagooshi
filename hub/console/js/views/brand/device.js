@@ -1,7 +1,6 @@
 import catalog from "../../catalog.gen.js";
 import { el } from "../../core/dom.js";
-import { chipPicker, chipValues, fieldInput, selectField, switchControl }
-  from "../../components/controls.js";
+import { chipPicker, chipValues, fieldInput, selectField } from "../../components/controls.js";
 import { settingRow } from "../../components/rows.js";
 import { readFields } from "../../components/schema.js";
 import {
@@ -91,21 +90,13 @@ export function featuresCard(manifest, onDirty) {
   const apps = chipPicker(appOptions, expand(device.apps?.enabled, appOptions));
   card.append(chipsBlock("Apps", FLASH_HINT, apps));
 
-  let buddy = device.buddy?.enabled ?? false;
-  const buddySwitch = switchControl(buddy, () => {
-    buddy = !buddy;
-    buddySwitch.classList.toggle("on", buddy);
-    onDirty();
-  });
-  card.append(settingRow("Buddy", `Voice companion app. ${FLASH_HINT}`, buddySwitch));
-
   return wireDeviceCard(card, {
     saveLabel: "Save features",
     onDirty,
     apply(out) {
       out.games = { enabled: collectChips(device.games?.enabled, games) };
       out.apps = { enabled: collectChips(device.apps?.enabled, apps) };
-      out.buddy = { enabled: buddy };
+      delete out.buddy;
     },
   });
 }

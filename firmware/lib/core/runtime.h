@@ -14,7 +14,7 @@
 #include "input/mapper.h"
 #include "model.h"
 #include "navigator.h"
-#include "prompt_overlay.h"
+#include "prompt.h"
 #include "mascots/registry.h"
 #include "channels.h"
 #include "system.h"
@@ -48,7 +48,6 @@ class Runtime {
   void renderIfNeeded();
 
   DeviceState state_;
-  PetState pet_;
   Gfx gfx_;
   CharacterRegistry characters_;
   PromptOverlay prompt_;

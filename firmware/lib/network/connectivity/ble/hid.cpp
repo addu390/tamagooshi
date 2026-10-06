@@ -156,6 +156,9 @@ void HidEndpoint::setup(BleBearer&, NimBLEServer* nim) {
     map.insert(map.end(), kCapabilities[i].desc, kCapabilities[i].desc + kCapabilities[i].len);
   }
 
+  delete hid_;
+  for (auto*& report : reports_) report = nullptr;
+  subscribed_ = HidCapabilitySet{};
   hid_ = new NimBLEHIDDevice(nim);
   hid_->setManufacturer(manufacturer_);
   hid_->setPnp(kUsbSig, kVendorId, kProductId, kProductVersion);

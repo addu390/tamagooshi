@@ -5,7 +5,7 @@ from typing import get_args
 from fastapi import APIRouter, HTTPException, Request
 
 from ...model.types import Mood, Op, Severity
-from ..dependencies import brand_id, brands, hub_config
+from ..dependencies import brand_id, brands
 from ..lifecycle import apply_change
 
 router = APIRouter()
@@ -19,11 +19,11 @@ OPTIONS = {
 
 @router.get("/api/rules")
 async def rules(request: Request):
-    config = hub_config(request)
+    device = brands(request).read_manifest(brand_id(request)).get("device") or {}
     return {
-        "default_mood": config.default_mood,
-        "moods": [r.model_dump() for r in config.moods],
-        "alerts": [r.model_dump() for r in config.alerts],
+        "default_mood": (device.get("mascot") or {}).get("mood", "happy"),
+        "moods": device.get("moods") or [],
+        "alerts": device.get("alerts") or [],
         "options": OPTIONS,
     }
 

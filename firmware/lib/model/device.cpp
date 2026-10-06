@@ -20,17 +20,20 @@ int severityRank(Severity s) {
 }
 }  // namespace
 
-void DeviceState::upsertMetric(const Metric& m) {
+void DeviceState::publishMetric(const Metric& m) {
   metrics_dirty = true;
+  dirty = true;
+  bool replaced = false;
   for (auto& existing : metrics) {
     if (existing.key == m.key) {
       existing = m;
-      floatStarsFirst(metrics);
-      return;
+      replaced = true;
+      break;
     }
   }
-  metrics.push_back(m);
+  if (!replaced) metrics.push_back(m);
   floatStarsFirst(metrics);
+  react();
 }
 
 void DeviceState::removeMetric(const std::string& key) {
@@ -38,9 +41,45 @@ void DeviceState::removeMetric(const std::string& key) {
     if (it->key == key) {
       metrics.erase(it);
       metrics_dirty = true;
+      react();
       return;
     }
   }
+}
+
+void DeviceState::clearMetrics() {
+  if (metrics.empty()) return;
+  metrics.clear();
+  metrics_dirty = true;
+  dirty = true;
+  react();
+}
+
+void DeviceState::react() {
+  const MoodRule* best = nullptr;
+  for (const auto& rule : reactions.moods) {
+    if ((!best || rule.priority > best->priority) && rule.when.matches(metrics)) best = &rule;
+  }
+  setMood(best ? best->mood : reactions.fallback);
+
+  for (const auto& rule : reactions.alerts) {
+    const auto it = std::find(raised_.begin(), raised_.end(), rule.id);
+    const bool was = it != raised_.end();
+    const bool now = rule.when.matches(metrics);
+    if (now && !was) {
+      raised_.push_back(rule.id);
+      raisePrompt(rule.page());
+    } else if (!now && was) {
+      raised_.erase(it);
+      clearPrompt(rule.id);
+    }
+  }
+}
+
+void DeviceState::setMood(Mood m) {
+  if (m == mood) return;
+  mood = m;
+  dirty = true;
 }
 
 const Metric* DeviceState::starMetric() const {
@@ -48,13 +87,6 @@ const Metric* DeviceState::starMetric() const {
     if (m.kind == MetricKind::Star) return &m;
   }
   return metrics.empty() ? nullptr : &metrics.front();
-}
-
-const Metric* DeviceState::metricByKey(const std::string& key) const {
-  for (const auto& m : metrics) {
-    if (m.key == key) return &m;
-  }
-  return nullptr;
 }
 
 void DeviceState::raisePrompt(const Page& page) {

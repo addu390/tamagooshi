@@ -43,7 +43,7 @@ class BalanceScreen : public ArcadeGameScreen {
     const int px = w_ / 2 + static_cast<int>(pos_);
     const float edge = std::fabs(pos_) / half;
     const Expr e = edge > 0.7f ? Expr::Worried : Expr::Neutral;
-    player(g, ctx, px, cy - 14, 26, e, 0, false);
+    player(g, ctx, px, cy - 14, 26, e);
   }
 
   void onReset() override {

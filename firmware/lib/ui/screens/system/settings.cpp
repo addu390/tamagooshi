@@ -23,6 +23,7 @@ void cycleBrightness(ShellContext& ctx) {
 using ValueFn = std::string (*)(ShellContext&);
 using ActFn = Transition (*)(ShellContext&);
 using LevelFn = int (*)(ShellContext&);
+using ShownFn = bool (*)(ShellContext&);
 
 struct SettingItem {
   const char* label;
@@ -30,6 +31,7 @@ struct SettingItem {
   ActFn activate;
   widgets::RowVisual visual = widgets::RowVisual::Text;
   LevelFn level = nullptr;
+  ShownFn shown = nullptr;
 };
 
 struct SettingGroup {
@@ -63,6 +65,8 @@ std::string valWifi(ShellContext& c) {
   return p.empty() ? "ON" : widgets::upper(p.c_str());
 }
 
+std::string valAgent(ShellContext& c) { return agentStatus(c.assistant->state()); }
+
 Transition actMascot(ShellContext&) { return Transition::push("mascots"); }
 Transition actTheme(ShellContext& c) {
   theme::setTheme(c.state.enabled.nextTheme(theme::count(), theme::current(), theme::name));
@@ -88,6 +92,9 @@ Transition actMute(ShellContext& c) {
 }
 Transition actBt(ShellContext&) { return Transition::push("bluetooth"); }
 Transition actWifi(ShellContext&) { return Transition::push("wifi"); }
+Transition actAgent(ShellContext&) { return Transition::push("agent"); }
+
+bool hasAgent(ShellContext& c) { return c.assistant != nullptr; }
 
 int lvlBright(ShellContext& c) { return (c.state.brightness * 100) / 255; }
 int lvlMute(ShellContext& c) { return c.state.muted ? 100 : 0; }
@@ -106,6 +113,7 @@ constexpr SettingItem kConnect[] = {
 #if defined(TAMA_ENABLE_WIFI)
     {"WIFI", valWifi, actWifi},
 #endif
+    {"AGENT", valAgent, actAgent, widgets::RowVisual::Text, nullptr, hasAgent},
 };
 constexpr int kConnectCount = sizeof(kConnect) / sizeof(kConnect[0]);
 constexpr SettingItem kSound[] = {
@@ -130,21 +138,23 @@ class SettingsGroupScreen : public ListScreen {
   const char* actionHint() const override { return "CHANGE"; }
 
   int rows(ShellContext& ctx, widgets::ListItem* out, int) override {
+    int n = 0;
     for (int i = 0; i < group_->count; ++i) {
       const SettingItem& item = group_->items[i];
-      vals_[i] = item.value(ctx);
-      out[i] = {item.label, vals_[i].c_str(), true, item.visual, item.level ? item.level(ctx) : 0};
+      if (item.shown && !item.shown(ctx)) continue;
+      vals_[n] = item.value(ctx);
+      out[n] = {item.label, vals_[n].c_str(), true, item.visual, item.level ? item.level(ctx) : 0};
+      items_[n++] = &item;
     }
-    return group_->count;
+    return n;
   }
 
-  Transition activate(int row, ShellContext& ctx) override {
-    return group_->items[row].activate(ctx);
-  }
+  Transition activate(int row, ShellContext& ctx) override { return items_[row]->activate(ctx); }
 
  private:
   const SettingGroup* group_ = nullptr;
   std::string vals_[kMaxRows];
+  const SettingItem* items_[kMaxRows] = {};
 };
 
 class SettingsScreen : public ListScreen {

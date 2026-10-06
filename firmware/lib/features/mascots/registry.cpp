@@ -20,18 +20,6 @@ Character* CharacterRegistry::getOrDefault(const std::string& id) const {
   return c ? c : first();
 }
 
-Character* CharacterRegistry::byIndex(int index) const {
-  if (index < 0 || index >= count()) return nullptr;
-  return chars_[index];
-}
-
-int CharacterRegistry::indexOf(const std::string& id) const {
-  for (int i = 0; i < count(); ++i) {
-    if (id == chars_[i]->id()) return i;
-  }
-  return 0;
-}
-
 bool CharacterRegistry::isFirstInCategory(int index) const {
   const char* c = chars_[index]->category();
   for (int j = 0; j < index; ++j) {

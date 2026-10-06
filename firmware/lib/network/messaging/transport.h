@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <functional>
 #include <string>
 #include <utility>
@@ -25,36 +24,7 @@ class IConnection {
 
 class ITransport : public IConnection {
  public:
-  virtual void publish(const std::string& topic, const std::string& payload, uint8_t qos,
-                       bool retain) = 0;
-};
-
-class TransportProxy : public ITransport {
- public:
-  void bind(ITransport* impl) { impl_ = impl; }
-  void begin() override { impl_->begin(); }
-  void loop() override { impl_->loop(); }
-  void publish(const std::string& topic, const std::string& payload, uint8_t qos,
-               bool retain) override {
-    impl_->publish(topic, payload, qos, retain);
-  }
-  bool connected() const override { return impl_ != nullptr && impl_->connected(); }
-  void onMessage(MessageHandler handler) override { impl_->onMessage(std::move(handler)); }
-  void onConnection(ConnectionHandler handler) override { impl_->onConnection(std::move(handler)); }
-
- private:
-  ITransport* impl_ = nullptr;
-};
-
-class ILineSink {
- public:
-  virtual ~ILineSink() = default;
-  virtual void send(const std::string& line) = 0;
-};
-
-class NullLineSink : public ILineSink {
- public:
-  void send(const std::string&) override {}
+  virtual void publish(const std::string& topic, const std::string& payload) = 0;
 };
 
 }  // namespace tama

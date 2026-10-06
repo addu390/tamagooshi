@@ -77,24 +77,6 @@ class BrandService:
     def delete_user_brand(self, brand_id: str) -> None:
         self._catalog.delete_user(brand_id)
 
-    def set_source_enabled(self, brand_id: str, index: int, enabled: bool) -> None:
-        def mutate(sources: list) -> None:
-            sources[index]["enabled"] = enabled
-
-        self._mutate_sources(brand_id, mutate)
-
-    def add_source(self, brand_id: str, source: dict) -> None:
-        self._mutate_sources(brand_id, lambda sources: sources.append(source))
-
-    def update_source(self, brand_id: str, index: int, source: dict) -> None:
-        def mutate(sources: list) -> None:
-            sources[index] = source
-
-        self._mutate_sources(brand_id, mutate)
-
-    def remove_source(self, brand_id: str, index: int) -> None:
-        self._mutate_sources(brand_id, lambda sources: sources.pop(index))
-
     def update_identity(self, brand_id: str, identity: dict) -> dict:
         def apply(data: dict) -> None:
             brand = data.setdefault("brand", {})
@@ -118,22 +100,10 @@ class BrandService:
     def update_rules(self, brand_id: str, moods: list | None = None,
                      alerts: list | None = None) -> dict:
         def apply(data: dict) -> None:
-            hub = data.setdefault("hub", {})
+            device = data.setdefault("device", {})
             if moods is not None:
-                hub["moods"] = moods
+                device["moods"] = moods
             if alerts is not None:
-                hub["alerts"] = alerts
-
-        return self.mutate_manifest(brand_id, apply)
-
-    def update_agent(self, brand_id: str, default: str, enabled: list) -> dict:
-        def apply(data: dict) -> None:
-            data.setdefault("hub", {})["agent"] = {"default": default, "enabled": enabled}
-
-        return self.mutate_manifest(brand_id, apply)
-
-    def _mutate_sources(self, brand_id: str, mutate) -> dict:
-        def apply(data: dict) -> None:
-            mutate(data.setdefault("hub", {}).setdefault("sources", []))
+                device["alerts"] = alerts
 
         return self.mutate_manifest(brand_id, apply)

@@ -5,19 +5,16 @@
 
 namespace tama {
 
-struct PetState;
 struct DeviceState;
 
 enum class Mood { Happy, Neutral, Sick, Panic, Celebrate, Sleepy, Unknown };
 
 Mood moodFromString(const std::string& s);
 const char* moodToString(Mood m);
-const char* moodFace(Mood m);
 
 enum class ExpressionKind { Chirp, Celebrate, Haptic, Blink, Tick, Warn, Unknown };
 
 ExpressionKind expressionKindFromString(const std::string& s);
-const char* expressionKindToString(ExpressionKind k);
 
 struct ExpressionCue {
   ExpressionKind kind = ExpressionKind::Chirp;
@@ -45,7 +42,6 @@ struct MascotState {
 };
 
 Expr exprFromMood(Mood m);
-Expr exprFromPet(const PetState& pet);
 MascotState deriveMascot(const DeviceState& state, bool promptActive);
 
 }  // namespace tama

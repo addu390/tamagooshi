@@ -49,8 +49,6 @@ uint8_t encodeSample(State& s, int sample) {
 
 }  // namespace
 
-size_t encodedSize(size_t samples) { return (samples + 1) / 2; }
-
 size_t encode(State& state, const int16_t* pcm, size_t samples, uint8_t* out) {
   size_t written = 0;
   for (size_t i = 0; i + 1 < samples; i += 2) {

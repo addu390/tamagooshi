@@ -30,36 +30,11 @@
 
 <main>
   <header class="page-head">
-    <h1 id="page-title">Overview</h1>
+    <h1 id="page-title">Devices</h1>
     <div class="chips">
-      <span id="mood-chip" class="chip">mood: —</span>
       <span id="device-chip" class="chip">no device</span>
     </div>
   </header>
-
-  <section id="view-overview" class="view">
-    <div id="mood-hero" class="hero card">
-      <div class="hero-label">current mood</div>
-      <div id="hero-mood" class="hero-value">—</div>
-      <div id="hero-facts" class="hero-facts"></div>
-    </div>
-
-    <h2>Metrics</h2>
-    <div id="metrics" class="cards"></div>
-    <p id="metrics-empty" class="empty">No metrics yet. Sources publish as they poll.</p>
-
-    <h2>Alerts</h2>
-    <ul id="alerts" class="rows"></ul>
-    <p id="alerts-empty" class="empty">All quiet.</p>
-  </section>
-
-  <section id="view-sources" class="view hide">
-    <div id="source-list" class="stack"></div>
-    <p id="sources-empty" class="empty">No sources yet. Add one to start feeding metrics.</p>
-    <button class="add-row" id="add-source">+ Add source</button>
-    <div id="wizard" class="card wizard hide"></div>
-    <p id="sources-note" class="empty hide">Restarting the hub…</p>
-  </section>
 
   <section id="view-rules" class="view hide">
     <div class="list-head">
@@ -76,11 +51,6 @@
     <p id="rule-alerts-empty" class="empty">No alert rules.</p>
     <datalist id="metric-keys"></datalist>
     <p id="rules-note" class="empty hide">Restarting the hub…</p>
-  </section>
-
-  <section id="view-agents" class="view hide">
-    <ul id="agents" class="rows"></ul>
-    <p id="agents-note" class="empty hide">Restarting the hub…</p>
   </section>
 
   <section id="view-devices" class="view hide">

@@ -25,17 +25,3 @@ device:
         label: Shapey
         category: custom
         source: shapey.png
-
-hub:
-  sources:
-    - type: demo
-      interval_secs: 1.0
-      metrics:
-        - key: mrr
-          label: MRR
-          value_start: 48000
-          fmt: "${v}"
-          kind: star
-          timeline:
-            - {at: 0, value: 48000}
-            - {at: 20, value: 52000}

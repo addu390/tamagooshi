@@ -26,11 +26,3 @@ device:
     enabled: [runner, flappy, delivery]
   apps:
     enabled: [clock, stopwatch, flashlight, about]
-  buddy:
-    enabled: true
-
-hub:
-  agent:
-    default: claude
-    enabled: [claude]
-  sources: []

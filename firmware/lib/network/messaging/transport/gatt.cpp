@@ -50,7 +50,7 @@ void HubEndpoint::setup(BleBearer&, NimBLEServer* nim) {
   info->setValue("{\"id\":\"" + id_ + "\",\"fw\":\"" + fw_ + "\",\"brand\":\"" + brand_ + "\"}");
 }
 
-void HubEndpoint::publish(const std::string& topic, const std::string& payload, uint8_t, bool) {
+void HubEndpoint::publish(const std::string& topic, const std::string& payload) {
   if (!subscribed_ || outbound_ == nullptr) return;
   const std::string wire = frame(topic, payload);
   const uint16_t chunk = chunkSize();

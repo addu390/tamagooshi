@@ -152,11 +152,11 @@ class AlarmScreen : public AppScreen {
   const char* hintA() const {
     switch (phase_) {
       case Phase::Idle:
-        return "ARM";
+        return "ON";
       case Phase::Armed:
-        return "DISARM";
+        return "OFF";
       case Phase::Ringing:
-        return "DISMISS";
+        return "OFF";
     }
     return "";
   }
