@@ -13,8 +13,6 @@ class CharacterRegistry {
   Character* get(const std::string& id) const;
   Character* getOrDefault(const std::string& id) const;
   Character* first() const;
-  Character* byIndex(int index) const;
-  int indexOf(const std::string& id) const;
   int count() const { return static_cast<int>(chars_.size()); }
 
   int categoryCount() const;

@@ -3,12 +3,15 @@
 #include <cstdint>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "anim.h"
 #include "gfx.h"
 #include "model.h"
 
 namespace tama {
+
+class Character;
 
 namespace widgets {
 
@@ -81,16 +84,20 @@ struct Grid {
 Grid grid(const Layout& L, int count, int colsPortrait, int colsLandscape, int top, int gap,
           int pad, int maxTileH);
 
-void statusbar(Gfx& g, const DeviceState& state, bool showBrand = true);
-Layout frame(Gfx& g, const DeviceState& state, const char* section = nullptr, bool showBrand = true);
+void statusbar(Gfx& g, const DeviceState& state);
+Layout frame(Gfx& g, const DeviceState& state, const char* section = nullptr);
 void bluetoothIcon(Gfx& g, int x, int y, int h, uint16_t col);
 void wifiIcon(Gfx& g, int x, int y, int h, uint16_t col);
 void brandLockup(Gfx& g, const Branding& brand, int cx, int cy, int maxWidth, int maxHeight = 40);
 int mascotNameY(int mascotCy, int size);
 void mascotLabel(Gfx& g, const char* name, int cx, int mascotCy, int size);
+std::vector<std::string> wrap(Gfx& g, const std::string& text, int maxWidth,
+                              const lgfx::IFont* font);
 int wrapText(Gfx& g, const char* text, int cx, int y, int maxWidth, const lgfx::IFont* font,
              uint16_t color, int lineH, int maxY = 0);
 void hints(Gfx& g, const char* a, const char* b);
+void pet(Gfx& g, Character* character, const Pet& pet, MascotState mascot, int x, int y, int size,
+         int wanderPx, uint32_t nowMs);
 void sectionLabel(Gfx& g, const char* text);
 std::string upper(const char* s);
 void title(Gfx& g, const char* s, int x, int y, int maxWidth, uint16_t color, textdatum_t datum);
@@ -110,7 +117,7 @@ class ConfirmFlow {
 
   void render(Gfx& g, const Layout& L) const {
     confirmPrompt(g, L, title_, body_.c_str());
-    hints(g, "CONFIRM", "CANCEL");
+    hints(g, "YES", "NO");
   }
 
  private:
@@ -149,7 +156,6 @@ void listRow(Gfx& g, const Rect& r, const ListItem& item, bool selected, const l
 void listView(Gfx& g, const Layout& L, const ListItem* items, int count, int sel);
 void infoList(Gfx& g, const Layout& L, int top, const ListItem* items, int count);
 
-void statBar(Gfx& g, int y, const char* label, int pct);
 void statBarAt(Gfx& g, int x, int y, int width, const char* label, int pct,
                const StatStyle& style = {});
 void dots(Gfx& g, int cx, int y, int count, int active);

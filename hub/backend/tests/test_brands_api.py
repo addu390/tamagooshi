@@ -35,7 +35,7 @@ def _write_template(builtin):
     builtin.mkdir(parents=True, exist_ok=True)
     (builtin / "template.yaml").write_text(yaml.safe_dump({
         "brand": {"id": "template", "name": "YOUR PRODUCT", "mascot": "Buddy"},
-        "hub": {"sources": [], "moods": [], "alerts": []},
+        "device": {"moods": [], "alerts": []},
     }), encoding="utf-8")
 
 

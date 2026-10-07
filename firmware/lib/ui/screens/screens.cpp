@@ -17,16 +17,11 @@ void registerAll(Navigator& nav) {
   nav.add(mascots());
   nav.add(play());
   nav.add(apps());
-  nav.add(nook());
   nav.add(bluetooth());
+  nav.add(agent());
 
 #if defined(TAMA_ENABLE_WIFI)
   nav.add(wifi());
-#endif
-
-#if defined(TAMA_ENABLE_BUDDY)
-  nav.add(buddy());
-  nav.add(ask());
 #endif
 
 #if defined(TAMA_ENABLE_PERSONA)

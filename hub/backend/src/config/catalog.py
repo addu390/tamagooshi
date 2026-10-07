@@ -20,9 +20,6 @@ class LayeredCatalog:
     def manifest(self, brand_id: str) -> dict:
         return self._layer(brand_id).manifest(brand_id)
 
-    def scenes(self, brand_id: str) -> dict:
-        return self._layer(brand_id).scenes(brand_id)
-
     def origin(self, brand_id: str) -> str:
         for name, layer in self._layers():
             if brand_id in layer.ids():

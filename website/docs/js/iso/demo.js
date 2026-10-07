@@ -234,16 +234,11 @@ export function initDemo() {
 
   const DEMO = PRESET.demo || {};
   const SCENARIOS = DEMO.scenarios || [
-    { id: "mood", title: "Live mood", desc: "The mascot idles and fidgets while a live metric ticks, easing its mood as the numbers move.", metrics: true,
-      markers: [{ a: 0.35, kind: "warn" }, { a: 0.42, kind: "crit" }, { a: 0.585, kind: "warn" }] },
-    { id: "metrics", title: "Powered by your metrics", desc: "Your live numbers flow in from Stripe, PostHog and Datadog. The device cycles through them as a launch spike lands.",
-      markers: [{ a: 0.29, kind: "hi" }] },
-    { id: "agents", title: "Co-work with Claude & Cursor", desc: "The mascot works alongside an agent session and celebrates the landed task. Then you press A, speak, and Claude answers on the device.",
-      markers: [{ a: 0.28, kind: "hi" }, { a: 0.46, kind: "hi" }, { a: 0.56, kind: "warn" }, { a: 0.70, kind: "hi" }] },
-    { id: "alerts", title: "Approvals & alerts", desc: "An approval slides up to approve or deny, then an alert fires as a threshold is crossed.",
-      markers: [{ a: 0.05, kind: "warn" }, { a: 0.25, kind: "warn" }, { a: 0.50, kind: "crit" }] },
-    { id: "brand", title: "Make it yours", desc: "A quick mini-game, then the shell gets rebranded live: the Clawd mascot pack and the terra theme.", gameWin: { start: 50 / 290, end: 99 / 290 },
-      markers: [{ a: 0.53, kind: "hi" }, { a: 0.62, kind: "hi" }] },
+    { id: "brand", title: "Personalize", desc: "Logo, name, mascot, theme, and typeface, all from one config.yaml.", gameWin: { start: 19 / 180, end: 74 / 180 } },
+    { id: "mood", title: "Live mood", desc: "Muse publishes metrics. Mood rules map values to moods and raise alerts.", metrics: true },
+    { id: "agents", title: "Co-work with Muse", desc: "Jolly reacts as Muse works. Hold A for voice prompts." },
+    { id: "apps", title: "Applications", desc: "Clock, timer, pomodoro, dice, remote, media keys and more, picked in device.apps." },
+    { id: "games", title: "Games", desc: "Runner, flappy, snake, tetris, pong and more, picked in device.games." },
   ];
 
   const video = document.createElement("video");
@@ -261,50 +256,22 @@ export function initDemo() {
   video.addEventListener("error", () => { video.style.display = "none"; });
   screen.appendChild(video);
 
-  const pct = (v) => v.toFixed(1) + "%";
-  const intf = (v) => String(Math.round(v));
-  const UPTIME_KF = [[0, 99.9], [0.25, 99.9], [0.35, 99.3], [0.4, 96.0], [0.45, 93.0], [0.55, 93.0], [0.6, 95.8], [0.7, 98.4], [0.8, 99.7], [1, 99.9]];
-  const METRICS = [
-    { key: "uptime", label: "UPTIME", fmt: pct, kf: UPTIME_KF,
-      health: (v) => (v >= 99 ? "ok" : v >= 95 ? "warn" : "crit") },
-    { key: "signups", label: "SIGNUPS", fmt: intf,
-      kf: [[0, 322], [1, 360]], health: () => "ok" },
-  ];
-
-  function interp(kf, f) {
-    let p = kf[0];
-    for (let i = 1; i < kf.length; i++) {
-      const c = kf[i];
-      if (f <= c[0]) {
-        const span = c[0] - p[0];
-        const t = span <= 0 ? 0 : (f - p[0]) / span;
-        return p[1] + (c[1] - p[1]) * t;
-      }
-      p = c;
-    }
-    return kf[kf.length - 1][1];
-  }
+  const METRICS = [["BUILD", "98%"], ["SIGNUPS", "360"], ["STEPS", "4,210"]];
 
   const stage = document.querySelector(".demo-stage");
   const metricsEl = document.createElement("div");
   metricsEl.className = "demo-metrics";
   metricsEl.setAttribute("aria-hidden", "true");
-  const tiles = METRICS.map((m) => {
+  METRICS.forEach(([label, value]) => {
     const el = document.createElement("div");
     el.className = "mtile";
-    el.innerHTML = `<span class="mtile-v"></span><span class="mtile-a"></span><span class="mtile-k">${m.label}</span>`;
+    el.innerHTML = `<span class="mtile-v">${value}</span><span class="mtile-k">${label}</span>`;
     metricsEl.appendChild(el);
-    return { def: m, el, arrow: el.querySelector(".mtile-a"), val: el.querySelector(".mtile-v") };
   });
-  const cap = document.createElement("div");
-  cap.className = "demo-cap";
-  metricsEl.appendChild(cap);
   if (stage) stage.appendChild(metricsEl);
 
   const LEGENDS = DEMO.legends || {
-    metrics: { h: "POWERED BY", rows: [["MRR", "Stripe"], ["SIGNUPS", "PostHog"], ["ACTIVE", "PostHog"], ["UPTIME", "Datadog"]] },
-    agents: { h: "WORKS WITH", rows: [["Claude", "live"], ["Cursor", "live"], ["Voice", "hold A"]] },
-    alerts: { h: "IN THE LOOP", rows: [["Approvals", "Cursor"], ["Alerts", "Datadog"]] },
+    agents: { h: "WORKS WITH", rows: [["Muse", "live"], ["Voice", "hold A"]] },
     brand: { h: "MAKE IT YOURS", rows: [["Logo", "yours"], ["Theme", "5"], ["Mascot", "swap"], ["Games", "3"]] },
   };
   const legendEl = document.createElement("div");
@@ -318,26 +285,14 @@ export function initDemo() {
   scrub.className = "demo-scrub";
   scrub.innerHTML =
     '<button class="scrub-btn" type="button"></button>' +
-    '<div class="scrub-track"><div class="scrub-fill"></div><div class="scrub-marks"></div><div class="scrub-knob"></div></div>' +
+    '<div class="scrub-track"><div class="scrub-fill"></div><div class="scrub-knob"></div></div>' +
     '<span class="scrub-time">0:00</span>';
   if (stage) stage.appendChild(scrub);
   const playBtn = scrub.querySelector(".scrub-btn");
   const track = scrub.querySelector(".scrub-track");
   const fill = scrub.querySelector(".scrub-fill");
-  const marks = scrub.querySelector(".scrub-marks");
   const knob = scrub.querySelector(".scrub-knob");
   const timeEl = scrub.querySelector(".scrub-time");
-
-  function renderMarks(list) {
-    marks.innerHTML = (list || [])
-      .map((k) => `<span class="scrub-mark ${k.kind}" data-at="${k.a}" style="left:${(k.a * 100).toFixed(2)}%"></span>`)
-      .join("");
-  }
-
-  function paintMarks(p) {
-    marks.querySelectorAll(".scrub-mark").forEach((m) =>
-      m.classList.toggle("passed", p >= parseFloat(m.dataset.at)));
-  }
 
   let scrubbing = false;
   let resumeAfter = false;
@@ -360,12 +315,11 @@ export function initDemo() {
 
   function updateScrub() {
     const dur = video.duration;
-    if (!dur) { fill.style.width = "0%"; knob.style.left = "0%"; paintMarks(0); timeEl.textContent = "0:00"; return; }
+    if (!dur) { fill.style.width = "0%"; knob.style.left = "0%"; timeEl.textContent = "0:00"; return; }
 
     const p = Math.min(1, video.currentTime / dur);
     fill.style.width = (p * 100).toFixed(2) + "%";
     knob.style.left = (p * 100).toFixed(2) + "%";
-    paintMarks(p);
     timeEl.textContent = fmtTime(video.currentTime) + " / " + fmtTime(dur);
   }
 
@@ -420,7 +374,6 @@ export function initDemo() {
   }
 
   let current = null;
-  let metricsOn = false;
 
   function tick() {
     if (current && current.gameWin && video.duration) {
@@ -428,29 +381,6 @@ export function initDemo() {
       const land = f >= current.gameWin.start && f <= current.gameWin.end;
       mount.classList.toggle("landscape", land);
       legendEl.classList.toggle("on", !land && !!LEGENDS[current.id]);
-    }
-
-    if (metricsOn && video.duration) {
-      const dur = video.duration;
-      const f = (video.currentTime / dur) % 1;
-      const back = (f - 0.02 + 1) % 1;
-
-      tiles.forEach((t) => {
-        const now = interp(t.def.kf, f);
-        const prev = interp(t.def.kf, back);
-        const h = t.def.health(now);
-        const cls = "m-" + h;
-        const d = now - prev;
-        const arrow = d > 1e-6 ? "\u25B2" : d < -1e-6 ? "\u25BC" : "\u2022";
-        t.val.textContent = t.def.fmt(now);
-        t.arrow.textContent = arrow;
-        t.arrow.className = "mtile-a " + cls;
-        t.el.className = "mtile" + (h === "ok" ? "" : " " + h);
-      });
-
-      const up = interp(UPTIME_KF, f);
-      cap.textContent = up < 95 ? "SLA breached, uptime critical" : up < 99 ? "SLA at risk, uptime slipping" : "";
-      cap.className = "demo-cap" + (up < 99 ? " on " + (up < 95 ? "crit" : "warn") : "");
     }
 
     updateScrub();
@@ -483,12 +413,10 @@ export function initDemo() {
     items.forEach((li, k) => li.classList.toggle("on", k === i));
     const s = SCENARIOS[i];
     current = s;
-    metricsOn = !!s.metrics;
 
-    metricsEl.classList.toggle("on", metricsOn);
+    metricsEl.classList.toggle("on", !!s.metrics);
     mount.classList.remove("landscape");
     renderLegend(s.id);
-    renderMarks(s.markers);
 
     userPaused = false;
     video.innerHTML = `<source src="docs/assets/videos/${s.id}.webm" type="video/webm"><source src="docs/assets/videos/${s.id}.mp4" type="video/mp4">`;

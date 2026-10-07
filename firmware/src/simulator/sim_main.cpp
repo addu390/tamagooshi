@@ -14,15 +14,7 @@
 #include "adapters.h"
 #include "board.gen.h"
 #include "brand.gen.h"
-#include <ArduinoJson.h>
 
-#if defined(TAMA_ENABLE_BUDDY)
-#include "buddy/agent/commands.h"
-#include "buddy/agent/session.h"
-#include "buddy/controller.h"
-#include "buddy/voice/controller.h"
-#include "buddy/voice/uplink.h"
-#endif
 #include "capture.h"
 #include "hid.h"
 #include "hal/m5_buttons.h"
@@ -33,7 +25,6 @@
 #include "link.h"
 #include "screens.h"
 #include "transport.h"
-#include "mqtt.h"
 #include "runtime.h"
 #include "channels.h"
 #include "telemetry.h"
@@ -107,7 +98,7 @@ class SimLink : public ILink {
   }
   bool connected() const override { return enabled_ && paired_; }
   std::string peer() const override { return paired_ ? "John's iPhone" : std::string{}; }
-  std::string deviceName() const override { return "Claude-gooshi-a1b2"; }
+  std::string deviceName() const override { return "gooshi-a1b2"; }
   std::string deviceId() const override { return "sim"; }
   uint32_t passkey() const override { return 429173; }
   bool paired() const override { return paired_; }
@@ -139,6 +130,12 @@ class SimWifi : public IWifiControl {
     active_ = ssid;
     provisioning_ = false;
   }
+  void join(const WifiCredentials& creds) override {
+    if (std::find(nets_.begin(), nets_.end(), creds.ssid) == nets_.end())
+      nets_.push_back(creds.ssid);
+    select(creds.ssid);
+  }
+  std::vector<std::string> scan() override { return {"Home-5G", "Cafe-Guest", "Office"}; }
   void forget(const std::string& ssid) override {
     nets_.erase(std::remove(nets_.begin(), nets_.end(), ssid), nets_.end());
     if (active_ == ssid) active_ = nets_.empty() ? std::string{} : nets_.front();
@@ -160,6 +157,76 @@ class SimWifi : public IWifiControl {
   bool provisioning_ = false;
   std::vector<std::string> nets_ = {"Home-5G", "Cafe-Guest"};
   std::string active_ = "Home-5G";
+};
+
+class SimAgent : public IAgent {
+ public:
+  AgentState state() const override { return state_; }
+  std::string name() const override { return state_ == AgentState::Online ? "Muse" : ""; }
+  std::string beacon() const override { return "homelink-51a0c3"; }
+  void pair() override {
+    state_ = AgentState::Pairing;
+    since_ = m5gfx::millis();
+  }
+  void cancel() override { state_ = AgentState::Unpaired; }
+  void unpair() override { state_ = AgentState::Unpaired; }
+
+  void configure(AgentState state) { state_ = state; }
+
+  void loop(uint32_t nowMs) {
+    if (state_ == AgentState::Pairing && nowMs - since_ > kPairMs) state_ = AgentState::Online;
+  }
+
+ private:
+  static constexpr uint32_t kPairMs = 3000;
+  AgentState state_ = AgentState::Unpaired;
+  uint32_t since_ = 0;
+};
+
+class SimChat : public IVoiceUplink {
+ public:
+  SimChat(const IAgent& agent, VoiceChat& voice) : agent_(agent), voice_(voice) {}
+
+  bool ready() const override { return agent_.state() == AgentState::Online; }
+  void beginRecording() override { sentAt_ = 0; }
+  void feed(const int16_t*, size_t) override {}
+  void finish(uint32_t elapsedMs) override {
+    if (elapsedMs < kMinMs) return;
+    sentAt_ = m5gfx::millis();
+  }
+  void cancel() override { sentAt_ = 0; }
+  bool sending() const override { return sentAt_ != 0; }
+  uint32_t limitMs() const override { return 15000; }
+
+  void loop(uint32_t nowMs) {
+    if (!sentAt_) return;
+    const uint32_t t = nowMs - sentAt_;
+    if (t < kThinkMs) return;
+    if (voice_.phase == VoicePhase::Sending) {
+      voice_.phase = VoicePhase::Thinking;
+      voice_.transcript = "how is the build doing?";
+    }
+    if (t < kReplyMs) return;
+    const std::string full = kReply;
+    const size_t shown = std::min(full.size(), static_cast<size_t>((t - kReplyMs) / 25));
+    voice_.phase = VoicePhase::Reply;
+    voice_.reply = full.substr(0, shown);
+    if (shown == full.size()) {
+      voice_.reply_done = true;
+      sentAt_ = 0;
+    }
+  }
+
+ private:
+  static constexpr uint32_t kMinMs = 300;
+  static constexpr uint32_t kThinkMs = 600;
+  static constexpr uint32_t kReplyMs = 1800;
+  static constexpr const char* kReply =
+      "All green. The last deploy finished four minutes ago and error rates are flat.";
+
+  const IAgent& agent_;
+  VoiceChat& voice_;
+  uint32_t sentAt_ = 0;
 };
 
 class SimMic : public IMicSource {
@@ -278,85 +345,10 @@ class SimIrCodeRepository : public IIrCodeRepository {
   std::vector<IrButton> buttons_;
 };
 
-#if defined(TAMA_ENABLE_BUDDY)
-class SimVoiceHost : public ILineSink {
- public:
-  void bind(AgentSession& session) { session_ = &session; }
-
-  void send(const std::string& line) override {
-    if (session_ == nullptr) return;
-    JsonDocument doc;
-    if (deserializeJson(doc, line) != DeserializationError::Ok) return;
-    const std::string cmd = doc["cmd"] | "";
-    if (cmd == "agents") {
-      session_->onInbound("", agentsEvent());
-    } else if (cmd == "voice_end") {
-      const std::string agent = doc["agent"] | TAMA_HUB_AGENT_DEFAULT;
-      schedule(900,
-               "{\"evt\":\"transcript\",\"id\":\"sim_v1\",\"text\":\"what changed in the repo "
-               "since yesterday?\",\"agent\":\"" + agent + "\"}");
-    } else if (cmd == "permission" && std::string(doc["id"] | "") == "sim_v1") {
-      if (std::string(doc["decision"] | "") != "once") return;
-      schedule(1800,
-               "{\"evt\":\"reply\",\"text\":\"Three commits landed: the board catalog "
-               "gained a psram flag, \",\"done\":false}");
-      schedule(2600,
-               "{\"evt\":\"reply\",\"text\":\"the mic HAL grew a record API, and the "
-               "docs got a voice section.\",\"done\":true}");
-    }
-  }
-
-  void tick(uint32_t nowMs) {
-    now_ms_ = nowMs;
-    if (session_ == nullptr) return;
-    while (!queue_.empty() && nowMs >= queue_.front().first) {
-      const std::string payload = queue_.front().second;
-      queue_.erase(queue_.begin());
-      session_->onInbound("", payload);
-    }
-  }
-
- private:
-  static std::string agentsEvent() {
-    JsonDocument doc;
-    doc["evt"] = "agents";
-    JsonArray enabled = doc["enabled"].to<JsonArray>();
-    const std::string joined = TAMA_HUB_AGENTS;
-    size_t i = 0;
-    while (i <= joined.size() && !joined.empty()) {
-      const size_t comma = joined.find(',', i);
-      const std::string name =
-          joined.substr(i, comma == std::string::npos ? std::string::npos : comma - i);
-      if (!name.empty()) enabled.add(name);
-      if (comma == std::string::npos) break;
-      i = comma + 1;
-    }
-    doc["default"] = TAMA_HUB_AGENT_DEFAULT;
-    std::string out;
-    serializeJson(doc, out);
-    return out;
-  }
-
-  void schedule(uint32_t delayMs, std::string payload) {
-    queue_.emplace_back(now_ms_ + delayMs, std::move(payload));
-  }
-
-  AgentSession* session_ = nullptr;
-  uint32_t now_ms_ = 0;
-  std::vector<std::pair<uint32_t, std::string>> queue_;
-};
-#endif  // TAMA_ENABLE_BUDDY
-
 SimTransport g_sim;
-SimTransport g_agentConn;
-MqttSimTransport g_mqtt;
-TransportProxy g_transport;
 NullExpression g_expression;
 SimLink g_simLink;
 SimWifi g_simWifi;
-#if defined(TAMA_ENABLE_BUDDY)
-SimVoiceHost g_lineSink;
-#endif
 SimTelemetry g_telemetry;
 M5Buttons g_buttons;
 NullInputSource g_input;
@@ -376,42 +368,10 @@ ArduinoJsonCodec g_codec(g_idGen, [] { return nowMs(); }, kSimId);
 SimSystemControl g_systemControl;
 Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_systemControl, g_buttons, g_input,
                   g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile, g_clock);
-HubPipeline g_hubPipeline(g_transport, g_codec, g_runtime.router(), g_board, kSimId, "0.1.0-sim");
-#if defined(TAMA_ENABLE_BUDDY)
-BuddyController g_buddyController(g_runtime.state());
-VoiceController g_voiceController(g_runtime.state());
-VoiceUplink g_voiceUplink(g_lineSink, g_runtime.state(), 15 * 8000);
-AgentCommands g_agentCommands(g_simLink, g_telemetry, g_runtime.state());
-AgentSession g_agentSession(g_lineSink, g_buddyController, g_agentCommands, g_voiceController,
-                            g_voiceUplink);
-sim::CaptureHarness g_capture(g_runtime, &g_agentSession);
-#else
+HubPipeline g_hubPipeline(g_sim, g_codec, g_runtime.router(), g_board, kSimId, "0.1.0-sim");
+SimAgent g_agent;
+SimChat g_chat(g_agent, g_runtime.state().voice);
 sim::CaptureHarness g_capture(g_runtime);
-#endif
-
-#if defined(TAMA_ENABLE_BUDDY)
-void feedBuddy(const char* scenario) {
-  g_agentSession.onInbound("", "{\"cmd\":\"owner\",\"name\":\"John\"}");
-
-  const std::string s = scenario ? scenario : "working";
-  if (s == "idle") {
-    g_agentSession.onInbound(
-        "", "{\"total\":0,\"running\":0,\"waiting\":0,\"tokens\":184502,\"tokens_today\":31200}");
-  } else if (s == "waiting" || s == "approve" || s == "deny") {
-    g_agentSession.onInbound(
-        "",
-        "{\"total\":3,\"running\":1,\"waiting\":1,\"msg\":\"approve: Bash\",\"entries\":[\"10:42 "
-        "git push\"],\"tokens\":184502,\"tokens_today\":31200,\"prompt\":{\"id\":\"req_abc123\","
-        "\"tool\":\"Bash\",\"hint\":\"rm -rf /tmp/foo\"}}");
-  } else {
-    g_agentSession.onInbound(
-        "",
-        "{\"total\":3,\"running\":1,\"waiting\":0,\"msg\":\"editing files\",\"entries\":[\"10:42 git "
-        "push\",\"10:41 yarn test\",\"10:39 reading file...\"],\"tokens\":184502,\"tokens_today\":"
-        "31200}");
-  }
-}
-#endif  // TAMA_ENABLE_BUDDY
 
 void pollKeys() {
   int n = 0;
@@ -446,13 +406,7 @@ void setup() {
     }
   }
 
-  const char* broker = std::getenv("TAMA_BROKER");
-
-  g_transport.bind(broker && *broker && g_mqtt.tryConnect(broker, kSimId)
-                       ? static_cast<ITransport*>(&g_mqtt)
-                       : static_cast<ITransport*>(&g_sim));
-
-  auto hubResolver = makeHubResolver(g_transport, g_codec, kSimId);
+  auto hubResolver = makeHubResolver(g_sim, g_codec, kSimId);
 
   if (const char* bt = std::getenv("TAMA_BT")) {
     const std::string s = bt;
@@ -469,29 +423,18 @@ void setup() {
     }
   }
 
+  if (const char* agent = std::getenv("TAMA_AGENT")) {
+    const std::string s = agent;
+    if (s == "online") g_agent.configure(AgentState::Online);
+    if (s == "pairing") g_agent.configure(AgentState::Pairing);
+  }
+
   ChannelBinding binding;
   binding.link = &g_simLink;
   binding.wifi = &g_simWifi;
-  binding.hub = {&g_transport, &g_hubPipeline};
-#if defined(TAMA_ENABLE_BUDDY)
-  auto agentResolver = makeAgentResolver(g_agentSession);
-  auto voiceResolver = makeVoiceResolver(g_agentSession);
-  binding.agent = {&g_agentConn, &g_agentSession};
-  binding.voice = &g_voiceUplink;
-  binding.resolvePrompt = [hubResolver, agentResolver,
-                           voiceResolver](const Page& page, PromptOutcome outcome) {
-    if (page.id == "hid.reboot") {
-      if (outcome == PromptOutcome::Ack) g_systemControl.reboot();
-      return;
-    }
-    if (page.source == "agent")
-      agentResolver(page.id, outcome);
-    else if (page.source == "voice")
-      voiceResolver(page.id, outcome);
-    else
-      hubResolver(page.id, outcome);
-  };
-#else
+  binding.voice = &g_chat;
+  binding.assistant = &g_agent;
+  binding.hub = {&g_sim, &g_hubPipeline};
   binding.resolvePrompt = [hubResolver](const Page& page, PromptOutcome outcome) {
     if (page.id == "hid.reboot") {
       if (outcome == PromptOutcome::Ack) g_systemControl.reboot();
@@ -499,30 +442,12 @@ void setup() {
     }
     hubResolver(page.id, outcome);
   };
-#endif
   g_runtime.bind(binding);
-#if defined(TAMA_ENABLE_BUDDY)
-  g_lineSink.bind(g_agentSession);
-#endif
 
   g_runtime.begin();
   g_runtime.nav().add(screens::wifi());
   g_runtime.nav().setIr(&g_ir, &g_irCodes);
   g_runtime.nav().setHid(&g_hid);
-
-#if defined(TAMA_ENABLE_BUDDY)
-  if (const char* scenario = std::getenv("TAMA_BUDDY_STATE")) {
-    feedBuddy(scenario);
-    g_runtime.nav().start("buddy");
-    const std::string sc = scenario;
-    if (sc == "approve") {
-      g_runtime.nav().dispatch(Intent::Select);
-    } else if (sc == "deny") {
-      g_runtime.nav().dispatch(Intent::Next);
-      g_runtime.nav().dispatch(Intent::Select);
-    }
-  }
-#endif
 
   if (const char* start = std::getenv("TAMA_START")) {
     g_runtime.nav().start(start);
@@ -535,10 +460,9 @@ void loop() {
   M5.update();
   pollKeys();
   const uint32_t now = static_cast<uint32_t>(m5gfx::millis());
-#if defined(TAMA_ENABLE_BUDDY)
-  g_lineSink.tick(now);
-#endif
   g_capture.beforeFrame(now);
+  g_agent.loop(now);
+  g_chat.loop(now);
   g_runtime.loop(now);
   g_capture.afterFrame();
   M5.delay(8);

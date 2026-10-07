@@ -29,6 +29,8 @@ class WifiBearer : public IBearer, public IWifiControl {
 
   std::vector<KnownNetwork> known() const override;
   void select(const std::string& ssid) override;
+  void join(const WifiCredentials& creds) override;
+  std::vector<std::string> scan() override;
   void forget(const std::string& ssid) override;
   void provision() override;
   bool provisioning() const override { return provisioning_; }

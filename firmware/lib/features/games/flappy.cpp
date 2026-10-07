@@ -24,7 +24,7 @@ class FlappyScreen : public ArcadeGameScreen {
     g.c().drawFastHLine(0, gameH, w_, theme::kDim);
 
     const Expr e = body_.v < 0 ? Expr::Happy : Expr::Neutral;
-    player(g, ctx, kBirdX, static_cast<int>(body_.p), 22, e, 0, false);
+    player(g, ctx, kBirdX, static_cast<int>(body_.p), 22, e);
   }
 
   Transition onAction(Intent intent, ShellContext&) override {

@@ -38,7 +38,7 @@ class GalaxyScreen : public ArcadeGameScreen {
       c.drawCircle(x, y, kRockR, theme::kDim);
     }
 
-    player(g, ctx, static_cast<int>(playerX_), kPlayerY, kPlayerSz, Expr::Neutral, 0, false);
+    player(g, ctx, static_cast<int>(playerX_), kPlayerY, kPlayerSz, Expr::Neutral);
   }
 
   void onReset() override {

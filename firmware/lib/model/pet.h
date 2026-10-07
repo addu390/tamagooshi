@@ -8,13 +8,6 @@
 
 namespace tama {
 
-struct PetState {
-  int energy = 72;
-  int care = 55;
-  int bond = 40;
-  uint32_t lastDecayMs = 0;
-};
-
 enum class PetAction { Feed, Play, Love };
 
 enum class Fx { Heart, Berry, Star };
@@ -29,16 +22,10 @@ struct Particle {
   Fx kind;
 };
 
-class Care {
+class Pet {
  public:
-  void reset();
-
-  bool decay(PetState& pet, uint32_t nowMs);
-  bool spontaneous(PetState& pet, uint32_t nowMs);
-  void stepParticles();
-
-  void doAction(PetState& pet, PetAction action, uint32_t nowMs);
-  void quickFeed(PetState& pet);
+  void act(PetAction action, uint32_t nowMs);
+  bool tick(uint32_t nowMs, bool content);
 
   bool reacting(uint32_t nowMs) const { return nowMs < reactUntil_; }
   Expr reactExpr() const { return reactExpr_; }
@@ -52,9 +39,10 @@ class Care {
 
   Expr reactExpr_ = Expr::Happy;
   uint32_t reactUntil_ = 0;
-  uint32_t autoNext_ = 0;
+  uint32_t nextCheer_ = 0;
+  uint32_t nextStep_ = 0;
   LcgRng rng_;
   std::vector<Particle> particles_;
 };
 
-}
+}  // namespace tama

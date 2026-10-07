@@ -4,7 +4,6 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
-from src.api.routes.agents import put_agents
 from src.api.routes.config import config as get_config
 from src.api.routes.config import put_device, put_identity
 from src.api.routes.rules import put_alerts, put_moods
@@ -35,7 +34,7 @@ def data_dir(tmp_path, monkeypatch):
 def test_get_config_returns_manifest(data_dir):
     manifest = asyncio.run(get_config(_request()))
     assert manifest["brand"]["id"] == "demo"
-    assert "hub" in manifest
+    assert "moods" in manifest["device"]
 
 
 def test_put_identity_roundtrip(data_dir):
@@ -66,7 +65,7 @@ def test_put_moods_roundtrip(data_dir):
               "priority": 3}]
     asyncio.run(put_moods(_request(moods)))
 
-    assert _service().read_manifest("demo")["hub"]["moods"] == moods
+    assert _service().read_manifest("demo")["device"]["moods"] == moods
 
 
 def test_put_alerts_invalid_rule_400(data_dir):
@@ -80,23 +79,4 @@ def test_put_alerts_invalid_rule_400(data_dir):
 def test_put_rules_rejects_non_list(data_dir):
     with pytest.raises(HTTPException) as err:
         asyncio.run(put_moods(_request({"not": "a list"})))
-    assert err.value.status_code == 400
-
-
-def test_put_agents_roundtrip(data_dir):
-    asyncio.run(put_agents(_request({"default": "claude", "enabled": ["claude"]})))
-
-    agent = _service().read_manifest("demo")["hub"]["agent"]
-    assert agent == {"default": "claude", "enabled": ["claude"]}
-
-
-def test_put_agents_unknown_agent_400(data_dir):
-    with pytest.raises(HTTPException) as err:
-        asyncio.run(put_agents(_request({"default": "hal9000", "enabled": ["hal9000"]})))
-    assert err.value.status_code == 400
-
-
-def test_put_agents_default_must_be_enabled(data_dir):
-    with pytest.raises(HTTPException) as err:
-        asyncio.run(put_agents(_request({"default": "cursor", "enabled": ["claude"]})))
     assert err.value.status_code == 400

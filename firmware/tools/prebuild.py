@@ -33,11 +33,32 @@ except ImportError:
     )
     importlib.invalidate_caches()
 
+def dotenv(key):
+    if key in os.environ:
+        return os.environ[key]
+    path = os.path.join(project, "..", ".env")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            name, sep, value = line.strip().partition("=")
+            if sep and name.strip() == key:
+                return value.strip().strip("'\"")
+    return None
+
+
 sys.path.insert(0, tools)
 from gen.pipeline import generate
+from gen.platform.boards import BOARDS
 
-macros = generate(brand, brands, out, os.environ.get("TAMA_TRANSPORTS"))
+board = env["PIOENV"] if env["PIOENV"] in BOARDS else None
+macros = generate(brand, brands, out, os.environ.get("TAMA_TRANSPORTS"), board)
 env.Append(CPPPATH=[out])
 
 if env["PIOPLATFORM"] != "native":
     env.Append(CPPDEFINES=macros)
+    if "TAMA_AGENT_MUSE" in macros:
+        token = dotenv("MUSE_SDK_TOKEN")
+        if not token:
+            print("warning: MUSE_SDK_TOKEN is not set; Muse pairing will not report an SDK token")
+        env.Append(CPPDEFINES=[("TAMA_MUSE_SDK_TOKEN", env.StringifyMacro(token or ""))])

@@ -17,9 +17,9 @@ HubPipeline::HubPipeline(ITransport& transport, const ICodec& codec, MessageRout
 
 void HubPipeline::onConnected(bool connected) {
   if (!connected) return;
-  transport_.publish(topics::hello(deviceId_), codec_.encodeHello(board_.capabilities(), fwVersion_),
-                     1, true);
-  transport_.publish(topics::status(deviceId_), codec_.encodeStatus(true, fwVersion_, ""), 1, true);
+  transport_.publish(topics::hello(deviceId_),
+                     codec_.encodeHello(board_.capabilities(), fwVersion_));
+  transport_.publish(topics::status(deviceId_), codec_.encodeStatus(true, fwVersion_, ""));
 }
 
 void HubPipeline::onInbound(const std::string&, const std::string& payload) {
@@ -29,11 +29,11 @@ void HubPipeline::onInbound(const std::string&, const std::string& payload) {
 }
 
 void HubPipeline::onGesture(const GestureEvent& event) {
-  transport_.publish(topics::input(deviceId_), codec_.encodeGesture(event), 1, false);
+  transport_.publish(topics::input(deviceId_), codec_.encodeGesture(event));
 }
 
 void HubPipeline::onMotion(const MotionEvent& event) {
-  transport_.publish(topics::sensor(deviceId_), codec_.encodeMotion(event), 1, false);
+  transport_.publish(topics::sensor(deviceId_), codec_.encodeMotion(event));
 }
 
 }  // namespace tama

@@ -35,17 +35,17 @@ class MascotsScreen : public AppScreen {
 
     if (ctx.character) {
       if (L.landscape) {
-        ctx.character->draw(g, widgets::anchor(L, widgets::Side::Right), L.cy + 6, 52,
+        ctx.character->draw(g, widgets::anchor(L, widgets::Side::Right), L.cy + 6, 44,
                             MascotState{Expr::Happy}, now());
       } else {
-        const int size = 56;
+        const int size = 66;
         const int cy = (top + kRows * rowH + L.bottom) / 2 - 10;
         ctx.character->draw(g, L.cx, cy, size, MascotState{Expr::Happy}, now());
         widgets::mascotLabel(g, nameUp.c_str(), L.cx, cy, size);
       }
     }
 
-    widgets::hints(g, "CHANGE", "NEXT");
+    widgets::hints(g, "PICK", "NEXT");
   }
 
   Transition handleInput(Intent intent, ShellContext& ctx) override {

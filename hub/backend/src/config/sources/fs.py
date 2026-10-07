@@ -35,10 +35,6 @@ class FileTreeSource:
     def manifest(self, brand_id: str) -> dict:
         return self._read(self._resolve(brand_id))
 
-    def scenes(self, brand_id: str) -> dict:
-        path = os.path.join(os.path.dirname(self._resolve(brand_id)), "scenes" + self._ext)
-        return self._read(path) if os.path.isfile(path) else {}
-
     def _resolve(self, brand_id: str) -> str:
         for candidate in manifest_candidates(self._root, brand_id, self._ext):
             if os.path.isfile(candidate):

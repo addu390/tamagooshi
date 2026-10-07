@@ -66,7 +66,7 @@ function openNewBrand() {
   panel.replaceChildren();
 
   panel.append(panelHead("New brand",
-                         "Starts from the template. Shape identity, device and sources here after it activates."));
+                         "Starts from the template. Shape identity and device here after it activates."));
 
   const inputs = {};
   const form = el("div", "set");

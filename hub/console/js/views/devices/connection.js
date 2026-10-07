@@ -4,7 +4,7 @@ import { $, el, showResult } from "../../core/dom.js";
 import { segControl } from "../../components/controls.js";
 import { formActions, panelHead, settingRow } from "../../components/rows.js";
 
-const LINKS = { ble: "Bluetooth", wifi: "Wi-Fi (MQTT)" };
+const LINKS = { ble: "Bluetooth" };
 
 const STATES = {
   idle: { dot: "", text: () => "Not connected. Scan to pick a device." },

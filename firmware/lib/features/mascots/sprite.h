@@ -128,15 +128,43 @@ class SpriteChar : public Character {
   void blitFrame(Gfx& g, int ox, int oy, int base, int frame, int facing) const {
     auto& c = g.c();
     const uint8_t* fr = d_.frames[frame];
+    auto at = [&](int x, int y) -> uint8_t {
+      if (x < 0 || y < 0 || x >= d_.w || y >= d_.h) return 0;
+      return fr[y * d_.w + (facing > 0 ? x : d_.w - 1 - x)];
+    };
     for (int y = 0; y < d_.h; ++y) {
       for (int x = 0; x < d_.w; ++x) {
-        const int srcx = facing > 0 ? x : d_.w - 1 - x;
-        const uint8_t idx = fr[y * d_.w + srcx];
+        const uint8_t idx = at(x, y);
         if (!idx) continue;
-        const uint16_t col = idx == d_.outlineIndex ? theme::kInk : d_.palette[idx];
-        c.fillRect(ox + x * base, oy + y * base, base, base, col);
+        const int px = ox + x * base;
+        const int py = oy + y * base;
+        if (idx != d_.outlineIndex) {
+          c.fillRect(px, py, base, base, d_.palette[idx]);
+        } else if (at(x - 1, y) && at(x + 1, y) && at(x, y - 1) && at(x, y + 1)) {
+          c.fillRect(px, py, base, base, theme::kInk);
+        } else {
+          drawEdge(c, at, x, y, px, py, base);
+        }
       }
     }
+  }
+
+  template <typename Canvas, typename At>
+  void drawEdge(Canvas& c, const At& at, int x, int y, int px, int py, int base) const {
+    const int t = (base + 1) / 2;
+    const int f = base - t;
+    auto body = [&](int dx, int dy) {
+      const uint8_t n = at(x + dx, y + dy);
+      return n != 0 && n != d_.outlineIndex;
+    };
+    if (body(-1, 0)) c.fillRect(px, py, t, base, theme::kInk);
+    if (body(1, 0)) c.fillRect(px + f, py, t, base, theme::kInk);
+    if (body(0, -1)) c.fillRect(px, py, base, t, theme::kInk);
+    if (body(0, 1)) c.fillRect(px, py + f, base, t, theme::kInk);
+    if (body(-1, -1)) c.fillRect(px, py, t, t, theme::kInk);
+    if (body(1, -1)) c.fillRect(px + f, py, t, t, theme::kInk);
+    if (body(-1, 1)) c.fillRect(px, py + f, t, t, theme::kInk);
+    if (body(1, 1)) c.fillRect(px + f, py + f, t, t, theme::kInk);
   }
 
   static Action idleAction(uint32_t roll) {
@@ -165,12 +193,6 @@ class SpriteChar : public Character {
     x *= 0x846ca68bU;
     x ^= x >> 16;
     return x;
-  }
-
-  void drawShadow(Gfx& g, int cx, int groundY, int spriteW, int base, int hop) const {
-    const int rx = std::max(3, spriteW / 4 - hop);
-    const int ry = std::max(1, base - hop / 4);
-    g.c().fillEllipse(cx, groundY + 2, rx, ry, theme::kDimmer);
   }
 
   void drawZzz(Gfx& g, int x, int y, float t) const {

@@ -8,7 +8,6 @@ from dataclasses import asdict
 from fastapi import FastAPI
 
 from .api import (
-    agents_router,
     brands_router,
     config_router,
     connection_router,
@@ -16,20 +15,15 @@ from .api import (
     flash_router,
     mount_ui,
     rules_router,
-    secrets_router,
-    sources_router,
     status_router,
 )
 from .config import BrandService, HubConfig, default_catalog, load_config
-from .config.secrets import apply_secrets
 from .config.settings import load_connection
-from .features.buddy import create_bridge
 from .network import InboundRegistry, InboundRouter, Publisher
 from .network.transport import create_transport
 from .services.events import EventBus
 from .services.flash import Flasher
-from .services.metrics import Pipeline
-from .services.worker import Worker
+from .services.sync import DeviceSync
 
 log = logging.getLogger("tamagooshi.app")
 
@@ -40,13 +34,12 @@ def _publish_saved_hid_mode(publisher: Publisher) -> None:
         publisher.publish_hid_mode(mode)
 
 
-def _on_device_hello(publisher: Publisher, pipeline: Pipeline) -> None:
+def _on_device_hello(publisher: Publisher, sync: DeviceSync) -> None:
     _publish_saved_hid_mode(publisher)
-    pipeline.replay()
+    sync.replay()
 
 
 def create_app(config: HubConfig | None = None) -> FastAPI:
-    apply_secrets()
     catalog = default_catalog()
     config = config or load_config(catalog)
 
@@ -62,19 +55,13 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
         transport = create_transport(config)
         transport.on_state(lambda status: bus.publish("link", asdict(status)))
         publisher = Publisher(transport, config.device_id)
-        pipeline = Pipeline(config, publisher, bus)
-        worker = Worker(config, pipeline)
+        sync = DeviceSync(config, publisher)
 
-        router.on("device.hello", lambda _topic, _env: _on_device_hello(publisher, pipeline))
-        router.on("page.ack", lambda _topic, env: pipeline.acknowledge(env))
+        router.on("device.hello", lambda _topic, _env: _on_device_hello(publisher, sync))
         publisher.on_inbound(router.handle)
 
-        bridge = create_bridge(transport, config.agent)
-        if bridge is not None:
-            bridge.start()
-
         publisher.connect()
-        await worker.start()
+        sync.announce()
         _publish_saved_hid_mode(publisher)
 
         app.state.config = config
@@ -82,16 +69,10 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
         app.state.transport = transport
         app.state.inbound = inbound
         app.state.publisher = publisher
-        app.state.pipeline = pipeline
-        app.state.worker = worker
-        app.state.bridge = bridge
         app.state.flasher = Flasher(lambda data: bus.publish("flash", data))
         try:
             yield
         finally:
-            await worker.stop()
-            if bridge is not None:
-                await bridge.stop()
             publisher.close()
 
     app = FastAPI(title="Tamagooshi Hub", version="0.1.0", lifespan=lifespan)
@@ -100,10 +81,7 @@ def create_app(config: HubConfig | None = None) -> FastAPI:
 
     app.include_router(status_router)
     app.include_router(events_router)
-    app.include_router(agents_router)
     app.include_router(brands_router)
-    app.include_router(sources_router)
-    app.include_router(secrets_router)
     app.include_router(rules_router)
     app.include_router(config_router)
     app.include_router(connection_router)

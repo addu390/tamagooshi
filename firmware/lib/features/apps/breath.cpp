@@ -98,7 +98,7 @@ class BreathScreen : public AppScreen {
       g.str("BREATHE", cx, cy, theme::kDim, typeface::micro(), textdatum_t::middle_center);
     }
 
-    widgets::hints(g, running_ ? "PAUSE" : "START", running_ ? "RESET" : "PRESET");
+    widgets::hints(g, running_ ? "PAUSE" : "START", running_ ? "RESET" : "MODE");
   }
 
   Transition handleInput(Intent intent, ShellContext& ctx) override {

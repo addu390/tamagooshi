@@ -9,7 +9,7 @@ from fastapi import HTTPException
 from src.api.routes.flash import RELEASE_PREFIX, flash_status, start_flash
 from src.services.flash import Flasher
 
-IMAGE_URL = RELEASE_PREFIX + "gooshi-m5stickcplus.bin"
+IMAGE_URL = RELEASE_PREFIX + "gooshi-m5sticks3.bin"
 
 
 class StubFlasher:

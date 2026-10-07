@@ -5,10 +5,11 @@
 #include <string>
 #include <vector>
 
-#include "buddy.h"
 #include "mascot.h"
 #include "metric.h"
 #include "pager.h"
+#include "pet.h"
+#include "reactions.h"
 #include "voice.h"
 
 namespace tama {
@@ -120,9 +121,9 @@ struct DeviceState {
   SysInfo sysinfo;
   std::vector<Metric> metrics;
   std::optional<Page> prompt;
-  BuddyState buddy;
   VoiceChat voice;
-  AgentRoster agents;
+  Reactions reactions;
+  Pet pet;
   Mood mood = Mood::Neutral;
   std::string mood_reason;
   std::string character_id;
@@ -144,10 +145,13 @@ struct DeviceState {
   bool dirty = false;
   bool metrics_dirty = false;
 
-  void upsertMetric(const Metric& m);
+  void publishMetric(const Metric& m);
   void removeMetric(const std::string& key);
+  void clearMetrics();
+  void react();
+
+  void setMood(Mood m);
   const Metric* starMetric() const;
-  const Metric* metricByKey(const std::string& key) const;
 
   void raisePrompt(const Page& page);
   void clearPrompt(const std::string& id);
@@ -155,6 +159,7 @@ struct DeviceState {
 
  private:
   std::vector<Page> pending_;
+  std::vector<std::string> raised_;
   void selectPrompt();
 };
 

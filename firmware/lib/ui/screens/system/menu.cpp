@@ -1,3 +1,6 @@
+#include <cstring>
+
+#include "apps/apps.h"
 #include "brand.gen.h"
 #include "screens.h"
 #include "theme.h"
@@ -7,26 +10,50 @@ namespace tama::screens {
 
 namespace {
 
-enum class Icon { Bars, Play, Sliders, Grid, Spark, Mic };
+enum class Icon { Bars, Play, Sliders, Grid, Mic };
 
 struct MenuApp {
   const char* label;
   const char* screen;
-  bool enabled;
+  Icon icon;
+};
+
+struct Shortcut {
+  const char* label;
+  const char* app;
   Icon icon;
 };
 
 constexpr MenuApp kApps[] = {
-    {"METRICS", "metrics", true, Icon::Bars},
-    {"PLAY", "play", true, Icon::Play},
-    {"SETTINGS", "settings", true, Icon::Sliders},
-    {"APPS", "apps", true, Icon::Grid},
-#if defined(TAMA_ENABLE_BUDDY)
-    {"BUDDY", "buddy", true, Icon::Spark},
-    {"ASK", "ask", true, Icon::Mic},
-#endif
+    {"METRICS", "metrics", Icon::Bars},
+    {"GAMES", "play", Icon::Play},
+    {"SETTINGS", "settings", Icon::Sliders},
+    {"APPS", "apps", Icon::Grid},
 };
-constexpr int kCount = sizeof(kApps) / sizeof(kApps[0]);
+constexpr Shortcut kShortcuts[] = {
+    {"ASK", "talk", Icon::Mic},
+};
+constexpr int kMax = sizeof(kApps) / sizeof(kApps[0]) + sizeof(kShortcuts) / sizeof(kShortcuts[0]);
+
+// The screen of an enabled, usable app, or nullptr.
+const char* appScreen(const char* id, const ShellContext& ctx) {
+  if (!ctx.state.enabled.app(id)) return nullptr;
+  const FeatureInfo* items = apps::list();
+  for (int i = 0; i < apps::count(); ++i) {
+    if (std::strcmp(items[i].id, id) != 0) continue;
+    return locked(items[i], ctx.caps, ctx.hidProfile) ? nullptr : items[i].screen;
+  }
+  return nullptr;
+}
+
+int collect(const ShellContext& ctx, MenuApp* out) {
+  int n = 0;
+  for (const Shortcut& s : kShortcuts) {
+    if (const char* screen = appScreen(s.app, ctx)) out[n++] = {s.label, screen, s.icon};
+  }
+  for (const MenuApp& app : kApps) out[n++] = app;
+  return n;
+}
 
 void drawIcon(M5Canvas& c, Icon ic, int cx, int cy, uint16_t col) {
   switch (ic) {
@@ -50,12 +77,6 @@ void drawIcon(M5Canvas& c, Icon ic, int cx, int cy, uint16_t col) {
       c.fillRect(cx - 8, cy + 2, 6, 6, col);
       c.fillRect(cx + 2, cy + 2, 6, 6, col);
       break;
-    case Icon::Spark:
-      c.drawLine(cx, cy - 8, cx, cy + 8, col);
-      c.drawLine(cx - 8, cy, cx + 8, cy, col);
-      c.drawLine(cx - 5, cy - 5, cx + 5, cy + 5, col);
-      c.drawLine(cx - 5, cy + 5, cx + 5, cy - 5, col);
-      break;
     case Icon::Mic:
       c.fillRoundRect(cx - 3, cy - 8, 6, 10, 3, col);
       c.drawFastHLine(cx - 6, cy + 3, 12, col);
@@ -68,41 +89,37 @@ void drawIcon(M5Canvas& c, Icon ic, int cx, int cy, uint16_t col) {
 class MenuScreen : public AppScreen {
  public:
   const char* id() const override { return "menu"; }
-  void onEnter(ShellContext&) override { sel_ = 0; }
+  void onEnter(ShellContext& ctx) override {
+    sel_ = 0;
+    count_ = collect(ctx, apps_);
+  }
 
   void render(Gfx& g, ShellContext& ctx) override {
     const auto L = widgets::frame(g, ctx.state, "MENU");
-    const auto gr = widgets::grid(L, kCount, 2, 3, L.top + 20, 8, 8, 46);
+    const auto gr = widgets::grid(L, count_, 2, 3, L.top + 20, 8, 8, 46);
 
-    for (int i = 0; i < kCount; ++i) {
-      const auto r = gr.cell(i, kCount);
+    for (int i = 0; i < count_; ++i) {
+      const auto r = gr.cell(i, count_);
       const int cx = r.x + r.w / 2;
-      const bool on = kApps[i].enabled;
-
-      widgets::SelectStyle style;
-      style.fill = on ? theme::kFg : theme::kDim;
-      style.outline = on ? theme::kDim : theme::kDimmer;
-      style.content = on ? theme::kFg : theme::kDimmer;
-      const uint16_t fg = widgets::selectionBox(g, r, i == sel_, style);
-
-      drawIcon(g.c(), kApps[i].icon, cx, r.y + r.h / 2 - 6, fg);
-      g.str(kApps[i].label, cx, r.y + r.h - 9, fg, typeface::micro(), textdatum_t::middle_center);
+      const uint16_t fg = widgets::selectionBox(g, r, i == sel_, widgets::SelectStyle{});
+      drawIcon(g.c(), apps_[i].icon, cx, r.y + r.h / 2 - 6, fg);
+      g.str(apps_[i].label, cx, r.y + r.h - 9, fg, typeface::micro(), textdatum_t::middle_center);
     }
     widgets::hints(g, "OPEN", "NEXT");
   }
 
   Transition handleInput(Intent intent, ShellContext&) override {
     if (intent == Intent::Next || intent == Intent::Prev) {
-      sel_ = cycleIndex(intent, sel_, kCount);
+      sel_ = cycleIndex(intent, sel_, count_);
       return Transition::redraw();
     }
-    if (intent == Intent::Select && kApps[sel_].enabled) {
-      return Transition::push(kApps[sel_].screen);
-    }
+    if (intent == Intent::Select) return Transition::push(apps_[sel_].screen);
     return Transition::none();
   }
 
  private:
+  MenuApp apps_[kMax];
+  int count_ = 0;
   int sel_ = 0;
 };
 

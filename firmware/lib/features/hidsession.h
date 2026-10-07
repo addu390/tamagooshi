@@ -3,6 +3,7 @@
 #include <hid.h>
 
 #include "context.h"
+#include "link.h"
 #include "theme.h"
 #include "widgets.h"
 

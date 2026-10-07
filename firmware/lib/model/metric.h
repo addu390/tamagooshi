@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,9 @@ struct Metric {
   std::string trend;
   MetricKind kind = MetricKind::Normal;
   uint32_t ts = 0;
+  std::optional<double> raw;
+
+  bool number(double& out) const;
 };
 
 class IMetricRepository {

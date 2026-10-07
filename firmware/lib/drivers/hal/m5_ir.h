@@ -2,7 +2,7 @@
 
 #include "board.gen.h"
 
-#if TAMA_BOARD_HAS_IR
+#if TAMA_BOARD_HAS_IR && defined(ARDUINO)
 
 #include <driver/rmt_rx.h>
 #include <driver/rmt_tx.h>

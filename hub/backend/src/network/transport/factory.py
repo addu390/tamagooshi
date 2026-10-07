@@ -6,7 +6,6 @@ from collections.abc import Callable
 from ...config import HubConfig
 from ...config.settings import load_connection
 from .base import Transport
-from .mqtt import MqttTransport
 
 TransportFactory = Callable[[HubConfig], Transport]
 
@@ -19,14 +18,9 @@ def _ble(config: HubConfig) -> Transport:
                         address=os.getenv("TAMA_BLE_ADDRESS") or saved.get("address"))
 
 
-def _mqtt(config: HubConfig) -> Transport:
-    return MqttTransport(config.broker.host, config.broker.port, config.device_id)
-
-
 # Keys mirror firmware/tools/gen/network/transports.py
 TRANSPORTS: dict[str, dict[str, TransportFactory]] = {
     "ble": {"gatt": _ble},
-    "wifi": {"mqtt": _mqtt},
 }
 
 

@@ -22,6 +22,7 @@ class IBleService {
   virtual const char* serviceUuid() const = 0;
   virtual bool advertiseUuid() const { return false; }
   virtual uint16_t appearance() const { return 0; }
+  virtual bool exclusive() const { return false; }
   virtual void onLink(bool connected) = 0;
 };
 
@@ -31,6 +32,9 @@ class BleBearer : public IBearer, public ILink, public NimBLEServerCallbacks {
             IRadioStateRepository& state);
 
   void add(IBleService& service);
+  void claim(IBleService& owner, std::string name, std::string manufacturer);
+  void release();
+  void disconnect();
 
   void begin() override;
   void loop() override {}
@@ -57,6 +61,12 @@ class BleBearer : public IBearer, public ILink, public NimBLEServerCallbacks {
   void onAuthenticationComplete(NimBLEConnInfo& connInfo) override;
 
  private:
+  void start();
+  void stop();
+  void advertise();
+  bool hosts(const IBleService* service) const;
+  void link(bool connected);
+
   IRadioStateRepository& state_;
   std::string brand_;
   std::string fw_;
@@ -71,6 +81,9 @@ class BleBearer : public IBearer, public ILink, public NimBLEServerCallbacks {
 
   NimBLEServer* server_ = nullptr;
   std::vector<IBleService*> services_;
+  IBleService* owner_ = nullptr;
+  std::string ownerName_;
+  std::string ownerData_;
 };
 
 }  // namespace tama

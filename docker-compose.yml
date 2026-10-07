@@ -1,33 +1,15 @@
-# Self-hosted stack: MQTT broker + hub serving the dashboard at http://localhost:8000.
+# Self-hosted hub serving the dashboard at http://localhost:8000.
 # Change the dashboard port with TAMA_PORT (env var or .env file): TAMA_PORT=9090 docker compose up -d
-# Run the simulator on the host with TAMA_BROKER=localhost:1883 to see it live.
 services:
-  broker:
-    image: eclipse-mosquitto:2
-    container_name: tamagooshi-broker
-    restart: unless-stopped
-    ports:
-      - "1883:1883"
-      - "9001:9001"
-    volumes:
-      - ./hub/backend/broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./hub/backend/broker/data:/mosquitto/data
-      - ./hub/backend/broker/log:/mosquitto/log
-
   hub:
     build:
       context: .
       dockerfile: hub/backend/Dockerfile
     container_name: tamagooshi-hub
     restart: unless-stopped
-    depends_on:
-      - broker
     environment:
-      TAMA_TRANSPORT: wifi:mqtt
-      TAMA_BROKER: broker:1883
       TAMA_LOG_LEVEL: INFO
       TAMA_BRAND: ${TAMA_BRAND:-gooshi}
-      TAMA_SCENE: ${TAMA_SCENE:-}
       TAMA_DEVICE_ID: sim
       TAMA_BRANDS_DIR: /brands
     volumes:

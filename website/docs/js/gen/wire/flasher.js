@@ -3,11 +3,8 @@
 
 export const EWT_URL = "https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module";
 
-export const variant = (manifest) =>
-  ((manifest.device || {}).transports || {}).wifi ? "gooshi-wifi" : "gooshi";
-
-export const imageName = (manifest, board) => `${variant(manifest)}-${board.asset}.bin`;
-export const imageUrl = (release, manifest, board) => release + imageName(manifest, board);
+export const imageName = (board) => `gooshi-${board.asset}.bin`;
+export const imageUrl = (release, board) => release + imageName(board);
 
 const urls = [];
 

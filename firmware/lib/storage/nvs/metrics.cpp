@@ -27,6 +27,7 @@ std::vector<Metric> NvsMetricRepository::load() {
     m.trend = scope->getString(field('r', i).c_str(), "").c_str();
     m.kind = scope->getUChar(field('s', i).c_str(), 0) ? MetricKind::Star : MetricKind::Normal;
     m.ts = scope->getUInt(field('t', i).c_str(), 0);
+    if (scope->isKey(field('n', i).c_str())) m.raw = scope->getDouble(field('n', i).c_str());
     if (!m.key.empty()) list.push_back(std::move(m));
   }
   return list;
@@ -46,6 +47,7 @@ void NvsMetricRepository::save(const std::vector<Metric>& metrics) {
     scope->putString(field('r', i).c_str(), m.trend.c_str());
     scope->putUChar(field('s', i).c_str(), m.kind == MetricKind::Star ? 1 : 0);
     scope->putUInt(field('t', i).c_str(), m.ts);
+    if (m.raw) scope->putDouble(field('n', i).c_str(), *m.raw);
   }
 }
 

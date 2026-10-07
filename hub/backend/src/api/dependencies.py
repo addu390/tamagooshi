@@ -7,11 +7,6 @@ from ..config.service import BrandService
 from ..network import Publisher
 from ..network.transport.base import Transport
 from ..services.flash import Flasher
-from ..services.worker import Worker
-
-
-def worker(request: Request) -> Worker:
-    return request.app.state.worker
 
 
 def transport(request: Request) -> Transport:

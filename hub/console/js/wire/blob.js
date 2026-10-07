@@ -70,6 +70,8 @@ export function fromManifest(manifest) {
       themes: enabled(theme.enabled),
       typefaces: enabled(typeface.enabled),
     },
+    moods: device.moods || [],
+    alerts: device.alerts || [],
   };
 
   const customs = (theme.custom || [])

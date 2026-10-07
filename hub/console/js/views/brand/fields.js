@@ -3,5 +3,5 @@ export const DESC = {
   name: "Shown in the sidebar and on the device.",
   tagline: "Short line under the product name.",
   website: "Printed on the device about screen.",
-  mascot: "What the buddy calls itself.",
+  mascot: "What the mascot calls itself.",
 };

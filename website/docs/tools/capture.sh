@@ -2,62 +2,40 @@
 set -euo pipefail
 
 SCENE="${1:-mood}"
-case "$SCENE" in
-  claude-*) BRAND="${BRAND:-claude}" ;;
-  *)        BRAND="${BRAND:-demo}" ;;
-esac
-BROKER="${BROKER:-localhost:1883}"
+BRAND="${BRAND:-gooshi}"
 FPS="${FPS:-15}"
 STRIDE="${STRIDE:-8}"
+WARMUP="${WARMUP:-60}"
+AGENT="${AGENT:-}"
+MUSE="${MUSE:-}"
 
-HUBSCENE=""
-INPUT=""
-BUDDY=""
-HUB=1
+# A scene is one or more segments, each "start-screen:frames:input-script".
+# Segments are captured back to back and encoded as one clip.
 case "$SCENE" in
-  mood)
-    START="${START:-home}"; N="${N:-300}"; WARMUP="${WARMUP:-60}"
+  brand)
+    SEGMENTS=("home:180:600:next,1000:next,1400:next,1800:select,2200:select,2700:select,3908:select,4916:select,6004:select,6600:back,7000:home,7400:next,7800:next,8100:next,8400:next,8700:select,9000:next,9300:select,9700:next,10200:select,10700:select,11200:select,11700:select,12200:back,12600:back,13000:back")
     ;;
-  metrics)
-    HUBSCENE="metrics"
-    START="${START:-home}"; N="${N:-270}"; WARMUP="${WARMUP:-60}"
-    INPUT="${INPUT:-2400:select,3600:select,15600:home}"
+  mood)
+    AGENT="online"
+    MUSE="1500:publish:build:BUILD:98%:star,3000:mood:celebrate,5500:publish:build:BUILD:71%:star,6500:mood:sick,8500:say:ci is red. on it"
+    SEGMENTS=("home:150:")
     ;;
   agents)
-    HUBSCENE="agents"; BUDDY="work"
-    START="${START:-menu}"; N="${N:-505}"; WARMUP="${WARMUP:-60}"
-    INPUT="${INPUT:-800:next,1250:next,1700:next,2150:next,2700:select,14600:next,15100:next,15500:next,15900:next,16300:next,16700:next,17200:select,18400:next,19400:select,22600:select,27600:select}"
+    AGENT="online"
+    SEGMENTS=("menu:150:2000:select,3000:select,5000:select")
     ;;
-  alerts)
-    HUBSCENE="alerts"; BUDDY="approve"
-    START="${START:-buddy}"; N="${N:-300}"; WARMUP="${WARMUP:-60}"
-    INPUT="${INPUT:-4200:select,8000:next,9200:select,14000:select}"
+  apps)
+    SEGMENTS=("apps:150:800:next,1400:select,2000:select,3600:next,5000:select,5600:back,6200:next,6600:next,7000:next,7600:select,12400:back")
     ;;
-  brand)
-    HUBSCENE="brand"
-    START="${START:-home}"; N="${N:-290}"; WARMUP="${WARMUP:-60}"
-    INPUT="${INPUT:-3000:select,3500:next,4000:select,4600:select,5400:select,6200:select,7000:select,8600:home,9600:select,10100:next,10600:next,11100:select,11600:next,12100:select,12600:select,13200:select,14400:back,14900:next,15400:select,16000:select,16600:select,17200:select,18400:home}"
-    ;;
-  claude-home)
-    HUB=0
-    START="${START:-home}"; N="${N:-200}"; WARMUP="${WARMUP:-60}"
-    ;;
-  claude-work)
-    HUB=0; BUDDY="work"
-    START="${START:-menu}"; N="${N:-485}"; WARMUP="${WARMUP:-60}"
-    INPUT="${INPUT:-800:next,1250:next,1700:next,2150:next,2700:select,14600:next,15100:next,15500:next,15900:next,16300:next,16700:next,17200:select,18400:select,21600:select,26600:select}"
-    ;;
-  claude-approve)
-    HUB=0; BUDDY="approve"
-    START="${START:-buddy}"; N="${N:-220}"; WARMUP="${WARMUP:-60}"
-    INPUT="${INPUT:-4200:select,8000:next,9200:select}"
+  games)
+    SEGMENTS=("play:150:600:next,1000:select,1600:select,2016:select,2544:select,3056:select,3616:select,4128:select,4656:select,5184:select,5344:select,5872:select,6384:select,7136:select,7680:select,8160:select,8592:select,9088:select,9616:select,9904:select,10080:select,10176:select,10656:select,11200:select,12000:select")
     ;;
   *)
-    START="${START:-home}"; N="${N:-300}"; WARMUP="${WARMUP:-60}"
+    SEGMENTS=("home:300:")
     ;;
 esac
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 OUT="$ROOT/website/docs/assets/videos"
 FRAMES="$(mktemp -d)"
 trap 'rm -rf "$FRAMES"' EXIT
@@ -65,19 +43,20 @@ trap 'rm -rf "$FRAMES"' EXIT
 cd "$ROOT/firmware"
 TAMA_BRAND="$BRAND" pio run -e native_sim >/dev/null
 
-if [ "$HUB" = "1" ]; then
-  cd "$ROOT"
-  TAMA_BRAND="$BRAND" TAMA_SCENE="$HUBSCENE" docker compose up -d --build broker hub >/dev/null
-  TAMA_BRAND="$BRAND" TAMA_SCENE="$HUBSCENE" docker compose up -d --force-recreate hub >/dev/null
-  sleep 2
-else
-  BROKER=""
-fi
-
-cd "$ROOT/firmware"
-TAMA_START="$START" TAMA_BROKER="$BROKER" TAMA_INPUT="$INPUT" TAMA_BUDDY="$BUDDY" \
-  TAMA_CAP_DIR="$FRAMES" TAMA_CAP_N="$N" TAMA_CAP_STRIDE="$STRIDE" TAMA_CAP_WARMUP="$WARMUP" \
-  ./.pio/build/native_sim/program >/dev/null 2>&1 || true
+total=0
+for seg in "${SEGMENTS[@]}"; do
+  start="${seg%%:*}"; rest="${seg#*:}"
+  n="${rest%%:*}"; input="${rest#*:}"
+  dir="$(mktemp -d)"
+  TAMA_START="$start" TAMA_INPUT="$input" TAMA_AGENT="$AGENT" TAMA_MUSE="$MUSE" \
+    TAMA_CAP_DIR="$dir" TAMA_CAP_N="$n" TAMA_CAP_STRIDE="$STRIDE" TAMA_CAP_WARMUP="$WARMUP" \
+    ./.pio/build/native_sim/program >/dev/null 2>&1 || true
+  for f in "$dir"/frame_*.ppm; do
+    mv "$f" "$(printf '%s/frame_%04d.ppm' "$FRAMES" "$total")"
+    total=$((total + 1))
+  done
+  rm -rf "$dir"
+done
 
 mkdir -p "$OUT"
 
@@ -90,4 +69,4 @@ ffmpeg -y -framerate "$FPS" -i "$FRAMES/frame_%04d.ppm" -vf "$SCALE" \
 ffmpeg -y -framerate "$FPS" -i "$FRAMES/frame_%04d.ppm" -vf "$SCALE" \
   -c:v libx264 -pix_fmt yuv420p -crf 24 -movflags +faststart "$OUT/$SCENE.mp4" >/dev/null 2>&1
 
-echo "captured $(ls "$FRAMES" | wc -l | tr -d ' ') frames -> $OUT/$SCENE.{webm,mp4}"
+echo "captured $total frames -> $OUT/$SCENE.{webm,mp4}"

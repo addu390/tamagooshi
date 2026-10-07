@@ -162,6 +162,6 @@ def test_sync_time_publishes(data_dir):
 
 def test_env_overrides_saved_transport(data_dir, monkeypatch):
     asyncio.run(put_connection(_request({"transport": "ble"})))
-    monkeypatch.setenv("TAMA_TRANSPORT", "wifi:mqtt")
+    monkeypatch.setenv("TAMA_TRANSPORT", "ble:gatt")
 
-    assert transport_spec() == "wifi:mqtt"
+    assert transport_spec() == "ble:gatt"

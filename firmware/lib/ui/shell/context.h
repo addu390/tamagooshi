@@ -8,11 +8,11 @@
 #include "hid.h"
 #include "input.h"
 #include "ir.h"
+#include "link.h"
 #include "mascots/registry.h"
 #include "mascot.h"
 #include "model.h"
 #include "telemetry.h"
-#include "transport.h"
 #include "wifi/control.h"
 
 namespace tama {
@@ -21,7 +21,6 @@ using PromptResolver = std::function<void(const Page& page, PromptOutcome outcom
 
 struct ShellContext {
   DeviceState& state;
-  PetState& pet;
   const DeviceCapabilities& caps;
   CharacterRegistry& characters;
   Character* character;
@@ -35,6 +34,7 @@ struct ShellContext {
   ITelemetry& telemetry;
   IButtonSource& buttons;
   IVoiceUplink* voice;
+  IAgent* assistant;
   IExpressionSink* expression;
   IIrTransceiver* ir;
   IIrCodeRepository* irCodes;

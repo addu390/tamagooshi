@@ -49,7 +49,7 @@ class HushScreen : public ArcadeGameScreen {
 
     const bool loud = meter_.loud();
     const Expr e = loud ? Expr::Worried : Expr::Happy;
-    player(g, ctx, static_cast<int>(x_), h_ - 32, 26, e, 0, true);
+    player(g, ctx, static_cast<int>(x_), h_ - 32, 26, e);
 
     const int len = std::min(w_, w_ * meter_.level() / (meter_.threshold() * 2));
     c.fillRect(0, h_ - 3, w_, 3, theme::kBg);

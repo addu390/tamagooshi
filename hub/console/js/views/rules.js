@@ -69,7 +69,7 @@ function alertFields(root, rule) {
     const flat = readFields(root);
     return { id: flat.id || "", title: flat.title || "", body: flat.body || "",
              when: readWhen(), severity, requires_ack: ack,
-             source: rule?.source || "hub" };
+             source: rule?.source || "rules" };
   };
 }
 
@@ -168,9 +168,8 @@ function render(data) {
 }
 
 async function load() {
-  const [rules, sources] = await Promise.all([api("GET", "/api/rules"),
-                                              api("GET", "/api/sources")]);
-  const metricKeys = [...new Set(sources.flatMap((s) => s.metrics.map((m) => m.key)))];
+  const rules = await api("GET", "/api/rules");
+  const metricKeys = [...new Set([...rules.moods, ...rules.alerts].map((r) => r.when.metric))];
   return { ...rules, metricKeys };
 }
 

@@ -193,7 +193,7 @@
 <rect class="row" x="472.0" y="604" width="436.0" height="26" rx="3"/>
 <text class="idx" x="482.0" y="621">1</text>
 <text class="id" x="500.0" y="621">claude</text>
-<text class="lbl" x="590.0" y="621">Desktop Buddy · voice</text>
+<text class="lbl" x="590.0" y="621">Claude · voice</text>
 <g class="ico" transform="translate(886.0,610) scale(0.58)"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></g>
 <rect class="row" x="472.0" y="636" width="436.0" height="26" rx="3"/>
 <text class="idx" x="482.0" y="653">2</text>

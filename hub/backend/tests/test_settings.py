@@ -13,7 +13,6 @@ def test_settings_roundtrip(tmp_path, monkeypatch):
 def test_settings_brand_used_when_env_unset(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
     monkeypatch.delenv("TAMA_BRAND", raising=False)
-    monkeypatch.delenv("TAMA_BROKER", raising=False)
     save_settings({"brand": "demo"})
     cfg = load_config()
     assert cfg.brand_id == "demo"

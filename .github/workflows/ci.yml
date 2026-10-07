@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: [m5stickc-plus, m5sticks3]
+        env: [m5sticks3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -42,10 +42,8 @@ jobs:
           path: ~/.platformio
           key: pio-${{ matrix.env }}-${{ hashFiles('firmware/platformio.ini') }}
       - run: pip install platformio
-      - run: cp firmware/include/secrets.example.h firmware/include/secrets.h
       - name: Build
         working-directory: firmware
         env:
           TAMA_BRAND: gooshi
-          TAMA_TRANSPORTS: ble:gatt,wifi:mqtt
         run: pio run -e ${{ matrix.env }}

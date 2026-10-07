@@ -24,6 +24,7 @@ struct ChannelBinding {
   ILink* link = nullptr;
   IWifiControl* wifi = nullptr;
   IVoiceUplink* voice = nullptr;
+  IAgent* assistant = nullptr;
   std::function<void(const Page&, PromptOutcome)> resolvePrompt;
 };
 

@@ -58,7 +58,7 @@ class InvadersScreen : public ArcadeGameScreen {
     const int px = static_cast<int>(playerX_);
     const int py = playerY() - (chrome ? 6 : 0);
     c.fillTriangle(px, py - 5, px - 7, py + 4, px + 7, py + 4, theme::kHi);
-    if (!chrome) player(g, ctx, px, py + 14, 18, Expr::Neutral, 0, false);
+    if (!chrome) player(g, ctx, px, py + 14, 18, Expr::Neutral);
   }
 
   Transition onAction(Intent intent, ShellContext& ctx) override {

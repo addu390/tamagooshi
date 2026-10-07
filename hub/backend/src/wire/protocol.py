@@ -3,11 +3,8 @@ from __future__ import annotations
 import json
 import os
 import time
-from typing import Literal
 
 from pydantic import BaseModel, ValidationError
-
-from ..model import Mood, Severity
 
 PROTOCOL_VERSION = 1
 
@@ -36,37 +33,10 @@ class Envelope(BaseModel):
     body: dict
 
 
-class MetricUpsert(BaseModel):
-    key: str
-    label: str
-    value: str
-    trend: str | None = None
-    kind: Literal["normal", "star"] = "normal"
-    ts: int | None = None
-
-
 class Branding(BaseModel):
     name: str
     tagline: str | None = None
     logo_id: str | None = None
-
-
-class MoodSet(BaseModel):
-    state: Mood
-    reason: str | None = None
-
-
-class PageRaise(BaseModel):
-    id: str
-    title: str
-    severity: Severity = "warning"
-    body: str | None = None
-    source: str | None = None
-    requires_ack: bool = True
-
-
-class PageRef(BaseModel):
-    id: str
 
 
 class ConfigSet(BaseModel):
@@ -79,11 +49,6 @@ class ConfigSet(BaseModel):
 class TimeSet(BaseModel):
     epoch: int
     tz_offset: int = 0
-
-
-class PageAck(BaseModel):
-    page_id: str
-    by: str = "device"
 
 
 def envelope(type_: str, body: BaseModel, src: str = "hub", now_ms: int | None = None) -> str:

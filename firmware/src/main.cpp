@@ -6,13 +6,6 @@
 
 #include "board.gen.h"
 #include "brand.gen.h"
-#if defined(TAMA_ENABLE_BUDDY)
-#include "buddy/agent/commands.h"
-#include "buddy/agent/session.h"
-#include "buddy/controller.h"
-#include "buddy/voice/controller.h"
-#include "buddy/voice/uplink.h"
-#endif
 #include "hal/identity.h"
 #include "hal/m5_buttons.h"
 #include "hal/m5_expression.h"
@@ -24,7 +17,7 @@
 #include "hal/m5_system.h"
 #include "hal/m5_telemetry.h"
 #include "hal/profile.h"
-#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+#if TAMA_NEEDS_HID
 #include "nvs/hidprofile.h"
 #endif
 #if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
@@ -41,29 +34,30 @@
 #include "json.h"
 #include "runtime.h"
 #include "channels.h"
-#include "topics.h"
 #include "ulid.h"
 
-#if defined(TAMA_ENABLE_BLE)
 #include "ble/ble.h"
-#endif
-#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+#if TAMA_NEEDS_HID
 #include "ble/hid.h"
 #endif
-#if defined(TAMA_ENABLE_BUDDY)
-#include "transport/nus.h"
-#endif
-#if defined(TAMA_PROTO_GATT)
 #include "transport/gatt.h"
-#endif
 #if defined(TAMA_ENABLE_WIFI)
 #include "nvs/networks.h"
-#include "secrets.h"
 #include "wifi/softap.h"
 #include "wifi/wifi.h"
+#if __has_include("secrets.h")
+#include "secrets.h"
 #endif
-#if defined(TAMA_PROTO_MQTT)
-#include "transport/mqtt.h"
+#endif
+#if defined(TAMA_AGENT_MUSE)
+#include "ble/setup.h"
+#include "muse/agent.h"
+#include "muse/chat.h"
+#include "muse/cloud.h"
+#include "muse/commands.h"
+#include "muse/pipeline.h"
+#include "nvs/accounts.h"
+#include "transport/noise.h"
 #endif
 
 using namespace tama;
@@ -86,7 +80,7 @@ static M5Mic g_mic;
 static PartitionConfigSource g_config;
 static NvsMetricRepository g_metrics;
 static NvsClockRepository g_clock;
-#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+#if TAMA_NEEDS_HID
 static NvsHidProfileRepository g_hidProfile;
 #else
 static NullHidProfileRepository g_hidProfile;
@@ -100,31 +94,11 @@ static StaticBoardProfile g_board(board::capabilities());
 static Runtime g_runtime(g_board.capabilities(), g_codec, g_expression, g_system, g_buttons, g_input,
                          g_sensor, g_telemetry, g_mic, g_config, g_metrics, g_hidProfile, g_clock);
 
-#if defined(TAMA_ENABLE_BLE)
 static NvsRadioStateRepository g_bleRadio(nvs::kBleRadio);
 static BleBearer g_ble(TAMA_BRAND_ID, TAMA_FW_VERSION, g_deviceId, g_bleRadio);
-#else
-static NullLink g_nullLink;
-#endif
-
-#if defined(TAMA_ENABLE_BUDDY)
-// ADPCM is 4 bits per 16 kHz sample, so one second of speech buffers as 8000 bytes.
-static size_t voiceCapacity() { return (board::capabilities().psram ? 15 : 5) * 8000; }
-
-static NusEndpoint g_nus(g_ble);
-static BuddyController g_buddyController(g_runtime.state());
-static VoiceController g_voiceController(g_runtime.state());
-static VoiceUplink g_voiceUplink(g_nus, g_runtime.state(), voiceCapacity());
-static AgentCommands g_agentCommands(g_ble, g_telemetry, g_runtime.state());
-static AgentSession g_agentSession(g_nus, g_buddyController, g_agentCommands, g_voiceController,
-                                   g_voiceUplink);
-#endif
-
-#if defined(TAMA_PROTO_GATT)
 static HubEndpoint g_hub(g_ble, TAMA_BRAND_ID, TAMA_FW_VERSION);
-#endif
 
-#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+#if TAMA_NEEDS_HID
 static HidEndpoint g_hid(TAMA_BRAND_ID, g_hidProfile);
 #endif
 
@@ -134,73 +108,64 @@ static NvsRadioStateRepository g_wifiRadio(nvs::kWifiRadio);
 static SoftApProvisioner g_wifiProvisioner(TAMA_BRAND_ID "-setup");
 static WifiBearer g_wifi(g_networks, g_wifiProvisioner, g_wifiRadio);
 #endif
-#if defined(TAMA_PROTO_MQTT)
-static const std::string g_willTopic = topics::status(g_deviceId);
-static const std::string g_willPayload = g_codec.encodeStatus(false, TAMA_FW_VERSION, "");
-static MqttTransport g_mqtt(g_wifi, TAMA_MQTT_HOST, TAMA_MQTT_PORT, g_deviceId, g_willTopic,
-                            g_willPayload);
-#endif
 
-#if defined(TAMA_PROTO_MQTT)
-static ITransport& g_hubTransport = g_mqtt;
-#elif defined(TAMA_PROTO_GATT)
-static ITransport& g_hubTransport = g_hub;
-#endif
-
-static HubPipeline g_hubPipeline(g_hubTransport, g_codec, g_runtime.router(), g_board, g_deviceId,
+static HubPipeline g_hubPipeline(g_hub, g_codec, g_runtime.router(), g_board, g_deviceId,
                                  TAMA_FW_VERSION);
 
+#if defined(TAMA_AGENT_MUSE)
+static const muse::Device g_museDevice{identity::node(), "hatch-link:" + identity::mac(),
+                                       identity::mac(), TAMA_FW_VERSION};
+static NvsAccountRepository g_accounts;
+static SetupEndpoint g_setup(g_ble, g_museDevice, identity::gadget(), TAMA_MUSE_SDK_TOKEN);
+static MuseCloud g_cloud(g_accounts, g_museDevice.node, TAMA_MUSE_SDK_TOKEN);
+static NoiseTransport g_noise(g_wifi,
+                              {g_museDevice.node, TAMA_PRODUCT_NAME, TAMA_FW_VERSION, "",
+                               muse::manifest()},
+                              [](muse::Target& target) { return g_cloud.resolve(target); });
+static MusePipeline g_musePipeline(g_noise, g_runtime.state(), g_runtime.router());
+static MuseChat g_chat(g_noise, g_runtime.state().voice);
+static MuseAgent g_muse(g_runtime.state(), g_accounts, g_wifi, g_setup, g_noise, g_chat, g_system,
+                        g_clock);
+#endif
+
 static void configureChannels() {
-  auto hubResolver = makeHubResolver(g_hubTransport, g_codec, g_deviceId);
+  auto hubResolver = makeHubResolver(g_hub, g_codec, g_deviceId);
 
   ChannelBinding binding;
-  binding.hub = {&g_hubTransport, &g_hubPipeline};
+  binding.hub = {&g_hub, &g_hubPipeline};
 
 #if defined(TAMA_ENABLE_WIFI)
   binding.wifi = &g_wifi;
 #endif
 
-#if defined(TAMA_ENABLE_BLE)
-#if defined(TAMA_PROTO_GATT)
   g_ble.add(g_hub);
-#endif
 #if TAMA_NEEDS_HID
   g_ble.add(g_hid);
 #endif
+#if defined(TAMA_AGENT_MUSE)
+  g_ble.add(g_setup);
+#endif
   binding.link = &g_ble;
-#else
-  binding.link = &g_nullLink;
+
+#if defined(TAMA_AGENT_MUSE)
+  binding.agent = {&g_noise, &g_musePipeline};
+  g_chat.onInvoke([](const std::string& id, const muse::Invoke& invoke) {
+    g_musePipeline.invoke(id, invoke);
+  });
+  binding.voice = &g_chat;
+  binding.assistant = &g_muse;
 #endif
 
-#if defined(TAMA_ENABLE_BUDDY)
-  g_ble.add(g_nus);
-  binding.agent = {&g_nus, &g_agentSession};
-  binding.voice = &g_voiceUplink;
-
-  auto agentResolver = makeAgentResolver(g_agentSession);
-  auto voiceResolver = makeVoiceResolver(g_agentSession);
-  binding.resolvePrompt = [hubResolver, agentResolver,
-                           voiceResolver](const Page& page, PromptOutcome outcome) {
-    if (page.id == "hid.reboot") {
-      if (outcome == PromptOutcome::Ack) g_system.reboot();
-      return;
-    }
-    if (page.source == "agent")
-      agentResolver(page.id, outcome);
-    else if (page.source == "voice")
-      voiceResolver(page.id, outcome);
-    else
-      hubResolver(page.id, outcome);
-  };
-#else
   binding.resolvePrompt = [hubResolver](const Page& page, PromptOutcome outcome) {
     if (page.id == "hid.reboot") {
       if (outcome == PromptOutcome::Ack) g_system.reboot();
       return;
     }
+#if defined(TAMA_AGENT_MUSE)
+    if (g_musePipeline.resolve(page, outcome) || g_muse.resolve(page, outcome)) return;
+#endif
     hubResolver(page.id, outcome);
   };
-#endif
 
   g_runtime.bind(binding);
 }
@@ -224,21 +189,24 @@ void setup() {
   configureChannels();
 
 #if defined(TAMA_ENABLE_WIFI)
+#if defined(TAMA_WIFI_SSID)
   WifiCredentials seed{TAMA_WIFI_SSID, TAMA_WIFI_PASSWORD};
   if (seed.valid() && g_networks.all().empty()) g_networks.remember(seed);
+#endif
   g_wifi.begin();
 #endif
-#if defined(TAMA_ENABLE_BLE)
   g_ble.begin();
-#endif
 
   g_runtime.begin();
+#if defined(TAMA_AGENT_MUSE)
+  g_muse.begin();
+#endif
 
 #if TAMA_APP_REMOTE && TAMA_BOARD_HAS_IR
   g_ir.begin();
   g_runtime.nav().setIr(&g_ir, &g_irCodes);
 #endif
-#if defined(TAMA_ENABLE_BLE) && TAMA_NEEDS_HID
+#if TAMA_NEEDS_HID
   g_runtime.nav().setHid(&g_hid);
 #endif
 }
@@ -248,6 +216,9 @@ void loop() {
   g_runtime.loop(millis());
 #if defined(TAMA_ENABLE_WIFI)
   g_wifi.loop();
+#endif
+#if defined(TAMA_AGENT_MUSE)
+  g_muse.loop(millis());
 #endif
   delay(5);
 }

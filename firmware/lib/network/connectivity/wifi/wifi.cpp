@@ -3,6 +3,8 @@
 
 #include <WiFi.h>
 
+#include <algorithm>
+
 namespace tama {
 
 namespace {
@@ -15,12 +17,7 @@ WifiBearer::WifiBearer(INetworkRepository& networks, IProvisioner& provisioner,
     : networks_(networks), provisioner_(provisioner), state_(state) {}
 
 void WifiBearer::begin() {
-  provisioner_.onCredentials([this](const WifiCredentials& creds) {
-    networks_.remember(creds);
-    provisioner_.stop();
-    provisioning_ = false;
-    connect(creds);
-  });
+  provisioner_.onCredentials([this](const WifiCredentials& creds) { join(creds); });
 
   enabled_ = loadEnabled();
   if (enabled_) start();
@@ -119,6 +116,25 @@ void WifiBearer::select(const std::string& ssid) {
   provisioning_ = false;
   provisioner_.stop();
   connect(target);
+}
+
+void WifiBearer::join(const WifiCredentials& creds) {
+  if (!creds.valid()) return;
+  networks_.remember(creds);
+  select(creds.ssid);
+}
+
+std::vector<std::string> WifiBearer::scan() {
+  if (WiFi.getMode() == WIFI_OFF) WiFi.mode(WIFI_STA);
+  std::vector<std::string> ssids;
+  const int found = WiFi.scanNetworks();
+  for (int i = 0; i < found; ++i) {
+    const std::string ssid = WiFi.SSID(i).c_str();
+    if (!ssid.empty() && std::find(ssids.begin(), ssids.end(), ssid) == ssids.end())
+      ssids.push_back(ssid);
+  }
+  WiFi.scanDelete();
+  return ssids;
 }
 
 void WifiBearer::forget(const std::string& ssid) {

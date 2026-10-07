@@ -1,7 +1,6 @@
 #include "mascot.h"
 
 #include "device.h"
-#include "pet.h"
 
 namespace tama {
 
@@ -27,18 +26,6 @@ const char* moodToString(Mood m) {
   }
 }
 
-const char* moodFace(Mood m) {
-  switch (m) {
-    case Mood::Happy: return "( ^_^ )";
-    case Mood::Neutral: return "( -_- )";
-    case Mood::Sick: return "( x_x )";
-    case Mood::Panic: return "(>_<)!";
-    case Mood::Celebrate: return "\\(^o^)/";
-    case Mood::Sleepy: return "( u_u )";
-    default: return "( ?_? )";
-  }
-}
-
 ExpressionKind expressionKindFromString(const std::string& s) {
   if (s == "chirp") return ExpressionKind::Chirp;
   if (s == "celebrate") return ExpressionKind::Celebrate;
@@ -47,18 +34,6 @@ ExpressionKind expressionKindFromString(const std::string& s) {
   if (s == "tick") return ExpressionKind::Tick;
   if (s == "warn") return ExpressionKind::Warn;
   return ExpressionKind::Unknown;
-}
-
-const char* expressionKindToString(ExpressionKind k) {
-  switch (k) {
-    case ExpressionKind::Chirp: return "chirp";
-    case ExpressionKind::Celebrate: return "celebrate";
-    case ExpressionKind::Haptic: return "haptic";
-    case ExpressionKind::Blink: return "blink";
-    case ExpressionKind::Tick: return "tick";
-    case ExpressionKind::Warn: return "warn";
-    default: return "unknown";
-  }
 }
 
 Expr exprFromMood(Mood m) {
@@ -71,13 +46,6 @@ Expr exprFromMood(Mood m) {
     case Mood::Neutral: return Expr::Neutral;
     default: return Expr::Neutral;
   }
-}
-
-Expr exprFromPet(const PetState& pet) {
-  if (pet.care < 22 || pet.energy < 18) return Expr::Worried;
-  if (pet.energy < 38) return Expr::Sleepy;
-  if (pet.bond > 68 && pet.care > 58) return Expr::Happy;
-  return Expr::Neutral;
 }
 
 MascotState deriveMascot(const DeviceState& state, bool promptActive) {

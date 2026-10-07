@@ -7,7 +7,7 @@
 
 <p align="left"><a href="https://gooshi.me/">Docs</a> · <a href="https://gooshi.me/#config">Configure</a> · <a href="https://gooshi.me/#build">Flash from the browser</a></p>
 
-<p align="left">Pixel-art pet for M5Stack StickC Plus and StickS3 that turns live metrics into its mood. Local hub feeds readings from metric sources such as Datadog and PostHog over BLE/MQTT. <code>config.yaml</code> selects the mascot, themes, games, and more that ship in the firmware. Follows sessions from coding agents such as Claude and Cursor, down to approving or denying their requests from the device.</p>
+<p align="left">Pixel-art pet for M5Stack StickS3 that turns live metrics into its mood. Local hub manages brands, mood and alert rules, and flashing over BLE. <code>config.yaml</code> selects the mascot, themes, games, and more that ship in the firmware. Muse agents connect directly over Wi-Fi to post metrics, set the mood, and raise alerts.</p>
 
 <p align="left">
   <picture>
@@ -51,11 +51,11 @@ make sim        # desktop simulator, no board needed
   </picture>
 </p>
 
-M5Stack StickC Plus, StickC Plus SE, and StickS3. Flash from the browser via the [docs](https://gooshi.me/#build), or locally:
+M5Stack StickS3. Flash from the browser via the [docs](https://gooshi.me/#build), or locally:
 
 ```bash
 cd firmware
-TAMA_BRAND=<id> pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-plus-se
+TAMA_BRAND=<id> pio run -e m5sticks3 -t upload
 ```
 
 `<id>` is a folder under `brands/`, its `config.yaml` defines what the build includes.
@@ -77,7 +77,7 @@ TAMA_BRAND=<id> pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-pl
 Runs on the machine and communicates with the device over BLE. `TAMA_BRAND` selects the brand config.
 
 ```bash
-pip install -e "hub/backend[voice,claude,cursor]"   # once, Python 3.10+, extras optional
+pip install -e hub/backend        # once, Python 3.10+
 make hub TAMA_BRAND=<id>          # pairs with your device over BLE
 make hub-test                     # hub unit tests
 ```
@@ -96,7 +96,7 @@ make hub-test                     # hub unit tests
   </picture>
 </p>
 
-Apps and games ship in firmware (`device.apps`, `device.games`). Claude Desktop Buddy and Cursor both support voice conversations via the hub.
+Apps and games ship in firmware (`device.apps`, `device.games`). `device.agent: muse` enables Muse.
 
 <p align="left">
   <picture>

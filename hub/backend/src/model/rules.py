@@ -23,5 +23,5 @@ class AlertRule(BaseModel):
     severity: Severity = "warning"
     title: str
     body: str = ""
-    source: str = "hub"
+    source: str = "rules"
     requires_ack: bool = True

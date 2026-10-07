@@ -23,7 +23,6 @@ firmware/dependencies.lock
 
 build/
 build-gui/
-hub/macos/.build/
 sim/build/
 sim/build-gui/
 *.o

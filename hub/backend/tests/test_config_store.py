@@ -39,25 +39,18 @@ def test_update_rules_replaces_lists(store):
                "severity": "critical", "title": "MRR dropped"}]
     store.update_rules("demo", moods=moods, alerts=alerts)
 
-    hub = store.read_manifest("demo")["hub"]
-    assert hub["moods"] == moods
-    assert hub["alerts"] == alerts
+    device = store.read_manifest("demo")["device"]
+    assert device["moods"] == moods
+    assert device["alerts"] == alerts
 
 
 def test_update_rules_partial_leaves_other_list(store):
-    before = store.read_manifest("demo")["hub"].get("alerts") or []
+    before = store.read_manifest("demo")["device"].get("alerts") or []
     store.update_rules("demo", moods=[])
 
-    hub = store.read_manifest("demo")["hub"]
-    assert hub["moods"] == []
-    assert (hub.get("alerts") or []) == before
-
-
-def test_update_agent(store):
-    store.update_agent("demo", "claude", ["claude", "cursor"])
-
-    agent = store.read_manifest("demo")["hub"]["agent"]
-    assert agent == {"default": "claude", "enabled": ["claude", "cursor"]}
+    device = store.read_manifest("demo")["device"]
+    assert device["moods"] == []
+    assert (device.get("alerts") or []) == before
 
 
 def test_invalid_mutation_not_written(store, tmp_path):

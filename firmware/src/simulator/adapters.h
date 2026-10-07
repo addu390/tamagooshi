@@ -17,7 +17,7 @@ class SimTransport : public ITransport {
     if (connectionHandler_) connectionHandler_(true);
   }
   void loop() override {}
-  void publish(const std::string&, const std::string&, uint8_t, bool) override {}
+  void publish(const std::string&, const std::string&) override {}
   bool connected() const override { return true; }
   void onMessage(MessageHandler handler) override { messageHandler_ = std::move(handler); }
   void onConnection(ConnectionHandler handler) override { connectionHandler_ = std::move(handler); }

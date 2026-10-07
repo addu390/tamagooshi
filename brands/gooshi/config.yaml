@@ -9,6 +9,7 @@ brand:
 device:
   transports:
     ble: gatt
+  agent: muse
   theme:
     default: midnight
     enabled: all
@@ -16,23 +17,16 @@ device:
     default: dejavu
     enabled: all
   mascot:
-    default: cat
+    default: jolly
     mood: happy
     enabled: all
   games:
     enabled: all
   apps:
     enabled: all
-  buddy:
-    enabled: true
   persona:
-    name: Vindy
+    name: Birdy
     role: software engineer
     joined: 2024-03
-    avatar: vindy.png
+    avatar: birdy.png
     mascot: true
-
-hub:
-  agent:
-    default: cursor
-    enabled: [cursor, claude]

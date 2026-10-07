@@ -130,14 +130,14 @@ class TimerScreen : public AppScreen {
       case Phase::Run:
         return "PAUSE";
       case Phase::Paused:
-        return "RESUME";
+        return "PLAY";
       case Phase::Done:
         return "OK";
     }
     return "";
   }
 
-  const char* hintB() const { return phase_ == Phase::Idle ? "PRESET" : "RESET"; }
+  const char* hintB() const { return phase_ == Phase::Idle ? "TIME" : "RESET"; }
 
   AnimClock anim_;
   Phase phase_ = Phase::Idle;

@@ -10,10 +10,6 @@ function renderChrome(status) {
   $("brand-logo").textContent = name.charAt(0).toUpperCase();
   $("brand-tagline").textContent = status.brand?.tagline || "";
 
-  const mood = $("mood-chip");
-  mood.textContent = "mood: " + (status.mood || "—");
-  mood.className = "chip" + (status.mood ? " on" : "");
-
   const devices = Object.values(status.devices || {});
   const device = $("device-chip");
   device.textContent = devices.length
@@ -46,7 +42,7 @@ for (const view of views) view.init?.();
 initRouter(NAV, refresh);
 
 const events = new EventSource("/api/events");
-for (const type of ["mood", "metric", "alert.raised", "alert.cleared", "device", "link"]) {
+for (const type of ["device", "link"]) {
   events.addEventListener(type, refresh);
 }
 setInterval(refresh, 15000);

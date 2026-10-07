@@ -4,9 +4,63 @@
 #include <cctype>
 #include <string>
 
+#include "mascots/character.h"
 #include "logos.h"
 
 namespace tama::widgets {
+
+namespace {
+
+constexpr int kParticleSize = 44;
+
+void drawHeart(M5Canvas& c, int x, int y, int k) {
+  c.fillCircle(x - 2 * k, y, 2 * k, theme::kBlush);
+  c.fillCircle(x + 2 * k, y, 2 * k, theme::kBlush);
+  c.fillTriangle(x - 4 * k, y + k, x + 4 * k, y + k, x, y + 6 * k, theme::kBlush);
+}
+
+void drawBerry(M5Canvas& c, int x, int y, int k) {
+  const uint16_t body = 0xC206;
+  const uint16_t leaf = 0x4BC6;
+  const uint16_t seed = 0xEF14;
+  c.fillCircle(x - k, y, 2 * k, body);
+  c.fillCircle(x + k, y, 2 * k, body);
+  c.fillTriangle(x - 3 * k, y, x + 3 * k, y, x, y + 4 * k, body);
+  c.fillRect(x - 2 * k, y - 3 * k, 5 * k, k, leaf);
+  c.fillRect(x, y - 4 * k, k, k, leaf);
+  c.fillRect(x - k, y, k / 2 + 1, k / 2 + 1, seed);
+  c.fillRect(x + k, y + k, k / 2 + 1, k / 2 + 1, seed);
+}
+
+void drawStar(M5Canvas& c, int x, int y, int k) {
+  const uint16_t col = 0xFEE0;
+  c.fillTriangle(x, y - 5 * k, x - 2 * k, y, x + 2 * k, y, col);
+  c.fillTriangle(x, y + 5 * k, x - 2 * k, y, x + 2 * k, y, col);
+  c.fillTriangle(x - 5 * k, y, x, y - 2 * k, x, y + 2 * k, col);
+  c.fillTriangle(x + 5 * k, y, x, y - 2 * k, x, y + 2 * k, col);
+}
+
+}  // namespace
+
+void pet(Gfx& g, Character* character, const Pet& pet, MascotState mascot, int x, int y, int size,
+         int wanderPx, uint32_t nowMs) {
+  const bool reacting = pet.reacting(nowMs);
+  if (character) {
+    if (reacting) mascot.expr = pet.reactExpr();
+    mascot.wanderPx = reacting ? 0 : wanderPx;
+    character->draw(g, x, y, size, mascot, nowMs);
+  }
+  const int k = std::max(1, size / kParticleSize);
+  for (const auto& p : pet.particles()) {
+    const int px = x + static_cast<int>(p.x * size / kParticleSize);
+    const int py = y + static_cast<int>(p.y * size / kParticleSize);
+    switch (p.kind) {
+      case Fx::Heart: drawHeart(g.c(), px, py, k); break;
+      case Fx::Berry: drawBerry(g.c(), px, py, k + 2); break;
+      case Fx::Star: drawStar(g.c(), px, py, k + 1); break;
+    }
+  }
+}
 
 std::string upper(const char* s) {
   std::string out(s ? s : "");
@@ -95,11 +149,7 @@ int drawBattery(Gfx& g, int rightX, const DeviceState& state) {
 int drawLink(Gfx& g, int rightX, bool connected) {
   const int w = 9, x = rightX - w;
   const uint16_t col = connected ? theme::kFg : theme::kDim;
-#if defined(TAMA_ENABLE_WIFI) && !defined(TAMA_ENABLE_BLE)
-  wifiIcon(g, x, 2, 11, col);
-#else
   bluetoothIcon(g, x, 2, 11, col);
-#endif
   return x;
 }
 
@@ -124,7 +174,7 @@ void wifiIcon(Gfx& g, int x, int y, int h, uint16_t col) {
   c.drawArc(cx, base, 2 * h / 3, 2 * h / 3, 210, 330, col);
 }
 
-void statusbar(Gfx& g, const DeviceState& state, bool showBrand) {
+void statusbar(Gfx& g, const DeviceState& state) {
   const int battLeft = drawBattery(g, g.w() - 4, state);
   const int linkLeft = drawLink(g, battLeft - 6, state.connected);
   int rightEdge = linkLeft;
@@ -133,7 +183,7 @@ void statusbar(Gfx& g, const DeviceState& state, bool showBrand) {
     rightEdge = linkLeft - 12;
   }
 
-  const std::string& label = showBrand ? state.branding.name : state.branding.persona_name;
+  const std::string& label = state.branding.name;
   if (!label.empty()) {
     const int maxW = rightEdge - 10;
     g.str(label.c_str(), 4, 2, theme::kFg,
@@ -144,8 +194,8 @@ void statusbar(Gfx& g, const DeviceState& state, bool showBrand) {
   g.c().drawFastHLine(0, 20, g.w(), theme::kDim);
 }
 
-Layout frame(Gfx& g, const DeviceState& state, const char* section, bool showBrand) {
-  statusbar(g, state, showBrand);
+Layout frame(Gfx& g, const DeviceState& state, const char* section) {
+  statusbar(g, state);
   if (section) sectionLabel(g, section);
   return layout(g);
 }
@@ -195,34 +245,38 @@ void brandLockup(Gfx& g, const Branding& brand, int cx, int cy, int maxWidth, in
   c.setTextSize(1.0f);
 }
 
-int wrapText(Gfx& g, const char* text, int cx, int y, int maxWidth, const lgfx::IFont* font,
-             uint16_t color, int lineH, int maxY) {
-  const std::string s(text);
+std::vector<std::string> wrap(Gfx& g, const std::string& text, int maxWidth,
+                              const lgfx::IFont* font) {
+  std::vector<std::string> lines;
   std::string line;
-  int cy = y;
   size_t start = 0;
-  const auto lastLine = [&](int nextY) { return maxY > 0 && nextY + lineH > maxY; };
-  while (start <= s.size()) {
-    const size_t sp = s.find(' ', start);
-    const std::string word = s.substr(start, sp == std::string::npos ? sp : sp - start);
+  while (start <= text.size()) {
+    const size_t sp = text.find(' ', start);
+    const std::string word = text.substr(start, sp == std::string::npos ? sp : sp - start);
     const std::string cand = line.empty() ? word : line + " " + word;
     if (line.empty() || g.textWidth(cand.c_str(), font) <= maxWidth) {
       line = cand;
     } else {
-      if (lastLine(cy)) {
-        g.str((line + "...").c_str(), cx, cy, color, font, textdatum_t::top_center);
-        return cy + lineH;
-      }
-      g.str(line.c_str(), cx, cy, color, font, textdatum_t::top_center);
-      cy += lineH;
+      lines.push_back(line);
       line = word;
     }
     if (sp == std::string::npos) break;
     start = sp + 1;
   }
-  if (!line.empty()) {
-    g.str(line.c_str(), cx, cy, color, font, textdatum_t::top_center);
+  if (!line.empty()) lines.push_back(line);
+  return lines;
+}
+
+int wrapText(Gfx& g, const char* text, int cx, int y, int maxWidth, const lgfx::IFont* font,
+             uint16_t color, int lineH, int maxY) {
+  const std::vector<std::string> lines = wrap(g, text, maxWidth, font);
+  int cy = y;
+  for (size_t i = 0; i < lines.size(); ++i) {
+    const bool clipped = maxY > 0 && i + 1 < lines.size() && cy + lineH > maxY;
+    g.str(clipped ? (lines[i] + "...").c_str() : lines[i].c_str(), cx, cy, color, font,
+          textdatum_t::top_center);
     cy += lineH;
+    if (clipped) break;
   }
   return cy;
 }
@@ -449,10 +503,6 @@ void statBarAt(Gfx& g, int x, int y, int width, const char* label, int pct,
     c.drawRect(bx, by, bw, s.barH, theme::kDim);
     c.fillRect(bx + 1, by + 1, fillW, s.barH - 2, fill);
   }
-}
-
-void statBar(Gfx& g, int y, const char* label, int pct) {
-  statBarAt(g, 8, y, g.w() - 16, label, pct);
 }
 
 void dots(Gfx& g, int cx, int y, int count, int active) {

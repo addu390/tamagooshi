@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "radio.h"
+#include "wifi/credentials.h"
 
 namespace tama {
 
@@ -16,6 +17,8 @@ class IWifiControl : public IRadio {
  public:
   virtual std::vector<KnownNetwork> known() const = 0;
   virtual void select(const std::string& ssid) = 0;
+  virtual void join(const WifiCredentials& creds) = 0;
+  virtual std::vector<std::string> scan() = 0;
   virtual void forget(const std::string& ssid) = 0;
   virtual void provision() = 0;
   virtual bool provisioning() const = 0;

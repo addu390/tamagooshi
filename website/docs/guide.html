@@ -40,13 +40,13 @@ window.TAMA_PAGE = {
       <h2>Components</h2>
       <p>Broadly there are 3 main components:</p>
       <div class="confmap">
-        <span class="confmap-row plain"><code>stick</code><span>Firmware on the M5Stick. PlatformIO envs: <code>m5sticks3</code>, <code>m5stickc-plus</code>, <code>m5stickc-plus-se</code>. Flash over USB.</span></span>
-        <span class="confmap-row plain"><code>hub</code><span><code>hub/backend</code> process, <code>hub/console</code> UI. Link over BLE or MQTT (Not recommended).</span></span>
+        <span class="confmap-row plain"><code>stick</code><span>Firmware on the M5Stick. PlatformIO env <code>m5sticks3</code>. Flash over USB.</span></span>
+        <span class="confmap-row plain"><code>hub</code><span><code>hub/backend</code> process, <code>hub/console</code> UI. Link over BLE.</span></span>
         <a class="confmap-row" href="config"><code>brand</code><span><code>brands/<span data-brand-slot>&lt;id&gt;</span>/config.yaml</code>. Selected by <code>TAMA_BRAND</code>.</span><em>&rarr;</em></a>
       </div>
       <details class="doc-disclosure" open>
         <summary>System overview</summary>
-        <img class="doc-figure" src="docs/assets/images/architecture-light.svg" alt="System overview: metric sources, hub, and device" loading="lazy">
+        <img class="doc-figure" src="docs/assets/images/architecture-light.svg" alt="System overview: config, firmware, hub, and Muse" loading="lazy">
       </details>
     </section>
 
@@ -56,9 +56,9 @@ window.TAMA_PAGE = {
       <div class="confmap">
         <span class="confmap-row plain"><code>repo</code><span>Clone. Fork recommended for custom branding. Commands below run from the repo root.</span></span>
         <span class="confmap-row plain"><code>platformio</code><span><code>pip install platformio</code>. Builds and flashes <code>firmware/</code>.</span></span>
-        <span class="confmap-row plain"><code>python</code><span>Python 3.13+. Create and activate a <code>.venv</code> before hub install.</span></span>
-        <span class="confmap-row plain"><code>hub</code><span><code>pip install -e hub/backend</code>. Optional extras: <code>[voice,claude,cursor]</code>.</span></span>
-        <span class="confmap-row plain"><code>board</code><span>M5StickC Plus, Plus SE, or StickS3 (recommended). USB data cable (not charge-only).</span></span>
+        <span class="confmap-row plain"><code>python</code><span>Python 3.10+. Create and activate a <code>.venv</code> before hub install.</span></span>
+        <span class="confmap-row plain"><code>hub</code><span><code>pip install -e hub/backend</code>.</span></span>
+        <span class="confmap-row plain"><code>board</code><span>M5StickS3. USB data cable (not charge-only).</span></span>
       </div>
       <pre data-lang="bash">git clone https://github.com/addu390/tamagooshi.git  <span class="c"># or fork first, then clone your fork</span>
 cd tamagooshi
@@ -66,7 +66,7 @@ cd tamagooshi
 python3 -m venv .venv                                <span class="c"># create .venv</span>
 source .venv/bin/activate                            <span class="c"># activate it</span>
 pip install platformio                               <span class="c"># firmware builds</span>
-pip install -e "hub/backend[voice,claude,cursor]"    <span class="c"># hub (drop extras you do not need)</span></pre>
+pip install -e hub/backend                           <span class="c"># hub</span></pre>
     </section>
 
     <section class="doc" id="build">
@@ -74,7 +74,7 @@ pip install -e "hub/backend[voice,claude,cursor]"    <span class="c"># hub (drop
       <p>Compile a brand and flash the stick over USB.</p>
       <div class="confmap">
         <span class="confmap-row plain"><code>brand</code><span><code>TAMA_BRAND</code> selects <code>brands/<span data-brand-slot>&lt;id&gt;</span>/config.yaml</code>. Default <code>gooshi</code>. Prebuild writes headers into <code>firmware/.gen/current</code>.</span></span>
-        <span class="confmap-row plain"><code>env</code><span><code>m5sticks3</code> (recommended), <code>m5stickc-plus</code>, or <code>m5stickc-plus-se</code>.</span></span>
+        <span class="confmap-row plain"><code>env</code><span><code>m5sticks3</code>.</span></span>
         <span class="confmap-row plain"><code>upload</code><span>From <code>firmware/</code>: <code>pio run -e &lt;env&gt; -t upload</code>. Drop <code>-t upload</code> to compile only.</span></span>
         <span class="confmap-row plain"><code>sim</code><span>Optional. <code>make sim TAMA_BRAND=<span data-brand-slot>&lt;id&gt;</span></code> runs the same UI on the desktop first.</span></span>
       </div>
@@ -94,7 +94,7 @@ cp brands/template.yaml brands/<span data-brand-slot>&lt;id&gt;</span>/config.ya
         </div>
       </details>
       <pre data-lang="bash">cd firmware
-TAMA_BRAND=<span data-brand-slot>&lt;id&gt;</span> pio run -e m5sticks3 -t upload  <span class="c"># or -e m5stickc-plus / m5stickc-plus-se</span>
+TAMA_BRAND=<span data-brand-slot>&lt;id&gt;</span> pio run -e m5sticks3 -t upload
 pio device monitor                              <span class="c"># optional serial log</span></pre>
     </section>
 
@@ -106,29 +106,22 @@ pio device monitor                              <span class="c"># optional seria
         <span class="confmap-row plain"><code>start</code><span><code>make hub</code> from the repo root. Pairs over BLE.</span></span>
         <span class="confmap-row plain"><code>console</code><span><code>http://localhost:8000</code>. Change with <code>TAMA_HUB_PORT</code>.</span></span>
       </div>
-      <pre data-lang="bash">export CURSOR_API_KEY=...                    <span class="c"># optional, set env variables before start</span>
-make hub TAMA_BRAND=<span data-brand-slot>&lt;id&gt;</span>                     <span class="c"># BLE. Console at http://localhost:8000</span>
+      <pre data-lang="bash">make hub TAMA_BRAND=<span data-brand-slot>&lt;id&gt;</span>                     <span class="c"># BLE. Console at http://localhost:8000</span>
 <span class="c"># or prefix envs on that line, e.g. TAMA_HUB_PORT=9090 make hub ...</span></pre>
       <div class="expandable" data-collapsed>
         <div class="confmap">
           <span class="confmap-name">environment</span>
           <span class="confmap-row plain"><code>TAMA_BRAND</code><span>Brand the hub runs. Must match the stick. Default <code>gooshi</code>.</span></span>
-          <span class="confmap-row plain"><code>TAMA_TRANSPORT</code><span>Link channel. <code>make hub</code> sets <code>ble:gatt</code>. Use <code>wifi:mqtt</code> for MQTT.</span></span>
+          <span class="confmap-row plain"><code>TAMA_TRANSPORT</code><span>Link channel. <code>make hub</code> sets <code>ble:gatt</code>.</span></span>
           <span class="confmap-row plain"><code>TAMA_HUB_PORT</code><span>Console port. Default <code>8000</code>.</span></span>
-          <span class="confmap-row plain"><code>TAMA_BROKER</code><span>MQTT broker. Default <code>localhost:1883</code>.</span></span>
-          <span class="confmap-row plain"><code>TAMA_DEVICE_ID</code><span>Device id for MQTT routing.</span></span>
-          <span class="confmap-row plain"><code>DATADOG_API_KEY</code><span>With <code>DATADOG_APP_KEY</code> for a Datadog source.</span></span>
-          <span class="confmap-row plain"><code>POSTHOG_API_KEY</code><span>Personal API key for a PostHog source.</span></span>
-          <span class="confmap-row plain"><code>CURSOR_API_KEY</code><span>Required by the Cursor voice agent. Claude uses the local <code>claude</code> CLI login.</span></span>
-          <span class="confmap-row plain"><code>TAMA_AGENT_CWD</code><span>Working directory for voice agents.</span></span>
-          <span class="confmap-row plain"><code>TAMA_CURSOR_MODEL</code><span>Cursor model override. <code>TAMA_CLAUDE_MODEL</code> for Claude.</span></span>
+          <span class="confmap-row plain"><code>TAMA_DEVICE_ID</code><span>Device id.</span></span>
         </div>
         <button class="expand-btn" aria-expanded="false">Expand</button>
       </div>
       <details class="doc-disclosure">
         <summary>Docker</summary>
         <div class="doc-body">
-          <p>Broker plus hub on any OS. Console at the same URL. Use <code>TAMA_PORT</code> if 8000 is taken.</p>
+          <p>Hub in Docker. Console at the same URL. Use <code>TAMA_PORT</code> if 8000 is taken.</p>
           <pre data-lang="bash">make up
 TAMA_PORT=9090 make up</pre>
         </div>
@@ -169,7 +162,7 @@ TAMA_PORT=9090 make up</pre>
 
     <section class="doc" id="bluetooth">
       <h2>Bluetooth</h2>
-      <p>Pair the stick with the hub over BLE. Metrics and agents use this link.</p>
+      <p>Pair the stick with the hub over BLE. Brand, rules, and flashing use this link.</p>
       <div class="confmap" id="bluetooth-pair">
         <span class="confmap-name">pair</span>
         <ol class="keymap">
@@ -215,7 +208,7 @@ TAMA_PORT=9090 make up</pre>
         <div class="setup-pane" data-pane="device">
           <div class="confmap">
             <span class="confmap-row plain"><code>cable</code><span>USB data cable. Charge-only cables fail silently.</span></span>
-            <span class="confmap-row plain"><code>board</code><span>Match <code>pio</code> <code>-e</code> to the stick. <code>m5sticks3</code>, <code>m5stickc-plus</code>, or <code>m5stickc-plus-se</code>.</span></span>
+            <span class="confmap-row plain"><code>board</code><span>Match <code>pio</code> <code>-e</code> to the stick. <code>m5sticks3</code>.</span></span>
             <span class="confmap-row plain"><code>port</code><span><code>pio device list</code>. Port free. Close an open serial monitor before upload.</span></span>
             <span class="confmap-row plain"><code>brand</code><span><code>TAMA_BRAND</code> at build time selects <code>brands/&lt;id&gt;/config.yaml</code>.</span></span>
             <span class="confmap-row plain"><code>monitor</code><span><code>pio device monitor</code> after upload for boot and panic logs.</span></span>
@@ -225,7 +218,7 @@ TAMA_PORT=9090 make up</pre>
           <div class="confmap">
             <span class="confmap-row plain"><code>start</code><span><code>make hub</code> from the repo root with the venv active.</span></span>
             <span class="confmap-row plain"><code>port</code><span>Console default <code>8000</code>. Use <code>TAMA_HUB_PORT</code> or <code>TAMA_PORT</code> if taken.</span></span>
-            <span class="confmap-row plain"><code>brand</code><span>Same <code>TAMA_BRAND</code> as the flash. Mismatch shows the wrong sources and identity.</span></span>
+            <span class="confmap-row plain"><code>brand</code><span>Same <code>TAMA_BRAND</code> as the flash. Mismatch shows the wrong identity.</span></span>
             <span class="confmap-row plain"><code>scan</code><span>Empty scan. Stick advertising, host Bluetooth on, then Scan again. Forget a stale saved device in the console first.</span></span>
             <span class="confmap-row plain"><code>persona</code><span><code>device.persona</code> is baked at build. Rebuild and flash. Hub console edit alone does not change the stick.</span></span>
           </div>
@@ -237,7 +230,7 @@ TAMA_PORT=9090 make up</pre>
       <h2>Connectivity</h2>
       <p>BLE bond between hub and stick.</p>
       <div class="confmap">
-        <span class="confmap-row plain"><code>advertise</code><span>Stick Bluetooth Power ON. Name is <code>claude-&lt;brand&gt;-XXXX</code>.</span></span>
+        <span class="confmap-row plain"><code>advertise</code><span>Stick Bluetooth Power ON. Name is <code>&lt;brand&gt;-XXXX</code>.</span></span>
         <span class="confmap-row plain"><code>pair</code><span>Follow the Bluetooth <a href="#bluetooth-pair">pair</a> steps. Passkey is on the stick PASSKEY screen.</span></span>
         <span class="confmap-row plain"><code>stuck</code><span>Half-paired or declined. Use the Bluetooth <a href="#bluetooth-clean-slate">clean slate</a> steps.</span></span>
         <span class="confmap-row plain"><code>hid</code><span>After an HID mode change, reboot the stick, forget on the host, and re-pair. See <a href="#hid">HID</a>.</span></span>

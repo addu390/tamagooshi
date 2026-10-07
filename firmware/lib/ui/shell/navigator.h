@@ -6,7 +6,7 @@
 #include "context.h"
 #include "gfx.h"
 #include "intent.h"
-#include "transport.h"
+#include "link.h"
 #include "model.h"
 #include "mascots/registry.h"
 #include "screen.h"
@@ -17,7 +17,7 @@ class PromptOverlay;
 
 class Navigator {
  public:
-  Navigator(DeviceState& state, PetState& pet, const DeviceCapabilities& caps,
+  Navigator(DeviceState& state, const DeviceCapabilities& caps,
             CharacterRegistry& characters);
 
   void add(AppScreen& screen);
@@ -29,6 +29,7 @@ class Navigator {
   void setTelemetry(ITelemetry& telemetry);
   void setButtons(IButtonSource& buttons);
   void setVoice(IVoiceUplink* voice);
+  void setAssistant(IAgent* assistant);
   void setExpression(IExpressionSink& expression);
   void setIr(IIrTransceiver* ir, IIrCodeRepository* codes);
   void setHid(IHidLink* hid);
@@ -58,7 +59,6 @@ class Navigator {
   void apply(const Transition& t);
 
   DeviceState& state_;
-  PetState& pet_;
   const DeviceCapabilities& caps_;
   CharacterRegistry& characters_;
   PromptResolver resolver_;
@@ -69,6 +69,7 @@ class Navigator {
   ITelemetry* telemetry_ = nullptr;
   IButtonSource* buttons_ = nullptr;
   IVoiceUplink* voice_ = nullptr;
+  IAgent* assistant_ = nullptr;
   IExpressionSink* expression_ = nullptr;
   IIrTransceiver* ir_ = nullptr;
   IIrCodeRepository* irCodes_ = nullptr;

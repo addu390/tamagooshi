@@ -43,7 +43,7 @@ class ScreamScreen : public ArcadeGameScreen {
     drawMeter(g);
 
     const Expr e = meter_.loud() ? Expr::Happy : Expr::Neutral;
-    player(g, ctx, kHeroX, static_cast<int>(y_), 28, e, 0, false);
+    player(g, ctx, kHeroX, static_cast<int>(y_), 28, e);
   }
 
   void onReset() override {

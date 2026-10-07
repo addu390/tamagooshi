@@ -15,7 +15,6 @@ const THEMES = CATALOG.themes.map((t) => t[0]);
 const TYPEFACES = CATALOG.typefaces;
 const GAMES = CATALOG.games;
 const APPS = CATALOG.apps;
-const AGENTS = CATALOG.agents || [];
 const PACKS = CATALOG.packs;
 const BOARDS = CATALOG.boards;
 const DEFAULT_LOGO = (window.TAMA_PRESET || {}).logo || CATALOG.logo || null;
@@ -35,8 +34,6 @@ const OPS = [
   ["ne", "\u2260 not equal"],
 ];
 const SEVERITIES = ["info", "warning", "critical"];
-const KINDS = ["normal", "star"];
-const SOURCE_TYPES = ["demo", "datadog", "posthog"];
 
 const TZ = [
   "-12:00", "-11:00", "-10:00", "-09:30", "-09:00", "-08:00", "-07:00", "-06:00", "-05:00",
@@ -89,14 +86,12 @@ const state = {
 
   games: ids(GAMES),
   apps: ids(APPS),
-  buddy: true,
-  agents: ids(AGENTS),
-  agentDefault: prefer(ids(AGENTS), "cursor"),
+  muse: true,
   persona: {
-    name: "Vindy",
+    name: "Birdy",
     role: "Software Engineer",
     joined: "2024-03",
-    avatar: "vindy.png",
+    avatar: "birdy.png",
     mascot: false,
   },
 
@@ -104,7 +99,6 @@ const state = {
   linkProto: LINKS.reduce((m, [l]) => ((m[l] = protoIds(l)[0] || ""), m), {}),
 
   customThemes: [],
-  sources: [],
   moods: [],
   alerts: [],
 };
@@ -314,7 +308,6 @@ const themeIds = () => THEMES.concat(customThemeNames());
 const themeDefault = selectField("Default", () => orderBy(themeIds(), state.themes), "themeDefault");
 const typefaceDefault = selectField("Default", () => orderBy(TYPEFACES.map((t) => t[0]), state.typefaces), "typefaceDefault");
 const mascotDefault = selectField("Default", () => packMembers(), "mascotDefault", true);
-const agentDefault = selectField("Default agent", () => orderBy(AGENTS.map((a) => a[0]), state.agents), "agentDefault");
 
 function reconcile() {
   const th = orderBy(themeIds(), state.themes);
@@ -326,13 +319,9 @@ function reconcile() {
   const mm = packMembers().map((m) => m[0]);
   if (!mm.includes(state.mascotDefault)) state.mascotDefault = mm[0] || "";
 
-  const ag = orderBy(AGENTS.map((a) => a[0]), state.agents);
-  if (!ag.includes(state.agentDefault)) state.agentDefault = ag[0] || "";
-
   themeDefault._fill();
   typefaceDefault._fill();
   mascotDefault._fill();
-  agentDefault._fill();
 }
 
 const themeEnabledField = el("div", { class: "cfg-field" });
@@ -414,16 +403,16 @@ function drawCustomThemes() {
 rebuildThemeEnabled();
 drawCustomThemes();
 
-function buddyField() {
+function museField() {
   const cb = el("input", { type: "checkbox" });
-  cb.checked = state.buddy;
-  cb.addEventListener("change", () => { state.buddy = cb.checked; render(); });
+  cb.checked = state.muse;
+  cb.addEventListener("change", () => { state.muse = cb.checked; render(); });
   const row = el("div", { class: "cfg-transport" }, [
     cb,
     el("span", { class: "cfg-transport-name", text: "ENABLED" }),
-    el("small", { text: "voice prompts and agent session on the device (needs BLE)" }),
+    el("small", { text: "pairs the device with Muse" }),
   ]);
-  return el("div", { class: "cfg-field" }, [fieldLabel("Buddy"), el("div", { class: "cfg-sub" }, [row])]);
+  return el("div", { class: "cfg-field" }, [fieldLabel("Muse"), el("div", { class: "cfg-sub" }, [row])]);
 }
 
 const personaWrap = el("div", { class: "cfg-sub" });
@@ -490,63 +479,6 @@ function drawPersona() {
 }
 drawPersona();
 
-function metricRow(src, m, onRemove) {
-  const cells = [cell("key", boundInput(m, "key", "mrr")), cell("label", boundInput(m, "label", "MRR"))];
-  if (src.type === "demo") {
-    cells.push(cell("start", boundInput(m, "value_start", "0")));
-    cells.push(cell("drift", boundInput(m, "drift", "0")));
-  } else if (src.type === "datadog") {
-    cells.push(cell("query", boundInput(m, "query", "avg:system.cpu.user{*}")));
-  } else {
-    cells.push(cell("query", boundInput(m, "query", "HogQL")));
-    cells.push(cell("insight", boundInput(m, "insight", "short_id")));
-  }
-  cells.push(cell("fmt", boundInput(m, "fmt", "{v}")));
-  cells.push(cell("kind", boundSelect(m, "kind", KINDS)));
-  cells.push(delBtn(onRemove));
-  return el("div", { class: "cfg-row" }, cells);
-}
-
-function sourceCard(src, onRemove) {
-  const metricsWrap = el("div", { class: "cfg-sub" });
-  const drawMetrics = () => {
-    metricsWrap.innerHTML = "";
-    src.metrics.forEach((m) => {
-      metricsWrap.appendChild(metricRow(src, m, () => {
-        src.metrics = src.metrics.filter((x) => x !== m);
-        drawMetrics();
-        render();
-      }));
-    });
-    metricsWrap.appendChild(addBtn("metric", () => {
-      src.metrics.push({ key: "metric", label: "METRIC", fmt: "{v}", kind: "normal", value_start: "0", drift: "0", query: "", insight: "" });
-      drawMetrics();
-      render();
-    }));
-  };
-  drawMetrics();
-
-  const typeSel = singleSelect(() => SOURCE_TYPES, () => src.type,
-                               (v) => { src.type = v; drawMetrics(); rebuild(); render(); });
-  const card = el("div", { class: "cfg-card" });
-
-  const rebuild = () => {
-    card.innerHTML = "";
-
-    const hd = el("div", { class: "cfg-card-hd" }, [cell("type", typeSel), cell("interval", boundInput(src, "interval", "3.0"))]);
-    if (src.type === "datadog") { hd.appendChild(cell("site", boundInput(src, "site", "datadoghq.com"))); hd.appendChild(cell("window", boundInput(src, "window_secs", "900"))); }
-    if (src.type === "posthog") { hd.appendChild(cell("host", boundInput(src, "host", "https://us.posthog.com"))); hd.appendChild(cell("project_id", boundInput(src, "project_id", "12345"))); }
-    hd.appendChild(el("div", { class: "cfg-spacer" }));
-    hd.appendChild(delBtn(onRemove));
-
-    card.appendChild(hd);
-    card.appendChild(el("div", { class: "cfg-card-bd" }, [metricsWrap]));
-  };
-  rebuild();
-
-  return card;
-}
-
 function repeater(arrKey, makeCard, blank, addLabel) {
   const wrap = el("div", { class: "cfg-sub" });
   const draw = () => {
@@ -565,23 +497,8 @@ function repeater(arrKey, makeCard, blank, addLabel) {
   return wrap;
 }
 
-function metricKeys() {
-  const seen = [];
-  state.sources.forEach((s) => s.metrics.forEach((m) => {
-    const k = bare(m.key);
-    if (k && !seen.includes(k)) seen.push(k);
-  }));
-  return seen;
-}
-
-function metricSelect(obj) {
-  const keys = metricKeys();
-  if (keys.length && !keys.includes(obj.metric)) obj.metric = keys[0];
-  return boundSelect(obj, "metric", keys.length ? keys : [["", "(add a metric)"]]);
-}
-
 const moodRow = (md, onRemove) => el("div", { class: "cfg-row" }, [
-  cell("metric", metricSelect(md)),
+  cell("metric", boundInput(md, "metric", "build")),
   cell("op", boundSelect(md, "op", OPS)),
   cell("value", boundInput(md, "value", "95")),
   cell("mood", boundSelect(md, "mood", MOODS)),
@@ -593,7 +510,7 @@ const alertRow = (al, onRemove) => el("div", { class: "cfg-card" }, [
   el("div", { class: "cfg-card-bd" }, [
     el("div", { class: "cfg-row" }, [
       cell("id", boundInput(al, "id", "uptime-critical")),
-      cell("metric", metricSelect(al)),
+      cell("metric", boundInput(al, "metric", "build")),
       cell("op", boundSelect(al, "op", OPS)),
       cell("value", boundInput(al, "value", "95")),
       cell("severity", boundSelect(al, "severity", SEVERITIES)),
@@ -612,26 +529,6 @@ const qs = (v) => JSON.stringify(String(v == null ? "" : v));
 const num = (v) => { const s = String(v == null ? "" : v).trim(); if (s === "") return "0"; const n = Number(s); return Number.isFinite(n) ? String(n) : "0"; };
 const bare = (v) => String(v == null ? "" : v).trim();
 const flow = (pairs) => "{" + pairs.map(([k, v]) => k + ": " + v).join(", ") + "}";
-
-function metricFlow(type, m) {
-  const p = [["key", bare(m.key)], ["label", qs(m.label)]];
-  if (type === "demo") {
-    p.push(["value_start", num(m.value_start)]);
-    p.push(["fmt", qs(m.fmt)]);
-    if (m.kind === "star") p.push(["kind", "star"]);
-    p.push(["drift", num(m.drift)]);
-  } else if (type === "datadog") {
-    p.push(["query", qs(m.query)]);
-    p.push(["fmt", qs(m.fmt)]);
-    if (m.kind === "star") p.push(["kind", "star"]);
-  } else {
-    if (m.insight && !m.query) p.push(["insight", qs(m.insight)]);
-    else p.push(["query", qs(m.query)]);
-    p.push(["fmt", qs(m.fmt)]);
-    if (m.kind === "star") p.push(["kind", "star"]);
-  }
-  return flow(p);
-}
 
 const cond = (o) => "{metric: " + bare(o.metric) + ", op: " + o.op + ", value: " + num(o.value) + "}";
 const moodFlow = (md) => flow([["when", cond(md)], ["mood", md.mood], ["priority", num(md.priority)]]);
@@ -680,8 +577,7 @@ function yaml() {
   o += "    enabled: " + list(orderBy(GAMES.map((g) => g[0]), state.games)) + "\n";
   o += "  apps:\n";
   o += "    enabled: " + list(orderBy(APPS.map((a) => a[0]), state.apps)) + "\n";
-  o += "  buddy:\n";
-  o += "    enabled: " + (state.buddy ? "true" : "false") + "\n";
+  if (state.muse) o += "  agent: muse\n";
   if (state.persona) {
     const p = state.persona;
     if (bare(p.name) && bare(p.role) && bare(p.joined) && bare(p.avatar || "persona.png")) {
@@ -694,29 +590,8 @@ function yaml() {
     }
   }
   if (state.timezone.trim()) o += '  timezone: "' + state.timezone.trim() + '"\n';
-
-  const agentSection = state.buddy && state.agents.length;
-  if (agentSection || state.sources.length || state.moods.length || state.alerts.length) {
-    o += "\nhub:\n";
-    if (agentSection) {
-      o += "  agent:\n";
-      o += "    default: " + state.agentDefault + "\n";
-      o += "    enabled: " + list(orderBy(AGENTS.map((a) => a[0]), state.agents)) + "\n";
-    }
-    if (state.sources.length) {
-      o += "  sources:\n";
-      state.sources.forEach((src) => {
-        o += "    - type: " + src.type + "\n";
-        o += "      interval_secs: " + num(src.interval) + "\n";
-        if (src.type === "datadog") { o += "      site: " + qs(src.site) + "\n"; o += "      window_secs: " + num(src.window_secs) + "\n"; }
-        if (src.type === "posthog") { o += "      host: " + qs(src.host) + "\n"; o += "      project_id: " + qs(src.project_id) + "\n"; }
-        o += "      metrics:\n";
-        src.metrics.forEach((m) => { o += "        - " + metricFlow(src.type, m) + "\n"; });
-      });
-    }
-    if (state.moods.length) { o += "\n  moods:\n"; state.moods.forEach((md) => { o += "    - " + moodFlow(md) + "\n"; }); }
-    if (state.alerts.length) { o += "\n  alerts:\n"; state.alerts.forEach((al) => { o += "    - " + alertFlow(al) + "\n"; }); }
-  }
+  if (state.moods.length) { o += "  moods:\n"; state.moods.forEach((md) => { o += "    - " + moodFlow(md) + "\n"; }); }
+  if (state.alerts.length) { o += "  alerts:\n"; state.alerts.forEach((al) => { o += "    - " + alertFlow(al) + "\n"; }); }
   return o;
 }
 
@@ -727,17 +602,9 @@ const downloadBtn = el("button", { class: "btn", type: "button", text: "Download
 
 let moodsRep = null;
 let alertsRep = null;
-let lastKeys = null;
 let flashSync = null;
 
 function render() {
-  const keys = metricKeys().join("\u0001");
-  if (keys !== lastKeys) {
-    lastKeys = keys;
-    if (moodsRep && moodsRep._draw) moodsRep._draw();
-    if (alertsRep && alertsRep._draw) alertsRep._draw();
-  }
-
   out.textContent = yaml();
   outName.textContent = "brands/" + (state.id || "brand") + "/config.yaml";
   if (flashSync) flashSync();
@@ -766,11 +633,6 @@ downloadBtn.addEventListener("click", () => {
 const moodField = selectField("Mood", () => MOODS, "mood");
 const tzField = selectField("Timezone", () => [["", "None (UTC)"], ...TZ.map((t) => [t, "UTC" + t])], "timezone");
 
-const sourcesRep = repeater("sources", sourceCard, () => ({
-  type: "demo", interval: "3.0", site: "datadoghq.com", window_secs: "900",
-  host: "https://us.posthog.com", project_id: "",
-  metrics: [{ key: "metric", label: "METRIC", fmt: "{v}", kind: "normal", value_start: "0", drift: "0", query: "", insight: "" }],
-}), "source");
 moodsRep = repeater("moods", moodRow, () => ({ metric: "", op: "lt", value: "0", mood: "sick", priority: "0" }), "mood rule");
 alertsRep = repeater("alerts", alertRow, () => ({ id: "alert-id", metric: "", op: "lt", value: "0", severity: "warning", title: "Title", body: "", source: "hub" }), "alert rule");
 
@@ -815,16 +677,11 @@ const form = el("div", { class: "cfg-form" }, [
   group("Games", [el("div", { class: "cfg-field" }, [el("label", { text: "Enabled" }), multiselect(GAMES, "games")])]),
   group("Apps", [el("div", { class: "cfg-field" }, [el("label", { text: "Enabled" }), multiselect(APPS, "apps")])]),
 
-  group("Agent buddy", [
-    buddyField(),
-    agentDefault,
-    el("div", { class: "cfg-field" }, [fieldLabel("Agents"), multiselect(AGENTS, "agents", reconcile)]),
-  ]),
+  group("Muse", [museField()]),
 
   group("Persona", [personaWrap]),
 
   group("Device", [transportsField(), tzField]),
-  group("Sources & metrics", [sourcesRep]),
   group("Moods", [moodsRep]),
   group("Alerts", [alertsRep]),
 ]);
@@ -889,14 +746,14 @@ if (flashRoot) Promise.all([
     return wireBlob.encode(cfg);
   };
 
-  const image = (m) => ({ path: flasher.imageUrl(CATALOG.release, m, board()), offset: 0 });
+  const image = () => ({ path: flasher.imageUrl(CATALOG.release, board()), offset: 0 });
   const customManifest = () => {
     const m = manifest();
     return flasher.installerManifest(board().chipFamily, [
-      image(m), flasher.configPart(configBlob(m), board().configOffset),
+      image(), flasher.configPart(configBlob(m), board().configOffset),
     ]);
   };
-  const stockManifest = () => flasher.installerManifest(board().chipFamily, [image(manifest())]);
+  const stockManifest = () => flasher.installerManifest(board().chipFamily, [image()]);
 
   const customBtn = flasher.installButton("Flash my config", "btn", customManifest());
   const stockBtn = flasher.installButton("Flash defaults", "btn ghost", stockManifest());

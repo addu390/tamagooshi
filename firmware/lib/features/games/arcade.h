@@ -188,11 +188,10 @@ class ArcadeGameScreen : public AppScreen {
     if (newBest_) best_ = score_;
   }
 
-  void player(Gfx& g, ShellContext& ctx, int x, int y, int size, Expr runExpr, int liftPx = 0,
-              bool shadow = true) {
+  void player(Gfx& g, ShellContext& ctx, int x, int y, int size, Expr runExpr, int liftPx = 0) {
     if (!ctx.character) return;
     const Expr e = st_ == St::Dead ? Expr::Alert : runExpr;
-    ctx.character->draw(g, x, y, size, MascotState{e, 0, true, liftPx, shadow}, now_);
+    ctx.character->draw(g, x, y, size, MascotState{e, 0, true, liftPx, false}, now_);
   }
 
   void cue(ShellContext& ctx, ExpressionKind kind) { tama::cue(ctx, kind); }

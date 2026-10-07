@@ -1,8 +1,6 @@
 const SEVERITY = { warn: "warn", warning: "warn", crit: "crit", critical: "crit" };
 const OP = { lt: "<", lte: "≤", gt: ">", gte: "≥", eq: "=", ne: "≠" };
 
-export const TREND_ARROW = { up: "▲", down: "▼", flat: "—" };
-
 export function severityClass(s) {
   return SEVERITY[String(s || "").toLowerCase()] || "warn";
 }

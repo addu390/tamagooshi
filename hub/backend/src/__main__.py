@@ -2,21 +2,11 @@ from __future__ import annotations
 
 import logging
 import os
-import signal
-import threading
-import time
 
 import uvicorn
 
 from src.api import lifecycle
 from src.app import create_app
-
-
-def _watch_parent() -> None:
-    parent = os.getppid()
-    while os.getppid() == parent:
-        time.sleep(2)
-    os.kill(os.getpid(), signal.SIGTERM)
 
 
 def _serve_once() -> None:
@@ -40,8 +30,6 @@ def main() -> None:
         level=os.environ.get("TAMA_LOG_LEVEL", "INFO"),
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
-    if os.environ.get("TAMA_PARENT_WATCH") == "1":
-        threading.Thread(target=_watch_parent, daemon=True).start()
     while True:
         _serve_once()
         if not lifecycle.restart.consume():

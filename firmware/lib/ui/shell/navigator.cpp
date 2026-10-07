@@ -3,7 +3,7 @@
 #include <cstring>
 #include <utility>
 
-#include "prompt_overlay.h"
+#include "prompt.h"
 #include "telemetry.h"
 
 namespace tama {
@@ -13,10 +13,9 @@ NullLink g_nullLink;
 NullTelemetry g_nullTelemetry;
 }
 
-Navigator::Navigator(DeviceState& state, PetState& pet, const DeviceCapabilities& caps,
+Navigator::Navigator(DeviceState& state, const DeviceCapabilities& caps,
                      CharacterRegistry& characters)
     : state_(state),
-      pet_(pet),
       caps_(caps),
       characters_(characters),
       link_(&g_nullLink),
@@ -39,6 +38,8 @@ void Navigator::setTelemetry(ITelemetry& telemetry) { telemetry_ = &telemetry; }
 void Navigator::setButtons(IButtonSource& buttons) { buttons_ = &buttons; }
 
 void Navigator::setVoice(IVoiceUplink* voice) { voice_ = voice; }
+
+void Navigator::setAssistant(IAgent* assistant) { assistant_ = assistant; }
 
 void Navigator::setExpression(IExpressionSink& expression) { expression_ = &expression; }
 
@@ -64,7 +65,6 @@ AppScreen* Navigator::top() const { return stack_.empty() ? nullptr : stack_.bac
 
 ShellContext Navigator::ctx() {
   return ShellContext{state_,
-                      pet_,
                       caps_,
                       characters_,
                       characters_.getOrDefault(state_.character_id),
@@ -78,6 +78,7 @@ ShellContext Navigator::ctx() {
                       *telemetry_,
                       *buttons_,
                       voice_,
+                      assistant_,
                       expression_,
                       ir_,
                       irCodes_,
@@ -248,7 +249,6 @@ ExpressionState Navigator::expressionState() const {
       s.bed = ExpressionBed::Soft;
       break;
     case VoicePhase::Sending:
-    case VoicePhase::Confirming:
     case VoicePhase::Thinking:
       s.bed = ExpressionBed::Pulse;
       break;

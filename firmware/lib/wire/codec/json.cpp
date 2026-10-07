@@ -58,6 +58,7 @@ bool ArduinoJsonCodec::parseMetric(const std::string& body, Metric& out) const {
   out.trend = str(doc[fields::kTrend]);
   out.kind = metricKindFromString(str(doc[fields::kKind]));
   out.ts = doc[fields::kTs] | 0;
+  if (doc[fields::kRaw].is<double>()) out.raw = doc[fields::kRaw].as<double>();
   return !out.key.empty() && !out.label.empty();
 }
 

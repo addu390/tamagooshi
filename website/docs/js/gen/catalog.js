@@ -3,20 +3,6 @@ export default {
   "release": "https://gooshi.me/firmware/",
   "boards": [
     {
-      "id": "m5stickc-plus",
-      "name": "M5StickC Plus",
-      "chipFamily": "ESP32",
-      "asset": "m5stickcplus",
-      "configOffset": 3211264
-    },
-    {
-      "id": "m5stickc-plus-se",
-      "name": "M5StickC Plus SE",
-      "chipFamily": "ESP32",
-      "asset": "m5stickcplusse",
-      "configOffset": 3211264
-    },
-    {
       "id": "m5sticks3",
       "name": "M5StickS3",
       "chipFamily": "ESP32-S3",
@@ -206,16 +192,10 @@ export default {
     [
       "alarm",
       "Wake at a set time"
-    ]
-  ],
-  "agents": [
-    [
-      "cursor",
-      "Cursor agent via cursor-sdk"
     ],
     [
-      "claude",
-      "Claude agent via claude-agent-sdk"
+      "talk",
+      "Push-to-talk with Muse"
     ]
   ],
   "packs": {
@@ -266,6 +246,12 @@ export default {
         "clawd",
         "clawd"
       ]
+    ],
+    "muse": [
+      [
+        "jolly",
+        "jolly"
+      ]
     ]
   },
   "transports": {
@@ -273,10 +259,6 @@ export default {
       [
         "ble",
         "Bluetooth LE, always on"
-      ],
-      [
-        "wifi",
-        "Wi-Fi"
       ]
     ],
     "protocols": {
@@ -284,12 +266,6 @@ export default {
         [
           "gatt",
           "GATT (native)"
-        ]
-      ],
-      "wifi": [
-        [
-          "mqtt",
-          "MQTT"
         ]
       ]
     }

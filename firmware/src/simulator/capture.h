@@ -8,14 +8,13 @@
 
 namespace tama {
 class Runtime;
-class AgentSession;
 }  // namespace tama
 
 namespace tama::sim {
 
 class CaptureHarness {
  public:
-  explicit CaptureHarness(Runtime& runtime, AgentSession* session = nullptr);
+  explicit CaptureHarness(Runtime& runtime);
 
   void init();
   void beforeFrame(uint32_t nowMs);
@@ -27,21 +26,24 @@ class CaptureHarness {
     Intent intent;
     bool fired;
   };
-  struct BuddyStep {
+
+  // Scripted Muse command: what the pipeline would apply for publish, mood or say.
+  struct MuseStep {
     uint32_t at;
-    std::string json;
+    std::string action;
+    std::vector<std::string> args;
     bool fired;
   };
 
   void parseScript(const std::string& spec);
-  void loadBuddyArc(const std::string& mode);
+  void parseMuse(const std::string& spec);
+  void applyMuse(const MuseStep& step);
   void writePPM(const char* path) const;
 
   Runtime& runtime_;
-  AgentSession* session_;
 
   std::vector<ScriptStep> script_;
-  std::vector<BuddyStep> buddy_;
+  std::vector<MuseStep> muse_;
 
   std::string capDir_;
   int warmup_ = 24;
