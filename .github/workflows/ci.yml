@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: [m5stickc-plus, m5sticks3]
+        env: [m5sticks3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

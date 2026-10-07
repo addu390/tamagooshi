@@ -1,6 +1,5 @@
-import os
-
 import json
+import os
 
 from gen import registry
 from gen.emit.blob import rules as device_rules

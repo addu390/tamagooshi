@@ -1,11 +1,11 @@
 import pytest
+from pydantic import ValidationError
 from src.config import (
     BrandNotFound,
     default_catalog,
     hub_config_from_manifest,
     load_config,
 )
-from pydantic import ValidationError
 
 
 def test_gooshi_manifest_maps_to_hub_config():

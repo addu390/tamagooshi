@@ -35,7 +35,7 @@ body:
     attributes:
       label: Board
       description: Skip if hub-only.
-      placeholder: m5sticks3 / m5stickc-plus / m5stickc-plus-se
+      placeholder: m5sticks3
   - type: input
     id: brand
     attributes:

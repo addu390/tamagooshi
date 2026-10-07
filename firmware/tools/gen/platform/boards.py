@@ -4,36 +4,6 @@ SCREEN_H = 240
 RELEASE_BASE = "https://gooshi.me/firmware/"
 
 BOARDS = {
-    "m5stickc-plus": {
-        "name": "M5StickC Plus",
-        "m5_board": "board_M5StickCPlus",
-        "led_pin": 10,
-        "ir_tx_pin": 9,
-        "ir_rx_pin": -1,
-        "chip_family": "ESP32",
-        "chip": "esp32",
-        "flash_size": "4MB",
-        "boot_offset": "0x1000",
-        "config_offset": 0x310000,
-        "caps": {"buttons": 2, "led": "single", "buzzer": True, "speaker": False,
-                 "mic": True, "imu": True, "joystick": False, "haptics": False,
-                 "wearable": True, "psram": False},
-    },
-    "m5stickc-plus-se": {
-        "name": "M5StickC Plus SE",
-        "m5_board": "board_M5StickCPlus",
-        "led_pin": 10,
-        "ir_tx_pin": 9,
-        "ir_rx_pin": -1,
-        "chip_family": "ESP32",
-        "chip": "esp32",
-        "flash_size": "4MB",
-        "boot_offset": "0x1000",
-        "config_offset": 0x310000,
-        "caps": {"buttons": 2, "led": "single", "buzzer": True, "speaker": False,
-                 "mic": True, "imu": False, "joystick": False, "haptics": False,
-                 "wearable": True, "psram": False},
-    },
     "m5sticks3": {
         "name": "M5StickS3",
         "m5_board": "board_M5StickS3",
