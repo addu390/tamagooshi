@@ -1,12 +1,11 @@
 # Firmware
 
-Firmware for the M5Stick family (`m5stickc-plus`, `m5stickc-plus-se`, `m5sticks3`) plus an SDL simulator that runs the same app-shell on your Mac. Default build is a BLE peripheral that pairs with the local agent. MQTT over Wi-Fi is optional. One entry in `tools/gen/platform/boards.py` describes each board; capabilities gate features (e.g. the SE has no IMU, so tilt games hide themselves).
+Firmware for the M5StickS3 (`m5sticks3`) plus an SDL simulator that runs the same app-shell on your Mac. Default build is a BLE peripheral that pairs with the local agent. MQTT over Wi-Fi is optional. `tools/gen/platform/boards.py` describes the board; capabilities gate features.
 
 ## Simulator
 
 ```bash
 make sim TAMA_BRAND=demo
-make sim-live   # against a broker
 ```
 
 Keys: Enter/Space is SELECT, arrows are NEXT/PREV, Backspace is BACK, H is HOME.
@@ -16,13 +15,13 @@ Keys: Enter/Space is SELECT, arrows are NEXT/PREV, Backspace is BACK, H is HOME.
 ## Build and flash
 
 ```bash
-pio run -e m5sticks3 -t upload   # or m5stickc-plus, m5stickc-plus-se
+pio run -e m5sticks3 -t upload
 pio device monitor
 ```
 
 Device id comes from the MAC. It advertises as `<brand>-XXXX` and shows a passkey on LINK. FORGET on that screen clears the bond.
 
-Transports are `link: protocol` pairs (`ble: gatt` is the base; add `wifi: mqtt` for a fleet) set via `device.transports` or `TAMA_TRANSPORTS=ble:gatt,wifi:mqtt`. A Wi-Fi build needs `include/secrets.h` (copy `include/secrets.example.h`).
+Transport is `ble: gatt`, set via `device.transports` or `TAMA_TRANSPORTS`. Muse builds use Wi-Fi and need `include/secrets.h` (copy `include/secrets.example.h`).
 
 ## Brands
 

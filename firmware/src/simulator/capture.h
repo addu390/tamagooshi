@@ -27,12 +27,23 @@ class CaptureHarness {
     bool fired;
   };
 
+  // Scripted Muse command: what the pipeline would apply for publish, mood or say.
+  struct MuseStep {
+    uint32_t at;
+    std::string action;
+    std::vector<std::string> args;
+    bool fired;
+  };
+
   void parseScript(const std::string& spec);
+  void parseMuse(const std::string& spec);
+  void applyMuse(const MuseStep& step);
   void writePPM(const char* path) const;
 
   Runtime& runtime_;
 
   std::vector<ScriptStep> script_;
+  std::vector<MuseStep> muse_;
 
   std::string capDir_;
   int warmup_ = 24;

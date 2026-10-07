@@ -5,7 +5,7 @@
 | Directory | What it is | Stack |
 |---|---|---|
 | `firmware/` | Device firmware and desktop simulator | PlatformIO, Arduino-ESP32, LVGL |
-| `hub/backend/` | Local hub, feeds the device over BLE or MQTT | Python 3.13, FastAPI |
+| `hub/backend/` | Local hub, talks to the device over BLE | Python 3.13, FastAPI |
 | `website/` | Site at [gooshi.me](https://gooshi.me) with browser games, built with Eleventy | Node 22 |
 | `brands/` | Brand packs consumed by the firmware generator | YAML, assets |
 
@@ -24,7 +24,7 @@ Firmware builds need `firmware/include/secrets.h`. Copy it from `secrets.example
 ```bash
 make sim        # desktop simulator, no board needed
 make hub        # hub against a flashed device over BLE
-make up         # broker + hub via docker compose
+make up         # hub via docker compose
 cd website && npm run serve   # website at localhost:8080
 ```
 
@@ -37,7 +37,7 @@ Run these before opening a PR. CI runs the same on every push and pull request.
 ```bash
 ruff check .                        # Python lint
 make hub-test                       # hub unit tests
-cd firmware && pio run -e m5sticks3 # firmware build, also m5stickc-plus
+cd firmware && pio run -e m5sticks3 # firmware build
 ```
 
 ## Commits

@@ -195,7 +195,7 @@ export default {
     ],
     [
       "talk",
-      "Push-to-talk with your agent"
+      "Push-to-talk with Muse"
     ]
   ],
   "packs": {

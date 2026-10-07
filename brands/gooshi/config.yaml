@@ -25,8 +25,8 @@ device:
   apps:
     enabled: all
   persona:
-    name: Vindy
+    name: Birdy
     role: software engineer
     joined: 2024-03
-    avatar: vindy.png
+    avatar: birdy.png
     mascot: true

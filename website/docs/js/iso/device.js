@@ -350,8 +350,7 @@ function alertScreen() {
 
 const SCREEN_BG = "#ffffff", SCREEN_INK = "#1b1d23";
 const mascotScreen = (ink) => screenChrome(PERSONA_NAME) + `<g transform="translate(0,2.5)">${pixelCells(MASCOT_ART, ink, 0.56)}</g>`;
-const brandCalls = (label, sub) => (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, label, sub, A, E)
-  + callout(anchorOf("top", SCREEN.x + 4, SCREEN.y + SCREEN.h - 4), -34, -70, "DEV NAME", "yours", A, E);
+const brandCalls = (label, sub) => (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, label, sub, A, E);
 
 const BRAND_SCREENS = [
   {
@@ -438,11 +437,12 @@ const ROBOT_HAPPY = [
   "..#.....#..",
 ];
 
-function approveDeny() {
+function alertSign() {
   const cx = SCREEN.x + SCREEN.w / 2, y = SCREEN.y + SCREEN.h * 0.48;
-  return scrText(cx, SCREEN.y + 17, "APPROVE?", 9.5, SIL, 800, "middle")
-    + `<path d="M ${cx - 26} ${y} l 5 6 l 11 -13" fill="none" style="stroke:${ACC}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>`
-    + `<path d="M ${cx + 14} ${y - 6} l 12 12 M ${cx + 26} ${y - 6} l -12 12" fill="none" stroke="${DENY}" stroke-width="2.8" stroke-linecap="round"/>`;
+  return scrText(cx, SCREEN.y + 17, "ALERT", 9.5, SIL, 800, "middle")
+    + `<path d="M ${cx} ${y - 13} l 14 24 h -28 z" fill="none" stroke="${DENY}" stroke-width="2.8" stroke-linejoin="round"/>`
+    + `<path d="M ${cx} ${y - 5} v 8" stroke="${DENY}" stroke-width="2.8" stroke-linecap="round"/>`
+    + `<circle cx="${cx}" cy="${y + 7}" r="1.6" fill="${DENY}"/>`;
 }
 
 const MIC = [
@@ -459,9 +459,9 @@ const MIC = [
   "...#####...",
 ];
 
-const AGENTS = { p: [hx, -hy + 0.9 * D, -hz], rise: -62, run: -16, label: PRESET.agentsLabel || "CLAUDE · CURSOR" };
-const agentsCall = (A, E) => callout(AGENTS.p, AGENTS.rise, AGENTS.run, AGENTS.label, PRESET.agentsSub || "your agents", A, E);
-const coworkCalls = (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, T("coworkLabel", "CO-WORK WITH AI"), "reacts live", A, E)
+const AGENTS = { p: [hx, -hy + 0.9 * D, -hz], rise: -62, run: -16, label: PRESET.agentsLabel || "MUSE" };
+const agentsCall = (A, E) => callout(AGENTS.p, AGENTS.rise, AGENTS.run, AGENTS.label, PRESET.agentsSub || "AI agent", A, E);
+const coworkCalls = (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, T("coworkLabel", "WORKS WITH MUSE"), "reacts live", A, E)
   + agentsCall(A, E);
 
 function workingDots() {
@@ -475,20 +475,20 @@ function workingDots() {
 const AI_MASCOT = PRESET.aiMascotArt || ROBOT_HAPPY;
 const AI_SCREENS = [
   {
-    caption: T("coworkCaption", "Co-work with AI: it reacts live"),
+    caption: T("coworkCaption", "Jolly reacts as Muse works"),
     screen: () => `<g transform="translate(0,-3)">${pixelCells(AI_MASCOT, SCREEN_INK, 0.66)}</g>` + workingDots(),
     calls: coworkCalls,
   },
   {
-    caption: "Hold to talk: voice prompts straight to your agent",
+    caption: "Voice prompts to Muse",
     screen: () => pixelCells(MIC, SCREEN_INK, 0.74),
     calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "HOLD TO TALK", "voice prompts", A, E)
       + agentsCall(A, E),
   },
   {
-    caption: "You approve or deny every action",
-    screen: () => approveDeny(),
-    calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h * 0.48), 84, -22, "APPROVE OR DENY", "you decide", A, E)
+    caption: "Muse alerts on the device",
+    screen: () => alertSign(),
+    calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h * 0.48), 84, -22, "ALERTS", "from Muse", A, E)
       + agentsCall(A, E),
   },
 ];
@@ -699,7 +699,7 @@ const MODES = {
   device: { yaw: DEFAULT_YAW, pitch: DEFAULT_PITCH, free: true, caption: "Drag to rotate the ESP32 handheld" },
   brand: { yaw: -30, pitch: 34, highlight: "brand", caption: T("brandModeCaption", "Your brand on every surface: logo, name, theme.") },
   games: { yaw: -30, pitch: 34, highlight: "games", caption: "Play in the browser or on the device." },
-  ai: { yaw: -30, pitch: 34, highlight: "ai", caption: PRESET.aiCaption || "Co-work with Claude and Cursor." },
+  ai: { yaw: -30, pitch: 34, highlight: "ai", caption: PRESET.aiCaption || "Works with Muse." },
 };
 
 const GROUPS = [

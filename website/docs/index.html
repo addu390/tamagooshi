@@ -33,10 +33,9 @@ window.TAMA_PAGE = {
         <div class="hero-copy">
           <span class="eyebrow">Open source · ESP32 · 携帯怪獣</span>
           <h1><span class="rotor" id="hero-rotor">Your mascot</span> on every desk.</h1>
-          <p class="lead">Tamagooshi is a compact gadget that stays in sync with your product: relaxed when things run smoothly, restless when they don't. Make it fully yours, from the brand on the shell to the games it plays, and pair it with Claude or Cursor to stay on top of your agents' work.</p>
+          <p class="lead">Tamagooshi is an open-source Muse gadget. Jolly shows the agent's mood, metrics, and alerts, and takes voice prompts. Brand, themes, and games are configurable.</p>
           <div class="hero-cta">
             <a class="btn" href="#config" data-key-hint="S">Get started <kbd>S</kbd></a>
-            <a class="btn ghost" href="claude">Claude edition &rarr;</a>
           </div>
         </div>
 
@@ -47,7 +46,7 @@ window.TAMA_PAGE = {
         </div>
       </div>
 
-      <div class="flow-strip">metrics <b>&rarr;</b> agent <b>&rarr;</b> BLE / MQTT <b>&rarr;</b> device <b>&rarr;</b> mood</div>
+      <div class="flow-strip">muse <b>&rarr;</b> Wi-Fi <b>&rarr;</b> device <b>&rarr;</b> mood</div>
     </div>
   </div>
 </section>
@@ -83,7 +82,7 @@ window.TAMA_PAGE = {
 
     <section class="doc" id="config">
       <h2>Configuration</h2>
-      <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>, in three groups: <code>brand</code> (identity), <code>device</code> (what ships in firmware), and <code>hub</code> (metrics and rules). Anything you leave out is simply off. A brand only bakes in the packs, games, and rules it lists, keeping the image small.</p>
+      <p>A brand is one <code>config.yaml</code> under <code>brands/&lt;id&gt;/</code>, in two groups: <code>brand</code> (identity) and <code>device</code> (what ships in firmware, the agent, and mood and alert rules). Anything left out is off. A brand only bakes in the packs, games, and rules it lists, keeping the image small.</p>
       <div class="confmap">
         <a class="confmap-row" href="builder"><code>config builder</code><span>writes the file for you, pick identity, packs and rules, then flash or download</span><em>&rarr;</em></a>
         <a class="confmap-row" href="config"><code>config reference</code><span>every section explained in depth, with live examples to poke at</span><em>&rarr;</em></a>
@@ -112,18 +111,17 @@ window.TAMA_PAGE = {
               <a class="btn" href="builder">Open the config builder</a>
             </div>
           </div>
-          <p>The flashed device still needs a hub feeding it metrics. Install it once on the machine that holds your API keys and it pairs over BLE. One pairing carries hub metrics and Claude together.</p>
+          <p>The hub pairs over BLE and manages brands, rules, and flashing.</p>
           <pre data-lang="bash">pip install -e hub/backend <span class="c"># once, Python 3.10+</span>
 make hub                   <span class="c"># pairs with your device over BLE</span></pre>
           <p>Or skip the bare install. The <a href="#build" data-setup-link="docker">Docker tab</a> runs the same hub and serves the full console in the browser.</p>
         </div>
         <div class="setup-pane" data-pane="docker" hidden>
-          <p>One command runs a broker plus the hub and serves the console, on any OS. Open it in the browser and everything is there: sources, secrets, brand editing, and flashing over the hub's USB port.</p>
+          <p>One command runs the hub and serves the console. Devices, brand, rules, and flashing over USB.</p>
           <div class="hostmock">
             <span class="hostmock-term">
               <span class="appmock-chrome dark"><i></i><i></i><i></i><b>terminal</b></span>
               <span class="hostmock-lines"><em>$ make up</em>
- &#10003; tamagooshi-broker  Started
  &#10003; tamagooshi-hub     Started</span>
             </span>
             <span class="hostmock-arrow" aria-hidden="true">&rarr;</span>
@@ -136,18 +134,17 @@ make hub                   <span class="c"># pairs with your device over BLE</sp
                   <span class="on">Devices</span>
                   <b>Configure</b>
                   <span>Brand</span>
-                  <span>Sources</span>
+                  <span>Rules</span>
                 </span>
                 <span class="appmock-main">
                   <span class="appmock-title">Devices <em>usb: /dev/ttyUSB0</em></span>
-                  <span class="appmock-row"><i class="mock-dot ok"></i>hub <em>polling</em></span>
-                  <span class="appmock-row"><i class="mock-dot"></i>M5StickC Plus <em>on USB</em></span>
+                  <span class="appmock-row"><i class="mock-dot"></i>M5StickS3 <em>on USB</em></span>
                   <span class="appmock-cta">Flash firmware</span>
                 </span>
               </span>
             </span>
           </div>
-          <pre data-lang="bash">make up                 <span class="c"># broker + hub, console on http://localhost:8000</span>
+          <pre data-lang="bash">make up                 <span class="c"># hub, console on http://localhost:8000</span>
 TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</span></pre>
         </div>
       </div>
@@ -155,10 +152,10 @@ TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</s
 
     <section class="doc" id="development">
       <h2>Development</h2>
-      <p>For working on the project itself. Nothing here is needed for the three setups above.</p>
+      <p>For working on the project itself. Nothing here is needed for the two setups above.</p>
       <details class="doc-disclosure">
         <summary>System overview</summary>
-        <img class="doc-figure" src="docs/assets/images/architecture-light.svg" alt="System overview: metric sources, hub, and device" loading="lazy">
+        <img class="doc-figure" src="docs/assets/images/architecture-light.svg" alt="System overview: config, firmware, hub, and Muse" loading="lazy">
       </details>
       <div class="confmap">
         <a class="confmap-row" href="guide"><code>detailed guide</code><span>How to use. Flash, hub, controls, Bluetooth, HID, and debug.</span><em>&rarr;</em></a>
@@ -171,29 +168,28 @@ TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</s
         </div>
         <div class="setup-pane" data-pane="sim">
           <p>The desktop simulator draws the same screen as hardware, so most work needs no board at all. It builds and runs locally from the PlatformIO project under <code>firmware/</code>.</p>
-          <pre data-lang="bash">make sim TAMA_BRAND=demo      <span class="c"># build and run the simulator, offline</span>
-make sim-live TAMA_BRAND=demo <span class="c"># run it against the Docker stack's broker</span></pre>
+          <pre data-lang="bash">make sim TAMA_BRAND=demo      <span class="c"># build and run the simulator, offline</span></pre>
         </div>
         <div class="setup-pane" data-pane="firmware" hidden>
           <p>The firmware is a PlatformIO project under <code>firmware/</code>. Set the brand, then build and flash over USB. The build regenerates that brand's headers on its own. A brand id is a folder under <code>brands/</code>, and its <code>config.yaml</code> defines what the build includes.</p>
           <h3>Build and flash locally</h3>
-          <p>The pre-built images carries everything and picks what to show at runtime. For the smallest possible image, build only what a brand config lists. Optional <code>device.persona</code> bakes a name into the status bar. Long-press <code>A</code> on home opens its about screen.</p>
-          <pre data-lang="bash">cd firmware && TAMA_BRAND=&lt;id&gt; pio run -e m5sticks3 -t upload    <span class="c"># build and flash that brand (swap the env for your board)</span>
+          <p>A build carries only what the brand config lists. Optional <code>device.persona</code> bakes a name into the status bar. Long-press <code>A</code> on home opens its about screen.</p>
+          <pre data-lang="bash">cd firmware && TAMA_BRAND=&lt;id&gt; pio run -e m5sticks3 -t upload    <span class="c"># build and flash that brand</span>
 make brand TAMA_BRAND=&lt;id&gt;                                     <span class="c"># optional: just generate headers into firmware/.gen/current</span></pre>
           <h3>Build-time environment</h3>
           <table>
             <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
             <tbody>
               <tr><td><code>TAMA_BRAND</code></td><td>Which brand config to build (default <code>gooshi</code>).</td></tr>
-              <tr><td><code>TAMA_TRANSPORTS</code></td><td>The set of <code>link:protocol</code> channels compiled into the firmware, e.g. <code>ble:gatt</code> or <code>ble:gatt,wifi:mqtt</code>. Overrides the brand's <code>device.transports</code>.</td></tr>
+              <tr><td><code>TAMA_TRANSPORTS</code></td><td>The set of <code>link:protocol</code> channels compiled into the firmware, e.g. <code>ble:gatt</code>. Overrides the brand's <code>device.transports</code>.</td></tr>
+              <tr><td><code>MUSE_SDK_TOKEN</code></td><td>Muse SDK token, from the environment or the repo <code>.env</code>. Baked into builds with <code>device.agent: muse</code>.</td></tr>
             </tbody>
           </table>
         </div>
         <div class="setup-pane" data-pane="hub" hidden>
           <p>The hub is a Python package under <code>hub/backend</code>, with the console it serves in <code>hub/console</code>. The wire format is defined once per side, in <code>hub/backend/src/wire</code> and <code>firmware/lib/wire</code>.</p>
           <p>The hub runs a brand too, so match it to what the device is flashed with. Set <code>TAMA_BRAND=&lt;id&gt;</code>, the same variable used everywhere else. It defaults to <code>gooshi</code>.</p>
-          <p>The extras are optional: <code>voice</code> pulls Whisper for transcription, <code>claude</code> and <code>cursor</code> pull the agent SDKs, <code>dev</code> pulls pytest. The base install works without them.</p>
-          <pre data-lang="bash">pip install -e "hub/backend[voice,claude,cursor]"  <span class="c"># once, Python 3.10+</span>
+          <pre data-lang="bash">pip install -e hub/backend       <span class="c"># once, Python 3.10+</span>
 make hub TAMA_BRAND=&lt;id&gt;          <span class="c"># run it bare, pairs over BLE (defaults to gooshi)</span>
 make logs                        <span class="c"># tail the Docker stack's hub logs</span>
 make hub-test                    <span class="c"># hub unit tests</span></pre>
@@ -202,14 +198,10 @@ make hub-test                    <span class="c"># hub unit tests</span></pre>
             <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
             <tbody>
               <tr><td><code>TAMA_BRAND</code></td><td>Which brand the hub runs (default <code>gooshi</code>). Match it to the device's flashed brand.</td></tr>
-              <tr><td><code>TAMA_TRANSPORT</code></td><td>The single <code>link:protocol</code> channel the hub uses to reach the device, e.g. <code>ble:gatt</code> or <code>wifi:mqtt</code>.</td></tr>
-              <tr><td><code>TAMA_BROKER</code></td><td>MQTT broker address (default <code>localhost:1883</code>).</td></tr>
-              <tr><td><code>TAMA_DEVICE_ID</code></td><td>Device identity for MQTT routing.</td></tr>
-              <tr><td><code>DATADOG_API_KEY</code> / <code>DATADOG_APP_KEY</code></td><td>Credentials for a <code>datadog</code> source.</td></tr>
-              <tr><td><code>POSTHOG_API_KEY</code></td><td>Personal API key for a <code>posthog</code> source.</td></tr>
-              <tr><td><code>CURSOR_API_KEY</code></td><td>Required by the <code>cursor</code> voice agent. The <code>claude</code> agent uses the local <code>claude</code> CLI login instead.</td></tr>
-              <tr><td><code>TAMA_AGENT_CWD</code></td><td>Directory the voice agents run in (defaults to the hub's working directory).</td></tr>
-              <tr><td><code>TAMA_CURSOR_MODEL</code> / <code>TAMA_CLAUDE_MODEL</code></td><td>Model overrides for the voice agents.</td></tr>
+              <tr><td><code>TAMA_TRANSPORT</code></td><td>The single <code>link:protocol</code> channel the hub uses to reach the device, <code>ble:gatt</code>.</td></tr>
+              <tr><td><code>TAMA_DEVICE_ID</code></td><td>Device identity.</td></tr>
+              <tr><td><code>TAMA_BLE_NAME</code> / <code>TAMA_BLE_ADDRESS</code></td><td>Device to pair with. Defaults to the saved connection.</td></tr>
+              <tr><td><code>TAMA_HUB_PORT</code></td><td>Console port (default 8000).</td></tr>
             </tbody>
           </table>
         </div>

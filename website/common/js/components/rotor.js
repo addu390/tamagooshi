@@ -3,7 +3,7 @@ export function initHeroRotor() {
   if (!rotor || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const words = ["Your mascot", "Your theme", "Your metrics", "Your alerts"];
-  const modeWords = { games: "Your arcade", ai: "Your agents" };
+  const modeWords = { games: "Your arcade", ai: "Muse" };
 
   const probe = rotor.cloneNode();
   probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;";

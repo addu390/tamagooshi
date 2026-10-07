@@ -96,7 +96,6 @@ export function featuresCard(manifest, onDirty) {
     apply(out) {
       out.games = { enabled: collectChips(device.games?.enabled, games) };
       out.apps = { enabled: collectChips(device.apps?.enabled, apps) };
-      delete out.buddy;
     },
   });
 }

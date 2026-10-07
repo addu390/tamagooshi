@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "mascot.h"
+#include "metric.h"
 #include "runtime.h"
 
 namespace tama::sim {
@@ -22,12 +24,24 @@ Intent intentFromName(const std::string& s) {
   return Intent::Select;
 }
 
+std::vector<std::string> splitFields(const std::string& s, char sep) {
+  std::vector<std::string> out;
+  size_t i = 0;
+  while (true) {
+    const size_t j = s.find(sep, i);
+    out.push_back(s.substr(i, j == std::string::npos ? j : j - i));
+    if (j == std::string::npos) return out;
+    i = j + 1;
+  }
+}
+
 }  // namespace
 
 CaptureHarness::CaptureHarness(Runtime& runtime) : runtime_(runtime) {}
 
 void CaptureHarness::init() {
   if (const char* spec = std::getenv("TAMA_INPUT")) parseScript(spec);
+  if (const char* spec = std::getenv("TAMA_MUSE")) parseMuse(spec);
   if (const char* dir = std::getenv("TAMA_CAP_DIR")) {
     capDir_ = dir;
     warmup_ = envInt("TAMA_CAP_WARMUP", 24);
@@ -41,6 +55,12 @@ void CaptureHarness::beforeFrame(uint32_t nowMs) {
     if (!step.fired && nowMs >= step.at) {
       step.fired = true;
       runtime_.nav().dispatch(step.intent);
+    }
+  }
+  for (auto& step : muse_) {
+    if (!step.fired && nowMs >= step.at) {
+      step.fired = true;
+      applyMuse(step);
     }
   }
 
@@ -78,6 +98,42 @@ void CaptureHarness::parseScript(const std::string& spec) {
     }
     if (comma == std::string::npos) break;
     i = comma + 1;
+  }
+}
+
+// TAMA_MUSE="1500:publish:build:BUILD:98%:star,3000:mood:celebrate,8500:say:ci is red"
+void CaptureHarness::parseMuse(const std::string& spec) {
+  for (const auto& tok : splitFields(spec, ',')) {
+    auto fields = splitFields(tok, ':');
+    if (fields.size() < 2) continue;
+    MuseStep step{static_cast<uint32_t>(std::atoi(fields[0].c_str())), fields[1], {}, false};
+    step.args.assign(fields.begin() + 2, fields.end());
+    muse_.push_back(std::move(step));
+  }
+}
+
+void CaptureHarness::applyMuse(const MuseStep& step) {
+  DeviceState& state = runtime_.state();
+  const auto& a = step.args;
+  if (step.action == "publish" && a.size() >= 3) {
+    Metric m;
+    m.key = a[0];
+    m.label = a[1];
+    m.value = a[2];
+    if (a.size() > 3) m.kind = metricKindFromString(a[3]);
+    state.publishMetric(m);
+  } else if (step.action == "mood" && a.size() >= 1) {
+    state.setMood(moodFromString(a[0]));
+    state.dirty = true;
+  } else if (step.action == "say" && a.size() >= 1) {
+    Page page;
+    page.id = "muse.say";
+    page.source = "muse.say";
+    page.body = a[0];
+    page.requires_ack = false;
+    page.actions[0] = {"OK", PromptOutcome::Ack};
+    page.actionCount = 1;
+    state.raisePrompt(page);
   }
 }
 

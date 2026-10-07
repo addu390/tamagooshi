@@ -21,5 +21,5 @@ APPS = {
     "battery": {"label": "BATTERY", "desc": "Battery level and charge"},
     "breath": {"label": "BREATH", "desc": "Guided breath coach"},
     "alarm": {"label": "ALARM", "desc": "Wake at a set time"},
-    "talk": {"label": "TALK", "desc": "Push-to-talk with your agent", "mic": True, "agent": True},
+    "talk": {"label": "TALK", "desc": "Push-to-talk with Muse", "mic": True, "agent": True},
 }
