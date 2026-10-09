@@ -43,24 +43,6 @@ const TZ = [
   "+13:00", "+14:00",
 ];
 
-const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const MONTH_OPTS = MONTH_LABELS.map((label, i) => [String(i + 1).padStart(2, "0"), label]);
-const JOINED_YEARS = (() => {
-  const y = new Date().getFullYear();
-  const out = [];
-  for (let i = y; i >= 2015; i--) out.push([String(i), String(i)]);
-  return out;
-})();
-const joinedNow = () => {
-  const d = new Date();
-  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-};
-const joinedParts = (joined) => {
-  const [year, month] = String(joined || joinedNow()).split("-");
-  return { year: year || String(new Date().getFullYear()), month: month || "01" };
-};
-
 const ids = (pairs) => pairs.map((p) => p[0]);
 const prefer = (list, want) => (list.includes(want) ? want : list[0] || "");
 const packMemberIds = () => Object.values(PACKS).flat().map((m) => m[0]);
@@ -89,8 +71,7 @@ const state = {
   muse: true,
   persona: {
     name: "Birdy",
-    role: "Software Engineer",
-    joined: "2024-03",
+    about: "",
     avatar: "birdy.png",
     mascot: false,
   },
@@ -422,8 +403,7 @@ function drawPersona() {
     personaWrap.appendChild(addBtn("custom persona", () => {
       state.persona = {
         name: "",
-        role: "",
-        joined: joinedNow(),
+        about: "",
         avatar: "persona.png",
         mascot: false,
       };
@@ -436,22 +416,8 @@ function drawPersona() {
   const p = state.persona;
   const field = (label, key, ph) =>
     el("div", { class: "cfg-field" }, [fieldLabel(label), boundInput(p, key, ph)]);
-  const setJoined = (part, val) => {
-    const cur = joinedParts(p.joined);
-    cur[part] = val;
-    p.joined = cur.year + "-" + cur.month;
-    render();
-  };
-  const joinedField = el("div", { class: "cfg-field" }, [
-    fieldLabel("Joined"),
-    el("div", { class: "cfg-duo" }, [
-      singleSelect(() => MONTH_OPTS, () => joinedParts(p.joined).month, (v) => setJoined("month", v)),
-      singleSelect(() => JOINED_YEARS, () => joinedParts(p.joined).year, (v) => setJoined("year", v)),
-    ]),
-  ]);
-
-  personaWrap.appendChild(duo(field("Name", "name", "your name"), field("Role", "role", "your role")));
-  personaWrap.appendChild(duo(joinedField, field("Avatar", "avatar", "persona.png")));
+  personaWrap.appendChild(duo(field("Name", "name", "your name"), field("Avatar", "avatar", "persona.png")));
+  personaWrap.appendChild(field("About", "about", "a line about you"));
 
   const mascotCb = el("input", { type: "checkbox" });
   mascotCb.checked = !!p.mascot;
@@ -580,11 +546,10 @@ function yaml() {
   if (state.muse) o += "  agent: muse\n";
   if (state.persona) {
     const p = state.persona;
-    if (bare(p.name) && bare(p.role) && bare(p.joined) && bare(p.avatar || "persona.png")) {
+    if (bare(p.name) && bare(p.avatar || "persona.png")) {
       o += "  persona:\n";
       o += "    name: " + bare(p.name) + "\n";
-      o += "    role: " + bare(p.role) + "\n";
-      o += "    joined: " + bare(p.joined) + "\n";
+      if (bare(p.about)) o += "    about: " + qs(bare(p.about)) + "\n";
       o += "    avatar: " + bare(p.avatar || "persona.png") + "\n";
       o += "    mascot: " + (p.mascot ? "true" : "false") + "\n";
     }

@@ -24,15 +24,18 @@ window.TAMA_PAGE = {
       <div class="tabbar" role="tablist" aria-label="Device highlights">
         <button class="tab" data-tab="device" role="tab">Device</button>
         <button class="tab" data-tab="brand" role="tab">Brand</button>
-        <button class="tab" data-tab="games" role="tab">Games</button>
         <button class="tab" data-tab="ai" role="tab">AI</button>
         <div class="tab-colors" role="group" aria-label="Accent color"></div>
       </div>
 
       <div class="hero-inner">
         <div class="hero-copy">
+          <video class="hero-jolly" muted playsinline preload="auto" tabindex="0" aria-label="Play Jolly, the Muse mascot">
+            <source src="docs/assets/videos/muse.webm" type="video/webm">
+            <source src="docs/assets/videos/muse.mp4" type="video/mp4">
+          </video>
           <span class="eyebrow">Open source · ESP32 · 携帯怪獣</span>
-          <h1><span class="rotor" id="hero-rotor">Your mascot</span> on the stick.</h1>
+          <h1><span class="rotor" id="hero-rotor">Your agent</span> on the stick.</h1>
           <p class="lead">Tamagooshi is an open-source Muse gadget. Jolly shows the agent's mood, metrics, and alerts, and takes voice prompts. Brand, themes, and games are configurable.</p>
           <div class="hero-cta">
             <a class="btn" href="#config" data-key-hint="S">Get started <kbd>S</kbd></a>
@@ -168,7 +171,7 @@ TAMA_PORT=9090 make up  <span class="c"># port 8000 taken? serve it elsewhere</s
         </div>
         <div class="setup-pane" data-pane="sim">
           <p>The desktop simulator draws the same screen as hardware, so most work needs no board at all. It builds and runs locally from the PlatformIO project under <code>firmware/</code>.</p>
-          <pre data-lang="bash">make sim TAMA_BRAND=demo      <span class="c"># build and run the simulator, offline</span></pre>
+          <pre data-lang="bash">make sim                      <span class="c"># build and run the simulator, offline</span></pre>
         </div>
         <div class="setup-pane" data-pane="firmware" hidden>
           <p>The firmware is a PlatformIO project under <code>firmware/</code>. Set the brand, then build and flash over USB. The build regenerates that brand's headers on its own. A brand id is a folder under <code>brands/</code>, and its <code>config.yaml</code> defines what the build includes.</p>

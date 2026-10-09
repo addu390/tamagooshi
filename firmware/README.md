@@ -5,7 +5,7 @@ Firmware for the M5StickS3 (`m5sticks3`) plus an SDL simulator that runs the sam
 ## Simulator
 
 ```bash
-make sim TAMA_BRAND=demo
+make sim
 ```
 
 Keys: Enter/Space is SELECT, arrows are NEXT/PREV, Backspace is BACK, H is HOME.
@@ -28,7 +28,7 @@ Transport is `ble: gatt`, set via `device.transports` or `TAMA_TRANSPORTS`. Muse
 `TAMA_BRAND` (default `gooshi`) selects `brands/<id>/config.yaml`. The prebuild step generates only that brand's mascots, themes, and games into `.gen/current/`.
 
 ```bash
-TAMA_BRAND=demo pio run -e m5sticks3 -t upload
+TAMA_BRAND=<id> pio run -e m5sticks3 -t upload
 ```
 
 Optional `device.persona` bakes a name into the home status bar and opens an about screen on long-press A from home.

@@ -127,10 +127,10 @@ def test_store_copy_on_write_for_builtin_brand(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
     store = BrandService(default_catalog())
 
-    store.update_identity("demo", {"tagline": "edited"})
+    store.update_identity("gooshi", {"tagline": "edited"})
 
-    user_copy = tmp_path / "brands" / "demo.yaml"
+    user_copy = tmp_path / "brands" / "gooshi.yaml"
     assert user_copy.exists()
-    data = store.read_manifest("demo")
+    data = store.read_manifest("gooshi")
     assert data["brand"]["tagline"] == "edited"
-    assert data["brand"]["id"] == "demo"
+    assert data["brand"]["id"] == "gooshi"

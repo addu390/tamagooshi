@@ -19,13 +19,20 @@ def test_gooshi_manifest_maps_to_hub_config():
     assert cfg.brand.mascot == "jolly"
 
 
-def test_demo_manifest_rules_validate():
-    manifest = default_catalog().manifest("demo")
+def test_manifest_rules_validate():
+    manifest = {
+        "brand": {"id": "acme", "name": "ACME"},
+        "device": {
+            "moods": [{"when": {"metric": "uptime", "op": "lt", "value": 95}, "mood": "panic",
+                       "priority": 20}],
+            "alerts": [{"id": "uptime-critical",
+                        "when": {"metric": "uptime", "op": "lt", "value": 95},
+                        "severity": "critical", "title": "Uptime dropping"}],
+        },
+    }
     cfg = hub_config_from_manifest(manifest)
 
-    assert cfg.brand.logo_id == "demo"
-    assert any(r["mood"] == "panic" for r in manifest["device"]["moods"])
-    assert manifest["device"]["alerts"][0]["id"] == "uptime-critical"
+    assert cfg.brand_id == "acme"
 
 
 def test_manifest_rejects_invalid_device_rule():

@@ -1,10 +1,7 @@
 brand:
-  id: gooshi
+  id: chrissy
   name: TAMAGOOSHI
-  mascot: GOOSHI
-  tagline: keep it alive
-  website: gooshi.me
-  logo: logo.png
+  mascot: JOLLY
 
 device:
   transports:
@@ -25,6 +22,6 @@ device:
   apps:
     enabled: all
   persona:
-    name: Birdy
-    avatar: birdy.png
+    name: Chrissy
+    avatar: chrissy.png
     mascot: true

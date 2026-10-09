@@ -10,52 +10,52 @@ def store(tmp_path, monkeypatch):
 
 
 def test_update_identity_sets_and_clears_fields(store):
-    store.update_identity("demo", {"name": "ACME", "tagline": "", "website": "acme.dev"})
+    store.update_identity("gooshi", {"name": "ACME", "tagline": "", "website": "acme.dev"})
 
-    brand = store.read_manifest("demo")["brand"]
-    assert brand["id"] == "demo"
+    brand = store.read_manifest("gooshi")["brand"]
+    assert brand["id"] == "gooshi"
     assert brand["name"] == "ACME"
     assert brand["website"] == "acme.dev"
     assert "tagline" not in brand
 
 
 def test_update_identity_ignores_unknown_fields(store):
-    store.update_identity("demo", {"id": "hacked", "name": "ACME"})
+    store.update_identity("gooshi", {"id": "hacked", "name": "ACME"})
 
-    assert store.read_manifest("demo")["brand"]["id"] == "demo"
+    assert store.read_manifest("gooshi")["brand"]["id"] == "gooshi"
 
 
 def test_update_device_replaces_section(store):
-    device = store.read_manifest("demo").get("device") or {}
+    device = store.read_manifest("gooshi").get("device") or {}
     device["carousel_secs"] = 42
-    store.update_device("demo", device)
+    store.update_device("gooshi", device)
 
-    assert store.read_manifest("demo")["device"]["carousel_secs"] == 42
+    assert store.read_manifest("gooshi")["device"]["carousel_secs"] == 42
 
 
 def test_update_rules_replaces_lists(store):
     moods = [{"when": {"metric": "mrr", "op": "gte", "value": 1}, "mood": "celebrate"}]
     alerts = [{"id": "a1", "when": {"metric": "mrr", "op": "lt", "value": 1},
                "severity": "critical", "title": "MRR dropped"}]
-    store.update_rules("demo", moods=moods, alerts=alerts)
+    store.update_rules("gooshi", moods=moods, alerts=alerts)
 
-    device = store.read_manifest("demo")["device"]
+    device = store.read_manifest("gooshi")["device"]
     assert device["moods"] == moods
     assert device["alerts"] == alerts
 
 
 def test_update_rules_partial_leaves_other_list(store):
-    before = store.read_manifest("demo")["device"].get("alerts") or []
-    store.update_rules("demo", moods=[])
+    before = store.read_manifest("gooshi")["device"].get("alerts") or []
+    store.update_rules("gooshi", moods=[])
 
-    device = store.read_manifest("demo")["device"]
+    device = store.read_manifest("gooshi")["device"]
     assert device["moods"] == []
     assert (device.get("alerts") or []) == before
 
 
 def test_invalid_mutation_not_written(store, tmp_path):
     with pytest.raises(ValidationError):
-        store.update_rules("demo", moods=[{"when": {"metric": "m", "op": "lt", "value": 1},
+        store.update_rules("gooshi", moods=[{"when": {"metric": "m", "op": "lt", "value": 1},
                                           "mood": "not-a-mood"}])
 
-    assert not (tmp_path / "brands" / "demo.yaml").exists()
+    assert not (tmp_path / "brands" / "gooshi.yaml").exists()

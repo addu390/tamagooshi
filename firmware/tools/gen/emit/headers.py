@@ -66,8 +66,7 @@ def emit_persona(out_dir, persona, base_dir):
         '#pragma once', '',
         '#include "mascots/persona.h"', '',
         'namespace tama::persona {', '',
-        f'inline constexpr const char* kRole = {cstr(persona["role"])};',
-        f'inline constexpr const char* kJoined = {cstr(persona["joined"])};',
+        f'inline constexpr const char* kAbout = {cstr(persona["about"])};',
         '',
         '}  // namespace tama::persona', '',
     ]))

@@ -3,25 +3,35 @@ from src.config import default_catalog, load_config
 from src.config.settings import load_settings, save_settings
 
 
+def _user_brand(tmp_path, brand_id):
+    user_brands = tmp_path / "brands"
+    user_brands.mkdir(exist_ok=True)
+    (user_brands / f"{brand_id}.yaml").write_text(
+        yaml.safe_dump({"brand": {"id": brand_id, "name": brand_id.upper()}}), encoding="utf-8"
+    )
+
+
 def test_settings_roundtrip(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
     assert load_settings() == {}
-    save_settings({"brand": "demo"})
-    assert load_settings() == {"brand": "demo"}
+    save_settings({"brand": "acme"})
+    assert load_settings() == {"brand": "acme"}
 
 
 def test_settings_brand_used_when_env_unset(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
     monkeypatch.delenv("TAMA_BRAND", raising=False)
-    save_settings({"brand": "demo"})
+    _user_brand(tmp_path, "acme")
+    save_settings({"brand": "acme"})
     cfg = load_config()
-    assert cfg.brand_id == "demo"
+    assert cfg.brand_id == "acme"
 
 
 def test_env_brand_beats_settings(tmp_path, monkeypatch):
     monkeypatch.setenv("TAMA_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("TAMA_BRAND", "gooshi")
-    save_settings({"brand": "demo"})
+    _user_brand(tmp_path, "acme")
+    save_settings({"brand": "acme"})
     cfg = load_config()
     assert cfg.brand_id == "gooshi"
 

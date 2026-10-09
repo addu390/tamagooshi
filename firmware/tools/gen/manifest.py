@@ -107,21 +107,29 @@ def select_mascots(cfg):
     return list(dict.fromkeys(ids)), list({m["id"]: m for m in customs}.values())
 
 
+PERSONA_ABOUT_MAX = 60
+
+
 def select_persona(device):
     raw = device.get("persona")
     if not raw:
         return None
-    for key in ("name", "role", "joined", "avatar"):
+    for key in ("role", "joined"):
+        if key in raw:
+            raise SystemExit(f"persona.{key} was replaced by persona.about")
+    for key in ("name", "avatar"):
         if not raw.get(key):
             raise SystemExit(f"persona.{key} is required when persona is set")
+    about = str(raw.get("about") or "")
+    if len(about) > PERSONA_ABOUT_MAX:
+        raise SystemExit(f"persona.about is longer than {PERSONA_ABOUT_MAX} characters")
     return {
         "id": "persona",
         "label": str(raw["name"]),
         "cat": "persona",
         "src": raw["avatar"],
         "name": str(raw["name"]),
-        "role": str(raw["role"]),
-        "joined": str(raw["joined"]),
+        "about": about,
         "mascot": bool(raw.get("mascot", False)),
     }
 

@@ -2,8 +2,8 @@ export function initHeroRotor() {
   const rotor = document.getElementById("hero-rotor");
   if (!rotor || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const words = ["Your mascot", "Your theme", "Your metrics", "Your alerts"];
-  const modeWords = { games: "Your arcade", ai: "Muse" };
+  const words = ["Your agent", "Your games", "Your theme", "Your mascot", "Your apps"];
+  const modeWords = { ai: "Your agent" };
 
   const probe = rotor.cloneNode();
   probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;";
@@ -31,7 +31,18 @@ export function initHeroRotor() {
   const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
   const start = () => { stop(); timer = setInterval(() => show(i + 1), 2600); };
 
-  window.addEventListener("tama:brandslide", (e) => { stop(); show(e.detail); });
+  let resumeOnRelease = false;
+  window.addEventListener("tama:hold", (e) => {
+    if (e.detail) { resumeOnRelease = timer !== null; stop(); }
+    else if (resumeOnRelease) { resumeOnRelease = false; start(); }
+  });
+
+  window.addEventListener("tama:brandslide", (e) => {
+    stop();
+    const k = words.indexOf(e.detail);
+    if (k >= 0) i = k;
+    swap(e.detail);
+  });
   window.addEventListener("tama:mode", (e) => {
     const fixed = modeWords[e.detail];
     if (e.detail === "brand") { stop(); if (i !== 0) show(0); }

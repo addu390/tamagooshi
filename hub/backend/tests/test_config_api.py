@@ -14,7 +14,7 @@ def _service():
     return BrandService(default_catalog())
 
 
-def _request(body=None, active_brand="demo"):
+def _request(body=None, active_brand="gooshi"):
     config = SimpleNamespace(brand_id=active_brand)
 
     async def json_body():
@@ -33,25 +33,25 @@ def data_dir(tmp_path, monkeypatch):
 
 def test_get_config_returns_manifest(data_dir):
     manifest = asyncio.run(get_config(_request()))
-    assert manifest["brand"]["id"] == "demo"
-    assert "moods" in manifest["device"]
+    assert manifest["brand"]["id"] == "gooshi"
+    assert "device" in manifest
 
 
 def test_put_identity_roundtrip(data_dir):
     result = asyncio.run(put_identity(_request({"name": "ACME", "tagline": "beep"})))
 
     assert result == {"restarting": True}
-    brand = _service().read_manifest("demo")["brand"]
+    brand = _service().read_manifest("gooshi")["brand"]
     assert brand["name"] == "ACME"
     assert brand["tagline"] == "beep"
 
 
 def test_put_device_roundtrip(data_dir):
-    device = _service().read_manifest("demo").get("device") or {}
+    device = _service().read_manifest("gooshi").get("device") or {}
     device["carousel_secs"] = 12
     asyncio.run(put_device(_request(device)))
 
-    assert _service().read_manifest("demo")["device"]["carousel_secs"] == 12
+    assert _service().read_manifest("gooshi")["device"]["carousel_secs"] == 12
 
 
 def test_put_device_rejects_non_object(data_dir):
@@ -65,7 +65,7 @@ def test_put_moods_roundtrip(data_dir):
               "priority": 3}]
     asyncio.run(put_moods(_request(moods)))
 
-    assert _service().read_manifest("demo")["device"]["moods"] == moods
+    assert _service().read_manifest("gooshi")["device"]["moods"] == moods
 
 
 def test_put_alerts_invalid_rule_400(data_dir):
