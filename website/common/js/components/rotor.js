@@ -2,15 +2,14 @@ export function initHeroRotor() {
   const rotor = document.getElementById("hero-rotor");
   if (!rotor || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const words = ["Your agent", "Your games", "Your theme", "Your mascot", "Your apps"];
-  const modeWords = { ai: "Your agent" };
+  const words = ["Your agents", "Your games", "Your themes", "Your mascot", "Your apps"];
 
   const probe = rotor.cloneNode();
   probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;";
   rotor.parentElement.appendChild(probe);
   const setWidth = () => {
     let max = 0;
-    words.concat(Object.values(modeWords)).forEach((w) => { probe.textContent = w; max = Math.max(max, probe.offsetWidth); });
+    words.forEach((w) => { probe.textContent = w; max = Math.max(max, probe.offsetWidth); });
     rotor.style.minWidth = `${Math.ceil(max)}px`;
   };
   setWidth();
@@ -31,12 +30,6 @@ export function initHeroRotor() {
   const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
   const start = () => { stop(); timer = setInterval(() => show(i + 1), 2600); };
 
-  let resumeOnRelease = false;
-  window.addEventListener("tama:hold", (e) => {
-    if (e.detail) { resumeOnRelease = timer !== null; stop(); }
-    else if (resumeOnRelease) { resumeOnRelease = false; start(); }
-  });
-
   window.addEventListener("tama:brandslide", (e) => {
     stop();
     const k = words.indexOf(e.detail);
@@ -44,9 +37,7 @@ export function initHeroRotor() {
     swap(e.detail);
   });
   window.addEventListener("tama:mode", (e) => {
-    const fixed = modeWords[e.detail];
     if (e.detail === "brand") { stop(); if (i !== 0) show(0); }
-    else if (fixed) { stop(); swap(fixed); }
     else start();
   });
   start();

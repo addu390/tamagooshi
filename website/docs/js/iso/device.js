@@ -330,10 +330,14 @@ const mascotScreen = (ink) => screenChrome(PERSONA_NAME) + `<g transform="transl
 const brandCalls = (label, sub) => (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, label, sub, A, E);
 
 const BRAND_SCREENS = [
-  { word: "Your agent", ai: 1 },
+  {
+    word: "Your agents", caption: "Voice prompts to Muse", bg: SCREEN_BG, screen: () => pixelCells(MIC, SCREEN_INK, 0.74),
+    calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "HOLD TO TALK", "voice prompts", A, E)
+      + agentsCall(A, E),
+  },
   { word: "Your games", caption: "Play in the browser or on the device.", game: true },
   {
-    word: "Your theme",
+    word: "Your themes",
     caption: T("themeCaption", "Themes to match: light or dark"), bg: SCREEN_INK, screen: () => mascotScreen(SCREEN_BG),
     calls: brandCalls(T("themeLabel", "DARK THEME"), T("themeSub", "one of many")),
   },
@@ -345,15 +349,10 @@ const BRAND_SCREENS = [
 ];
 
 const brandScreen = (idx) => BRAND_SCREENS[((idx % BRAND_SCREENS.length) + BRAND_SCREENS.length) % BRAND_SCREENS.length];
-const brandCaption = (idx) => {
-  const s = brandScreen(idx);
-  return s.ai != null ? AI_SCREENS[s.ai].caption : s.caption;
-};
 
 function overlayBrand(A, E, idx, gameFrame) {
   const s = brandScreen(idx);
   if (s.game) return overlayGames(A, E, gameFrame);
-  if (s.ai != null) return overlayAI(A, E, s.ai);
   const fr = faceFrame(TOP.o, TOP.u, TOP.v, A, E);
   const g = `<g transform="${fr}">
     <rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7" fill="${s.bg}"/>
@@ -398,30 +397,6 @@ function overlayGames(A, E, idx) {
   return g + pilot + ctrl + more;
 }
 
-const DENY = "#d16b6b";
-
-const ROBOT_HAPPY = [
-  "...#...#...",
-  "...#...#...",
-  ".#########.",
-  "#.........#",
-  "#.##...##.#",
-  "#.##...##.#",
-  "#.........#",
-  "#.#.....#.#",
-  "#..#####..#",
-  ".#########.",
-  "..#.....#..",
-];
-
-function alertSign() {
-  const cx = SCREEN.x + SCREEN.w / 2, y = SCREEN.y + SCREEN.h * 0.48;
-  return scrText(cx, SCREEN.y + 17, "ALERT", 9.5, SIL, 800, "middle")
-    + `<path d="M ${cx} ${y - 13} l 14 24 h -28 z" fill="none" stroke="${DENY}" stroke-width="2.8" stroke-linejoin="round"/>`
-    + `<path d="M ${cx} ${y - 5} v 8" stroke="${DENY}" stroke-width="2.8" stroke-linecap="round"/>`
-    + `<circle cx="${cx}" cy="${y + 7}" r="1.6" fill="${DENY}"/>`;
-}
-
 const MIC = [
   "....###....",
   "...#####...",
@@ -438,50 +413,6 @@ const MIC = [
 
 const AGENTS = { p: [hx, -hy + 0.9 * D, -hz], rise: -62, run: -16, label: PRESET.agentsLabel || "MUSE" };
 const agentsCall = (A, E) => callout(AGENTS.p, AGENTS.rise, AGENTS.run, AGENTS.label, PRESET.agentsSub || "AI agent", A, E);
-const coworkCalls = (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, T("coworkLabel", "WORKS WITH MUSE"), "reacts live", A, E)
-  + agentsCall(A, E);
-
-function workingDots() {
-  const cx = SCREEN.x + SCREEN.w / 2, y = SCREEN.y + SCREEN.h - 7;
-  return [-1, 0, 1].map((k, i) =>
-    `<circle cx="${(cx + k * 8).toFixed(1)}" cy="${y.toFixed(1)}" r="1.8" style="fill:${ACC}">
-      <animate attributeName="opacity" values="0.15;1;0.15" dur="1.2s" begin="${(i * 0.25).toFixed(2)}s" repeatCount="indefinite"/>
-    </circle>`).join("");
-}
-
-const AI_MASCOT = PRESET.aiMascotArt || ROBOT_HAPPY;
-const AI_SCREENS = [
-  {
-    caption: T("coworkCaption", "Jolly reacts as Muse works"),
-    screen: () => `<g transform="translate(0,-3)">${pixelCells(AI_MASCOT, SCREEN_INK, 0.66)}</g>` + workingDots(),
-    calls: coworkCalls,
-  },
-  {
-    caption: "Voice prompts to Muse",
-    screen: () => pixelCells(MIC, SCREEN_INK, 0.74),
-    calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2), 84, -22, "HOLD TO TALK", "voice prompts", A, E)
-      + agentsCall(A, E),
-  },
-  {
-    caption: "Muse alerts on the device",
-    screen: () => alertSign(),
-    calls: (A, E) => callout(anchorOf("top", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h * 0.48), 84, -22, "ALERTS", "from Muse", A, E)
-      + agentsCall(A, E),
-  },
-];
-
-function overlayAI(A, E, idx) {
-  const s = AI_SCREENS[((idx % AI_SCREENS.length) + AI_SCREENS.length) % AI_SCREENS.length];
-  const fr = faceFrame(TOP.o, TOP.u, TOP.v, A, E);
-  const g = `<g transform="${fr}">
-    <rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7" fill="${SCREEN_BG}"/>
-    <clipPath id="aiClip"><rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7"/></clipPath>
-    <g clip-path="url(#aiClip)">${s.screen()}</g>
-    <rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="7" fill="none" stroke="${SIL}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-  </g>`;
-  return g + s.calls(A, E);
-}
-
 function gridPolys(A, E) {
   const G = 42, N = 7, out = [];
   for (let i = -N; i <= N; i++) {
@@ -611,7 +542,6 @@ function render(yawDeg, pitchDeg, opts) {
   const alpha = opts.annoAlpha == null ? 1 : opts.annoAlpha;
   let overlay = "";
   if (topVisible && opts.highlight === "brand") overlay = overlayBrand(A, E, opts.brandIndex || 0, opts.gamesIndex || 0);
-  else if (topVisible && opts.highlight === "ai") overlay = overlayAI(A, E, opts.aiIndex || 0);
   if (overlay) overlay = `<g opacity="${alpha.toFixed(3)}">${overlay}</g>`;
 
   const vis = { top: topVisible, south: visible.some((f) => f.id === "south") };
@@ -674,7 +604,6 @@ export const theme = { SIL, DET, colors: C, mascotArt: MASCOT_ART, roundedPoly }
 const MODES = {
   device: { yaw: DEFAULT_YAW, pitch: DEFAULT_PITCH, free: true, caption: "Drag to rotate the ESP32 handheld" },
   brand: { yaw: -30, pitch: 34, highlight: "brand", caption: T("brandModeCaption", "Your brand on every surface: logo, name, theme.") },
-  ai: { yaw: -30, pitch: 34, highlight: "ai", caption: PRESET.aiCaption || "Works with Muse." },
 };
 
 const GROUPS = [
@@ -683,7 +612,7 @@ const GROUPS = [
   { group: "io", dims: false, yaw: -42, caption: "3D antenna · LED · IR · mic · USB-C" },
 ];
 
-const SLIDE_YAW = { brand: [-30, -34, -26, -32], ai: [-28, -32, -38] };
+const SLIDE_YAW = { brand: [-30, -34, -26, -32] };
 const slideYaw = (m, i) => { const a = SLIDE_YAW[m]; return a ? a[((i % a.length) + a.length) % a.length] : (MODES[m] ? MODES[m].yaw : DEFAULT_YAW); };
 
 export function initHeroDevice() {
@@ -715,9 +644,8 @@ export function initHeroDevice() {
 
   let mode = "device";
   let yaw = DEFAULT_YAW, pitch = DEFAULT_PITCH;
-  let brandIndex = 0, gamesIndex = 0, aiIndex = 0, slideTimer = null, gameTimer = null, anim = null, drag = null;
-  let groupIndex = 0, annoAlpha = 1, cycleTimer = null, held = false;
-  window.addEventListener("tama:hold", (e) => { held = e.detail; });
+  let brandIndex = 0, gamesIndex = 0, slideTimer = null, gameTimer = null, anim = null, drag = null;
+  let groupIndex = 0, annoAlpha = 1, cycleTimer = null;
   let pressK = 0, pressS = 0, pressAnim = null;
 
   function pressButton(set) {
@@ -737,9 +665,7 @@ export function initHeroDevice() {
     const base = { annoAlpha, ir: true, press: pressK, sidePress: pressS };
     return mode === "device"
       ? { ...base, dims: GROUPS[groupIndex].dims, group: GROUPS[groupIndex].group }
-      : mode === "brand"
-        ? { ...base, dims: false, highlight: "brand", brandIndex, gamesIndex }
-        : { ...base, dims: false, highlight: "ai", aiIndex };
+      : { ...base, dims: false, highlight: "brand", brandIndex, gamesIndex };
   };
   const draw = () => { svg.setAttribute("viewBox", `${VB.x.toFixed(1)} ${VB.y.toFixed(1)} ${VB.w.toFixed(1)} ${VB.h.toFixed(1)}`); svg.innerHTML = render(yaw, pitch, opts()); };
   draw();
@@ -776,16 +702,15 @@ export function initHeroDevice() {
   function startCarousel() {
     if (cycleTimer) clearInterval(cycleTimer);
     cycleTimer = setInterval(() => {
-      if (mode === "device" && !held && !drag && !anim) cycleTo((groupIndex + 1) % GROUPS.length);
+      if (mode === "device" && !drag && !anim) cycleTo((groupIndex + 1) % GROUPS.length);
     }, 3000);
   }
   function stopCarousel() { if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; } }
 
   function slideTo(target) {
     if (anim) cancelAnimationFrame(anim);
-    const list = mode === "ai" ? AI_SCREENS : BRAND_SCREENS;
-    const cur = mode === "ai" ? aiIndex : brandIndex;
-    const next = target == null ? (cur + 1) % list.length : ((target % list.length) + list.length) % list.length;
+    const n = BRAND_SCREENS.length;
+    const next = target == null ? (brandIndex + 1) % n : ((target % n) + n) % n;
     const fromYaw = yaw, toYaw = slideYaw(mode, next), t0 = performance.now(), dur = 560;
     let swapped = false;
     const step = (now) => {
@@ -794,8 +719,9 @@ export function initHeroDevice() {
       annoAlpha = p < 0.5 ? 1 - p / 0.5 : (p - 0.5) / 0.5;
       if (p >= 0.5 && !swapped) {
         swapped = true;
-        if (mode === "ai") { aiIndex = next; setDot(next); if (cap) cap.textContent = AI_SCREENS[next].caption; }
-        else { brandIndex = next; setDot(next); if (cap) cap.textContent = brandCaption(next); window.dispatchEvent(new CustomEvent("tama:brandslide", { detail: brandScreen(next).word })); }
+        brandIndex = next; setDot(next);
+        if (cap) cap.textContent = brandScreen(next).caption;
+        window.dispatchEvent(new CustomEvent("tama:brandslide", { detail: brandScreen(next).word }));
       }
       draw();
       if (p < 1) anim = requestAnimationFrame(step); else { anim = null; annoAlpha = 1; draw(); }
@@ -805,13 +731,12 @@ export function initHeroDevice() {
 
   function slideShow() {
     if (slideTimer) clearInterval(slideTimer);
-    slideTimer = setInterval(() => { if ((mode === "brand" || mode === "ai") && !held && !anim && !drag) slideTo(); }, 3400);
+    slideTimer = setInterval(() => { if (mode === "brand" && !anim && !drag) slideTo(); }, 3400);
   }
 
   function jumpTo(k) {
     if (mode === "device") { if (k !== groupIndex) cycleTo(k); }
     else if (mode === "brand") { if (k !== brandIndex) slideTo(k); }
-    else if (mode === "ai") { if (k !== aiIndex) slideTo(k); }
   }
 
   function setMode(id) {
@@ -827,14 +752,13 @@ export function initHeroDevice() {
     if (id === "brand") {
       brandIndex = 0; buildDots(BRAND_SCREENS.length); setDot(0); slideShow();
       gameTimer = setInterval(() => {
-        if (mode === "brand" && brandScreen(brandIndex).game && !held && !anim && !drag) { gamesIndex++; draw(); }
+        if (mode === "brand" && brandScreen(brandIndex).game && !anim && !drag) { gamesIndex++; draw(); }
       }, 620);
     }
-    if (id === "ai") { aiIndex = 0; buildDots(AI_SCREENS.length); setDot(0); slideShow(); }
-    if (cap) cap.textContent = id === "device" ? GROUPS[0].caption : id === "brand" ? brandCaption(0) : id === "ai" ? AI_SCREENS[0].caption : MODES[id].caption;
+    if (cap) cap.textContent = id === "device" ? GROUPS[0].caption : brandScreen(0).caption;
 
     const m = MODES[id];
-    const startYaw = (id === "brand" || id === "ai") ? slideYaw(id, 0) : m.yaw;
+    const startYaw = id === "brand" ? slideYaw(id, 0) : m.yaw;
     animateTo(startYaw, m.pitch);
     window.dispatchEvent(new CustomEvent("tama:mode", { detail: id }));
   }
